@@ -24,18 +24,15 @@ def magsize(instance):
     mag,nodes=constuct_mag(instance)
     return sum([len(v) for k,v in mag.iteritems()])
 
-
-def test_astar_instance(i,heur=magsize, entry=entry, is_stop=lambda x:False):
-    ins=instance_set[i]
-    path,stats=Astar(ins,heur,entry,is_stop)
+def test_astar_instance(i,astar):
+    ins=instance_set_easy[i]
+    path,stats=astar(ins)
     stats['solution']=len(path)
     stats['quality']=len(path)/float(opt_solution_instances[i])
     stats['instance']=i
-    stats['h']=heur.__name__
-    stats['entry']=entry.__name__
-    stats['is_stop']=is_stop.__name__
     print stats
     show(path,['A* instance:{}'.format(i),''+str(stats)])
+
 
 def instance_distribution(ins,astar,sample_size=100, include_location=False):
     hist=defaultdict(int)
@@ -58,7 +55,7 @@ def test_instance_same():
     d[ins1]=3
     print 'should be 3: {}'.format(d[instance_set[0]])
 
-def test_astar(play=False, heur=magsize, entry=entry, is_stop=lambda x:False):
+def test_astar(play=False, heur=magsize, entry=make_fCalc(), is_stop=lambda x:False):
     for i in range(len(instance_set)):
         path,stats=Astar(instance_set[i],magsize,entry,is_stop)
         stats['solution']=len(path)
@@ -181,8 +178,13 @@ def flip_distribution_raw():
             print ' '.join([str(sample)]+tll)
 
 
+#make_Astar(heur=zeroh,entry=entry,is_stop=lambda x:False, shuffle=False,lapse_rate=0):
+astar_solvers=[make_Astar(heur=zeroh),make_Astar(lapse_rate=.01),make_Astar(lapse_rate=.1),make_Astar(calcF=make_fCalc(0.9,1,1),heur=randh)]
+for astar,inst in product(astar_solvers,instance_set):
+    hist=instance_distribution(inst,astar,sample_size=100,include_location=True)
+    write_distribuition_raw(inst,astar)
 
-
-flip_distribution_raw()
-
-
+#test_astar_instance(2,make_Astar(lapse_rate=.1))
+#for i in range(len(instance_set_easy)):
+#    test_astar_instance(i,make_Astar(calcF=make_fCalc(0.9,1,1),heur=randh))
+#

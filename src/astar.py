@@ -2,7 +2,7 @@ from heapq import heappop, heappush
 from graphics import *
 from copy import deepcopy
 from rushhour import *
-from random import randint
+from random import randint,random
 import numpy as np
 from scipy.stats import rv_discrete
 
@@ -11,7 +11,6 @@ from scipy.stats import rv_discrete
 Suboptimality:
     1) Using inadmissible heuristic - Factor it    (done)
     1) Using inadmissible heuristic - adding Gaussian noise (done)
-    1) Shuffeling F values (done)
     1) ClosedList expiration limitation (works well only with partial search)
     2) Lapses (done, not tested)
     6) Weighting of g+h (done)
@@ -31,8 +30,11 @@ def reconstruct_path(backtrace,n):
     path.append(n)
     return path
 
-def entry(g,h,s):
-    return (g+1+h,g+1,h,s)
+def make_fCalc(gF=1,hF=1,gAddition=1):
+    def tmp_f(g,h,s):
+        return (gF*(g+gAddition)+hF*h,g+gAddition,hF,s)
+    tmp_f.__name__='{}*(g+{})+{}h'.format(gF,gAddition,hF)
+    return tmp_f
 
 def select_state_from_open(openList):
     p=[f for f,g,h,n in openList]
@@ -58,15 +60,22 @@ def heappop_shuffle(openList):
         heappush(openList,ee)
     return e
 
+def zeroh(instance):
+    return 0
 
-def make_Astar(heur=lambda x:0,entry=entry,is_stop=lambda x:False, shuffle=False):
-    def tmp_f(start):
-        return Astar(start,heur,entry,is_stop, shuffle)
-    tmp_f.__name__='A* h:{} entry:{} is_stop:{} shuffle:{}'.format(heur.__name__,entry.__name__,is_stop.__name__,shuffle)
+def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False,lapse_rate=0):
+    if lapse_rate>0:
+        astar=make_Astar(heur,calcF,is_stop,shuffle)
+        def tmp_f(start):
+            return lapsingAstar(start,astar,lapse_rate)
+    else:
+        def tmp_f(start):
+            return Astar(start,heur,calcF,is_stop, shuffle)
+    tmp_f.__name__='A* h:{} f:{} is_stop:{} lapse_rate:{}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate)
     return tmp_f
 
 
-def Astar(start,heur=lambda x:0,entry=entry,is_stop=lambda x:False, shuffle=False):
+def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False):
     stats={'expanded':0,'generated':0,'open_size':0,'close_size':0,'stops':0}
     backtrace={}
     closed = set()
@@ -94,7 +103,8 @@ def Astar(start,heur=lambda x:0,entry=entry,is_stop=lambda x:False, shuffle=Fals
             # if in openlist and needs to be updates, remove push and hepify.
             backtrace[s]=(g+1,n)
             #print 'PUSH '+str(s.__hash__())
-            heappush(openList,entry(g,heur(s),s))
+            hs=heur(s)
+            heappush(openList,calcF(g,hs,s))
         stats['open_size']=len(openList)
         stats['close_size']=len(closed)
         stats['generated']+=len(succs)
@@ -102,7 +112,7 @@ def Astar(start,heur=lambda x:0,entry=entry,is_stop=lambda x:False, shuffle=Fals
         if is_stop(stats):
             #print 'stopping'
             n=select_state_from_open(openList)
-            path_,stats_ = Astar(n,heur,entry,is_stop)
+            path_,stats_ = Astar(n,heur,calcF,is_stop)
             stats['stops']+=1
             stats['generated']+=stats_['generated']
             stats['expanded']+=stats_['expanded']
@@ -110,18 +120,20 @@ def Astar(start,heur=lambda x:0,entry=entry,is_stop=lambda x:False, shuffle=Fals
             return path_,stats
     return 'failure'
 
-def lapsingAstar(start,heur,entry,is_stop=lambda x:False, shuffle=False,lapse_rate=0.01):
-    print 'TEST THIS'
+
+def lapsingAstar(start,astar,lapse_rate=0.5):
     path=[start]
     while 1:
         if is_goal(path[-1]):
-            return path
-        astar_path=Astar(path[-1],heur,entry,is_stop, shuffle)
+            path.reverse()
+            return path,stat
+        astar_path,stat=astar(path[-1])
         astar_path.reverse()
         for i in range(1,len(astar_path)):
             if random()>lapse_rate:
                 path.append(astar_path[i])
             else:
+                print '***lapse on {} step'.format(i)
                 path.append(rand_move(path[-1]))
                 break
 

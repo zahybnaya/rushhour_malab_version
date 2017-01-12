@@ -42,6 +42,17 @@ def unblocking_successors(instance):
             unblocking.append(s)
     return unblocking,others
 
+def rand_move_extended(instance,unblocking=True):
+    #TODO: not going back to the previous state
+    #TODO: If goal is the next step, do it. (TEST_THIS)
+    ub,b=unblocking_successors(instance)
+    if len([is_goal(ns) for ns in ub+b])>0:
+        return ns
+    if unblocking:
+        return choice(ub)
+    return choice(expand(instance))
+
+
 def rand_move(instance,unblocking=True):
     ub,b=unblocking_successors(instance)
     if unblocking:
@@ -423,7 +434,7 @@ def make_instance(lines):
         i+=1
     return RHInstance(h,v,name)
 
-def read_instances(filename='./princeton_AI/code/jams.txt'):
+def read_instances(filename='../princeton_AI/code/jams.txt'):
     """
     read instances according to the format in https://www.cs.princeton.edu/courses/archive/fall11/cos402/assignments/programs/rushhour/
     """
