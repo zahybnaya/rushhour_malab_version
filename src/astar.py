@@ -1,4 +1,4 @@
-from heapq import heappop, heappush
+from heapq import heappop, heappush,heapify
 from graphics import *
 from copy import deepcopy
 from rushhour import *
@@ -19,15 +19,18 @@ Suboptimality:
 Parameters:
 """
 
-def reconstruct_path(backtrace,n):
+
+def reconstruct_path(backtrace,n,plan_correction_level=1):
     """
-    returns a list of states from the goal to the start
+    returns a list of states from start to the goal
     """
     path=[]
     while n in backtrace:
         path.append(n)
         _,n = backtrace[n]
     path.append(n)
+    path.reverse()
+    path=plan_correction(path,plan_correction_level)
     return path
 
 def make_fCalc(gF=1,hF=1,gAddition=1):
@@ -63,19 +66,46 @@ def heappop_shuffle(openList):
 def zeroh(instance):
     return 0
 
-def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False,lapse_rate=0):
+def h_unblocked(instance,level=1):
+    return len(find_constraints(instance.goal_car,instance,instance.goal_loc[0]))
+
+def minimin(instance):
+    pass
+
+def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1):
     if lapse_rate>0:
-        astar=make_Astar(heur,calcF,is_stop,shuffle)
+        astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level)
         def tmp_f(start):
             return lapsingAstar(start,astar,lapse_rate)
     else:
         def tmp_f(start):
-            return Astar(start,heur,calcF,is_stop, shuffle)
+            return Astar(start,heur,calcF,is_stop,  search_lapse,plan_correction_level)
     tmp_f.__name__='A* h:{} f:{} is_stop:{} lapse_rate:{}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate)
     return tmp_f
 
+def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
+    plan=[start]
+    physical_loc=start
+    previous_loc=None
+    potentials=[]
+    while not physical_loc.is_goal():
+        succs = expand(physical_loc)
+        [heappush(potentials,(heur(s),s)) for s in succs if s != previous_loc]
+        previous_loc=physical_loc
+        _,physical_loc=heappop(potentials)
+        draw(physical_loc)
+        next_val,_ = heappop(potentials)
+        potentials=[]
+        heappush(potentials,(next_val+1,previous_loc))
+        plan.append(physical_loc)
+    return plan
 
-def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False):
+
+def perfecth(instance,from_noise=0,to_noise=0):
+    add_noise_val=from_noise + random()* (to_noise-from_noise)
+    return len(Astar(instance)[0])*(1+add_noise_val)
+
+def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1):
     stats={'expanded':0,'generated':0,'open_size':0,'close_size':0,'stops':0}
     backtrace={}
     closed = set()
@@ -83,13 +113,13 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=Fa
     #print 'PUSH '+str(start.__hash__())
     heappush(openList,(heur(start),0,heur(start),start))
     while len(openList)>0:
-        if shuffle:
-            #print 'TEST THIS'
-            f,g,h,n = heappop_shuffle(openList)
-        else:
+        if random() > search_lapse:
             f,g,h,n = heappop(openList)
-            #print 'POP '+str(n.__hash__())
-        if is_goal(n):
+        else:
+            f,g,h,n = openList.pop(randint(0,len(openList)-1))
+            heapify(openList)
+        #print 'POP '+str(n.__hash__())
+        if n.is_goal():
             return reconstruct_path(backtrace,n),stats
         closed.add(n)
         succs = expand(n)
@@ -120,20 +150,33 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=Fa
             return path_,stats
     return 'failure'
 
+def astar_tasks(start,astar):
+    tasks=find_tasks(start)
+    ins = deepcopy(start)
+    ttl_path=[start]
+    for piece,location in tasks:
+        ins.goal_car,ins.goal_loc=start.goal_car,start.goal_loc
+        sane=sane_plan(ins)
+        if sane is not None:
+            ttl_path.extend(sane)
+            break
+        ins.goal_car,ins.goal_loc=piece,location
+        path,stat=astar(ins)
+        ttl_path.extend(path[1:])
+        ins=deepcopy(path[-1])
+    return ttl_path,stat
+
 
 def lapsingAstar(start,astar,lapse_rate=0.5):
     path=[start]
     while 1:
         if is_goal(path[-1]):
-            path.reverse()
             return path,stat
         astar_path,stat=astar(path[-1])
-        astar_path.reverse()
         for i in range(1,len(astar_path)):
             if random()>lapse_rate:
                 path.append(astar_path[i])
             else:
-                print '***lapse on {} step'.format(i)
                 path.append(rand_move(path[-1]))
                 break
 

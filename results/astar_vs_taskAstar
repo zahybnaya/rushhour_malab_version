@@ -1,0 +1,2910 @@
+*,instance, solution, solution_with_tasks, opt_solution
+['c', 'M', 'w', 'b', 'y', 'B', 'l', 'r']
+Subtasks: [('c', [(1, 4, 2)]), ('M', [(5, 3, 3)]), ('w', [(1, 0, 2)]), ('b', [(0, 0, 3)]), ('y', [(0, 3, 2)]), ('B', [(0, 5, 3)]), ('l', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|ww   M|
+1|b  l M|
+2|brrl M|
+3|b  l  |
+4|y   cc|
+5|y BBB |
+ -012345-
+Solving move c to [(1, 4, 2)]
+ _012345_
+0|ww   M|
+1|b  l M|
+2|brrl M|
+3|b  l  |
+4|ycc   |
+5|y BBB |
+ -012345-
+Solving move M to [(5, 3, 3)]
+ _012345_
+0|ww    |
+1|b  l  |
+2|brrl  |
+3|b  l M|
+4|ycc  M|
+5|y BBBM|
+ -012345-
+Solving move w to [(1, 0, 2)]
+ _012345_
+0| ww   |
+1|b  l  |
+2|brrl  |
+3|b  l M|
+4|ycc  M|
+5|y BBBM|
+ -012345-
+Solving move b to [(0, 0, 3)]
+ _012345_
+0|bww   |
+1|b  l  |
+2|brrl  |
+3|   l M|
+4|ycc  M|
+5|y BBBM|
+ -012345-
+Solving move y to [(0, 3, 2)]
+ _012345_
+0|bww   |
+1|b  l  |
+2|brrl  |
+3|y  l M|
+4|ycc  M|
+5|  BBBM|
+ -012345-
+Solving move B to [(0, 5, 3)]
+ _012345_
+0|bww   |
+1|b  l  |
+2|brrl  |
+3|y  l M|
+4|ycc  M|
+5|BBB  M|
+ -012345-
+Solving move l to [(3, 3, 3)]
+*,0, 9, 9, 8
+['c', 'y', 'g', 'o', 'w', 'B', 'm', 'M', 'r']
+Subtasks: [('c', [(3, 3, 2)]), ('y', [(0, 0, 3)]), ('g', [(1, 4, 2)]), ('o', [(5, 3, 3)]), ('w', [(0, 3, 3)]), ('B', [(2, 1, 2)]), ('m', [(3, 5, 2)]), ('M', [(4, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|b  yyy|
+1|b  c o|
+2|rr cMo|
+3|www Mo|
+4|  B gg|
+5|llBmm |
+ -012345-
+Solving move c to [(3, 3, 2)]
+ _012345_
+0|b  yyy|
+1|b    o|
+2|rr  Mo|
+3|wwwcMo|
+4|  Bcgg|
+5|llBmm |
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyy   |
+1|b    o|
+2|brr Mo|
+3|wwwcMo|
+4|  Bcgg|
+5|llBmm |
+ -012345-
+Solving move g to [(1, 4, 2)]
+ _012345_
+0|yyycMo|
+1|b BcMo|
+2|b Brro|
+3|   www|
+4| gg   |
+5|ll mm |
+ -012345-
+Solving move o to [(5, 3, 3)]
+*,1, 9, 15, 8
+['y', 'b', 'l', 'B', 'w', 'r']
+Subtasks: [('y', [(5, 3, 3)]), ('b', [(0, 3, 2)]), ('l', [(1, 1, 2)]), ('B', [(0, 5, 2)]), ('w', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|      |
+1|      |
+2| rrw  |
+3| bbw y|
+4| l w y|
+5| lBB y|
+ -012345-
+Solving move y to [(5, 3, 3)]
+ _012345_
+0|      |
+1|      |
+2| rrw  |
+3| bbw y|
+4| l w y|
+5| lBB y|
+ -012345-
+Solving move b to [(0, 3, 2)]
+ _012345_
+0|      |
+1|      |
+2| rrw  |
+3|bb w y|
+4| l w y|
+5| lBB y|
+ -012345-
+Solving move l to [(1, 1, 2)]
+ _012345_
+0|     y|
+1| l   y|
+2| l rry|
+3|   wbb|
+4|   w  |
+5|   wBB|
+ -012345-
+Solving move B to [(0, 5, 2)]
+ _012345_
+0| l w y|
+1| l w y|
+2|rr w y|
+3|    bb|
+4|      |
+5|BB    |
+ -012345-
+Solving move w to [(3, 3, 3)]
+ _012345_
+0| l   y|
+1| l   y|
+2|rr   y|
+3|   wbb|
+4|   w  |
+5|BB w  |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,2, 15, 19, 14
+['c', 'b', 'w', 'y', 'l', 'r']
+Subtasks: [('c', [(0, 5, 3)]), ('b', [(2, 1, 2)]), ('w', [(0, 3, 3)]), ('y', [(3, 3, 3)]), ('l', [(0, 0, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|l  y  |
+1|l  y  |
+2|lrry  |
+3|  bwww|
+4|  b  B|
+5|  cccB|
+ -012345-
+Solving move c to [(0, 5, 3)]
+ _012345_
+0|l  y  |
+1|l  y  |
+2|lrry  |
+3|  bwww|
+4|  b  B|
+5|ccc  B|
+ -012345-
+Solving move b to [(2, 1, 2)]
+ _012345_
+0|   y  |
+1|  by  |
+2|rrby  |
+3|l  www|
+4|l    B|
+5|l cccB|
+ -012345-
+Solving move w to [(0, 3, 3)]
+ _012345_
+0|l by  |
+1|l by  |
+2|lrry  |
+3|www   |
+4|     B|
+5|  cccB|
+ -012345-
+Solving move y to [(3, 3, 3)]
+*,3, 10, 13, 9
+['b', 'o', 'M', 'y', 'l', 'g', 'm', 'w', 'r']
+Subtasks: [('b', [(3, 0, 2)]), ('o', [(0, 0, 3)]), ('M', [(0, 3, 3)]), ('y', [(3, 3, 3)]), ('l', [(1, 5, 2)]), ('g', [(1, 4, 2)]), ('m', [(5, 3, 2)]), ('w', [(4, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bb y c|
+1|o  ywc|
+2|orrywm|
+3|oMMMwm|
+4|B   gg|
+5|B   ll|
+ -012345-
+Solving move b to [(3, 0, 2)]
+ _012345_
+0|o  bbc|
+1|o   wc|
+2|orr wm|
+3|MMMywm|
+4|B  ygg|
+5|B  yll|
+ -012345-
+Solving move o to [(0, 0, 3)]
+ _012345_
+0|o  bbc|
+1|o   wc|
+2|orr wm|
+3|MMMywm|
+4|B  ygg|
+5|B  yll|
+ -012345-
+Solving move M to [(0, 3, 3)]
+ _012345_
+0|o  bbc|
+1|o   wc|
+2|orr wm|
+3|MMMywm|
+4|B  ygg|
+5|B  yll|
+ -012345-
+Solving move y to [(3, 3, 3)]
+ _012345_
+0|o  bbc|
+1|o   wc|
+2|orr wm|
+3|MMMywm|
+4|B  ygg|
+5|B  yll|
+ -012345-
+Solving move l to [(1, 5, 2)]
+ _012345_
+0|o  bbc|
+1|o  ywc|
+2|orrywm|
+3|MMMywm|
+4|B   gg|
+5|Bll   |
+ -012345-
+Solving move g to [(1, 4, 2)]
+ _012345_
+0|o  bbc|
+1|o  ywc|
+2|orrywm|
+3|MMMywm|
+4|Bgg   |
+5|Bll   |
+ -012345-
+Solving move m to [(5, 3, 2)]
+ _012345_
+0|o  bbc|
+1|o  ywc|
+2|orryw |
+3|MMMywm|
+4|Bgg  m|
+5|Bll   |
+ -012345-
+Solving move w to [(4, 3, 3)]
+ _012345_
+0|o  bbc|
+1|o  y c|
+2|orry  |
+3|MMMywm|
+4|Bgg wm|
+5|Bll w |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,4, 10, 13, 9
+['m', 'y', 'o', 'w', 'r']
+Subtasks: [('m', [(0, 5, 3)]), ('y', [(4, 3, 3)]), ('o', [(5, 3, 3)]), ('w', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bb c  |
+1|MM cyo|
+2| rrwyo|
+3|BBgwyo|
+4|l gw  |
+5|l  mmm|
+ -012345-
+Solving move m to [(0, 5, 3)]
+ _012345_
+0|bb c  |
+1|MMgcyo|
+2|rrgwyo|
+3|lBBwyo|
+4|l  w  |
+5|mmm   |
+ -012345-
+Solving move y to [(4, 3, 3)]
+ _012345_
+0|bb c  |
+1|MMgc o|
+2|rrgw o|
+3|lBBwyo|
+4|l  wy |
+5|mmm y |
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|bb c  |
+1|MMgc  |
+2|rrgw  |
+3|lBBwyo|
+4|l  wyo|
+5|mmm yo|
+ -012345-
+Solving move w to [(3, 3, 3)]
+ _012345_
+0|bb c  |
+1|MMgc  |
+2|rrg   |
+3|lBBwyo|
+4|l  wyo|
+5|mmmwyo|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,5, 10, 11, 9
+['c', 'l', 'B', 'b', 'y', 'M', 'r']
+Subtasks: [('c', [(4, 4, 2)]), ('l', [(5, 3, 2)]), ('B', [(5, 0, 2)]), ('b', [(1, 4, 2)]), ('y', [(1, 0, 2)]), ('M', [(3, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0| byycB|
+1| b McB|
+2| rrM l|
+3|  gg l|
+4|   w  |
+5|   w  |
+ -012345-
+Solving move c to [(4, 4, 2)]
+ _012345_
+0| byy B|
+1| b M B|
+2| rrM l|
+3|  gg l|
+4|   wc |
+5|   wc |
+ -012345-
+Solving move l to [(5, 3, 2)]
+ _012345_
+0| byy B|
+1| b M B|
+2| rrM  |
+3|  gg l|
+4|   wcl|
+5|   wc |
+ -012345-
+Solving move B to [(5, 0, 2)]
+ _012345_
+0| byy B|
+1| b M B|
+2| rrM  |
+3|  gg l|
+4|   wcl|
+5|   wc |
+ -012345-
+Solving move b to [(1, 4, 2)]
+ _012345_
+0|   Myy|
+1|   M B|
+2|   rrB|
+3|  gg l|
+4| b wcl|
+5| b wc |
+ -012345-
+Solving move y to [(1, 0, 2)]
+ _012345_
+0| yy   |
+1|   M B|
+2|rr M B|
+3|  gg l|
+4| b wcl|
+5| b wc |
+ -012345-
+Solving move M to [(3, 0, 2)]
+ _012345_
+0| yyM  |
+1|   M B|
+2|rr   B|
+3|  gg l|
+4| b wcl|
+5| b wc |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,6, 14, 14, 13
+['c', 'B', 'b', 't', 'w', 'o', 'g', 'm', 'y', 'M', 'r']
+Subtasks: [('c', [(0, 1, 2)]), ('B', [(2, 0, 2)]), ('b', [(0, 0, 2)]), ('t', [(2, 2, 2)]), ('w', [(2, 5, 3)]), ('o', [(2, 4, 3)]), ('g', [(3, 0, 2)]), ('m', [(3, 3, 2)]), ('y', [(5, 3, 3)]), ('M', [(4, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|   bby|
+1|  ccMy|
+2|rrBgMy|
+3|llBgmm|
+4|pptooo|
+5|nntwww|
+ -012345-
+Solving move c to [(0, 1, 2)]
+ _012345_
+0|   bby|
+1|cc  My|
+2|rrBgMy|
+3|llBgmm|
+4|pptooo|
+5|nntwww|
+ -012345-
+Solving move B to [(2, 0, 2)]
+ _012345_
+0|  Bbby|
+1|ccB My|
+2|rr gMy|
+3|ll gmm|
+4|pptooo|
+5|nntwww|
+ -012345-
+Solving move b to [(0, 0, 2)]
+ _012345_
+0|bb   y|
+1|ccB My|
+2|rrBgMy|
+3|ll gmm|
+4|pptooo|
+5|nntwww|
+ -012345-
+Solving move t to [(2, 2, 2)]
+ _012345_
+0|bbB  y|
+1|ccB My|
+2|rrtgMy|
+3|lltgmm|
+4|pp ooo|
+5|nn www|
+ -012345-
+Solving move w to [(2, 5, 3)]
+ _012345_
+0|bbB  y|
+1|ccB My|
+2|rrtgMy|
+3|lltgmm|
+4|pp ooo|
+5|nnwww |
+ -012345-
+Solving move o to [(2, 4, 3)]
+ _012345_
+0|bbB  y|
+1|ccB My|
+2|rrtgMy|
+3|lltgmm|
+4|ppooo |
+5|nnwww |
+ -012345-
+Solving move g to [(3, 0, 2)]
+ _012345_
+0|bbBg y|
+1|ccBgMy|
+2|rrt My|
+3|llt mm|
+4|ppooo |
+5|nnwww |
+ -012345-
+Solving move m to [(3, 3, 2)]
+ _012345_
+0|bbBg y|
+1|ccBgMy|
+2|rrt My|
+3|lltmm |
+4|ppooo |
+5|nnwww |
+ -012345-
+Solving move y to [(5, 3, 3)]
+ _012345_
+0|bbBg  |
+1|ccBgM |
+2|rrt M |
+3|lltmmy|
+4|ppoooy|
+5|nnwwwy|
+ -012345-
+Solving move M to [(4, 0, 2)]
+ _012345_
+0|bbBgM |
+1|ccBgM |
+2|rrt   |
+3|lltmmy|
+4|ppoooy|
+5|nnwwwy|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,7, 13, 21, 12
+['y', 'M', 'g', 'l', 'o', 'w', 'b', 'c', 'B', 'r']
+Subtasks: [('y', [(4, 3, 3)]), ('M', [(3, 0, 2)]), ('g', [(1, 1, 2)]), ('l', [(5, 0, 2)]), ('o', [(0, 0, 3)]), ('w', [(0, 3, 3)]), ('b', [(1, 4, 2)]), ('c', [(1, 0, 2)]), ('B', [(3, 4, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0| bccMM|
+1| b Bgg|
+2|rr Byl|
+3|owwwyl|
+4|o m yp|
+5|o m  p|
+ -012345-
+Solving move y to [(4, 3, 3)]
+ _012345_
+0| bccMM|
+1| b Bgg|
+2|rr B l|
+3|owwwyl|
+4|o m yp|
+5|o m yp|
+ -012345-
+Solving move M to [(3, 0, 2)]
+ _012345_
+0|occMM |
+1|ob  gg|
+2|ob rrl|
+3|wwwByl|
+4|  mByp|
+5|  m yp|
+ -012345-
+Solving move g to [(1, 1, 2)]
+ _012345_
+0|ccMMy |
+1|ogg y |
+2|obrryl|
+3|obwwwl|
+4|  mB p|
+5|  mB p|
+ -012345-
+Solving move l to [(5, 0, 2)]
+ _012345_
+0|ccMMyl|
+1|ogg yl|
+2|obrry |
+3|obwww |
+4|  mB p|
+5|  mB p|
+ -012345-
+Solving move o to [(0, 0, 3)]
+*,8, 13, 29, 12
+['c', 'B', 'b', 'o', 'w', 'g', 'p', 'M', 'l', 'y', 'r']
+Subtasks: [('c', [(2, 1, 2)]), ('B', [(0, 1, 2)]), ('b', [(0, 0, 2)]), ('o', [(0, 2, 3)]), ('w', [(2, 3, 3)]), ('g', [(3, 0, 2)]), ('p', [(2, 5, 2)]), ('M', [(4, 0, 2)]), ('l', [(1, 4, 2)]), ('y', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbc MM|
+1|BBc  y|
+2|orr  y|
+3|owww y|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move c to [(2, 1, 2)]
+ _012345_
+0|bb  MM|
+1|BBc  y|
+2|o crry|
+3|owww y|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move B to [(0, 1, 2)]
+ _012345_
+0|bb  MM|
+1|BBc  y|
+2|o crry|
+3|owww y|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move b to [(0, 0, 2)]
+ _012345_
+0|bb  MM|
+1|BBc  y|
+2|o crry|
+3|owww y|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move o to [(0, 2, 3)]
+ _012345_
+0|bb  MM|
+1|BBc  y|
+2|o crry|
+3|owww y|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move w to [(2, 3, 3)]
+ _012345_
+0|bb  MM|
+1|BBc  y|
+2|o crry|
+3|o wwwy|
+4|o  gll|
+5|mm gpp|
+ -012345-
+Solving move g to [(3, 0, 2)]
+ _012345_
+0|obbgMM|
+1|oBBg y|
+2|orr  y|
+3|www  y|
+4|  c ll|
+5|mmc pp|
+ -012345-
+Solving move p to [(2, 5, 2)]
+ _012345_
+0|obbMMy|
+1|oBBg y|
+2|orrg y|
+3|  cwww|
+4|  c ll|
+5|mmpp  |
+ -012345-
+Solving move M to [(4, 0, 2)]
+ _012345_
+0|obb MM|
+1|oBBg y|
+2|orrg y|
+3| www y|
+4|  c ll|
+5|mmcpp |
+ -012345-
+Solving move l to [(1, 4, 2)]
+ _012345_
+0| bbMMy|
+1| BBg y|
+2|rrcg y|
+3|o cwww|
+4|oll   |
+5|ommpp |
+ -012345-
+Solving move y to [(5, 3, 3)]
+ _012345_
+0| bbMM |
+1|BBcg  |
+2|rrcg  |
+3|owww y|
+4|oll  y|
+5|ommppy|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,9, 18, 45, 17
+['B', 'l', 'b', 'y', 'w', 'M', 'r']
+Subtasks: [('B', [(0, 0, 3)]), ('l', [(0, 5, 3)]), ('b', [(3, 0, 2)]), ('y', [(2, 1, 2)]), ('w', [(0, 3, 3)]), ('M', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|BbbM  |
+1|B  M  |
+2|BrrM  |
+3|  ywww|
+4|  y  c|
+5|  lllc|
+ -012345-
+Solving move B to [(0, 0, 3)]
+ _012345_
+0|BbbM  |
+1|B  M  |
+2|BrrM  |
+3|  ywww|
+4|  y  c|
+5|  lllc|
+ -012345-
+Solving move l to [(0, 5, 3)]
+ _012345_
+0|BbbM  |
+1|B  M  |
+2|BrrM  |
+3|  ywww|
+4|  y  c|
+5|lll  c|
+ -012345-
+Solving move b to [(3, 0, 2)]
+ _012345_
+0|B  bb |
+1|B  M c|
+2|BrrM c|
+3|wwwM  |
+4|  y   |
+5|  ylll|
+ -012345-
+Solving move y to [(2, 1, 2)]
+ _012345_
+0| bbM  |
+1|  yM c|
+2|rryM c|
+3|B  www|
+4|B     |
+5|B  lll|
+ -012345-
+Solving move w to [(0, 3, 3)]
+ _012345_
+0|BbbM  |
+1|B  M c|
+2|BrrM c|
+3|www   |
+4|  y   |
+5|  ylll|
+ -012345-
+Solving move M to [(3, 3, 3)]
+ _012345_
+0|B y bb|
+1|B y  c|
+2|Brr  c|
+3|wwwM  |
+4|   M  |
+5|lllM  |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,10, 26, 40, 25
+['y', 'c', 'l', 'M', 'w', 'B', 'r']
+Subtasks: [('y', [(3, 0, 2)]), ('c', [(4, 4, 2)]), ('l', [(1, 5, 3)]), ('M', [(2, 0, 3)]), ('w', [(2, 3, 3)]), ('B', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|byy  B|
+1|b M  B|
+2|rrM  B|
+3|  Mwww|
+4|    c |
+5|lll c |
+ -012345-
+Solving move y to [(3, 0, 2)]
+ _012345_
+0|b  yyB|
+1|b M  B|
+2|rrM  B|
+3|  Mwww|
+4|    c |
+5|lll c |
+ -012345-
+Solving move c to [(4, 4, 2)]
+ _012345_
+0|b  yyB|
+1|b M  B|
+2|rrM  B|
+3|  Mwww|
+4|    c |
+5|lll c |
+ -012345-
+Solving move l to [(1, 5, 3)]
+ _012345_
+0|b  yyB|
+1|b M  B|
+2|rrM  B|
+3|  Mwww|
+4|    c |
+5| lllc |
+ -012345-
+Solving move M to [(2, 0, 3)]
+ _012345_
+0|b MyyB|
+1|b M  B|
+2|rrM  B|
+3|   www|
+4|    c |
+5| lllc |
+ -012345-
+Solving move w to [(2, 3, 3)]
+ _012345_
+0|b MyyB|
+1|b M  B|
+2|rrM  B|
+3|  www |
+4|    c |
+5| lllc |
+ -012345-
+Solving move B to [(5, 3, 3)]
+ _012345_
+0|b Myy |
+1|b M   |
+2|rrM   |
+3|  wwwB|
+4|    cB|
+5| lllcB|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,11, 18, 22, 17
+['o', 'p', 'g', 'l', 'w', 'M', 'c', 'm', 't', 'y', 'B', 'r']
+Subtasks: [('o', [(0, 2, 3)]), ('p', [(0, 5, 2)]), ('g', [(1, 1, 2)]), ('l', [(3, 3, 2)]), ('w', [(1, 4, 2)]), ('M', [(4, 4, 2)]), ('c', [(4, 0, 2)]), ('m', [(3, 0, 2)]), ('t', [(2, 5, 2)]), ('y', [(5, 3, 3)]), ('B', [(2, 1, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbccM |
+1|  B My|
+2| gBrry|
+3|og lly|
+4|o  mww|
+5|oppmtt|
+ -012345-
+Solving move o to [(0, 2, 3)]
+ _012345_
+0|bbccM |
+1|  B My|
+2|ogBrry|
+3|og lly|
+4|o  mww|
+5| ppmtt|
+ -012345-
+Solving move p to [(0, 5, 2)]
+ _012345_
+0|bbccM |
+1|  B My|
+2|ogBrry|
+3|og lly|
+4|o  mww|
+5|pp mtt|
+ -012345-
+Solving move g to [(1, 1, 2)]
+ _012345_
+0|bbccM |
+1| gB My|
+2|ogBrry|
+3|o  lly|
+4|o  mww|
+5|pp mtt|
+ -012345-
+Solving move l to [(3, 3, 2)]
+ _012345_
+0|bbccM |
+1| gB My|
+2|ogBrry|
+3|o  lly|
+4|o  mww|
+5|pp mtt|
+ -012345-
+Solving move w to [(1, 4, 2)]
+ _012345_
+0| gbbcc|
+1| gB My|
+2|rrBmMy|
+3|ollm y|
+4|oww   |
+5|opp tt|
+ -012345-
+Solving move M to [(4, 4, 2)]
+ _012345_
+0|bbBccy|
+1|o Bm y|
+2|orrm y|
+3|ogll  |
+4| gwwM |
+5|ppttM |
+ -012345-
+Solving move c to [(4, 0, 2)]
+ _012345_
+0|bbB cc|
+1|o Bm y|
+2|orrm y|
+3|ogll y|
+4| gwwM |
+5|ppttM |
+ -012345-
+Solving move m to [(3, 0, 2)]
+ _012345_
+0|bbBmcc|
+1|o Bm y|
+2|orr  y|
+3|ogll y|
+4| gwwM |
+5|ppttM |
+ -012345-
+Solving move t to [(2, 5, 2)]
+ _012345_
+0|bbBmcc|
+1|o Bm y|
+2|orr  y|
+3|ogll y|
+4| gwwM |
+5|ppttM |
+ -012345-
+Solving move y to [(5, 3, 3)]
+*,12, 17, 42, 16
+['M', 'w', 'm', 'l', 'r']
+Subtasks: [('M', [(4, 1, 2)]), ('w', [(0, 4, 2)]), ('m', [(5, 3, 2)]), ('l', [(4, 3, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbc   |
+1|  c MM|
+2|Bgrrlm|
+3|Bgpplm|
+4|  o ww|
+5|yyo   |
+ -012345-
+Solving move M to [(4, 1, 2)]
+ _012345_
+0|bbc   |
+1|  c MM|
+2|Bgrrlm|
+3|Bgpplm|
+4|  o ww|
+5|yyo   |
+ -012345-
+Solving move w to [(0, 4, 2)]
+ _012345_
+0|Bgcbb |
+1|Bgc MM|
+2|rro lm|
+3|ppo lm|
+4|ww    |
+5|yy    |
+ -012345-
+Solving move m to [(5, 3, 2)]
+ _012345_
+0|Bgcbb |
+1|Bgc MM|
+2|rro l |
+3|ppo lm|
+4|ww   m|
+5|yy    |
+ -012345-
+Solving move l to [(4, 3, 2)]
+ _012345_
+0|Bgcbb |
+1|Bgc MM|
+2|rro   |
+3|ppo lm|
+4|ww  lm|
+5|yy    |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,13, 18, 18, 17
+['b', 'o', 'B', 'M', 'n', 't', 'p', 'g', 'w', 'c', 'l', 'm', 'y', 'r']
+Subtasks: [('b', [(1, 0, 2)]), ('o', [(5, 3, 3)]), ('B', [(4, 1, 2)]), ('M', [(2, 1, 2)]), ('n', [(2, 5, 2)]), ('t', [(0, 5, 2)]), ('p', [(1, 1, 3)]), ('g', [(2, 2, 2)]), ('w', [(0, 2, 3)]), ('c', [(4, 0, 2)]), ('l', [(3, 3, 2)]), ('m', [(1, 4, 2)]), ('y', [(4, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0| bbcc |
+1|MMBByo|
+2|wprryo|
+3|wpglyo|
+4|wpglmm|
+5| ttnn |
+ -012345-
+Solving move b to [(1, 0, 2)]
+ _012345_
+0| bbcc |
+1|MMBByo|
+2|wprryo|
+3|wpglyo|
+4|wpglmm|
+5| ttnn |
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|bbglcc|
+1|MMglBB|
+2| prry |
+3|wp  yo|
+4|wpmmyo|
+5|wttnno|
+ -012345-
+Solving move B to [(4, 1, 2)]
+ _012345_
+0|bbglcc|
+1|MMglBB|
+2| prry |
+3|wp  yo|
+4|wpmmyo|
+5|wttnno|
+ -012345-
+Solving move M to [(2, 1, 2)]
+ _012345_
+0|bb  cc|
+1|  MMBB|
+2|rrglyo|
+3|wpglyo|
+4|wpmmyo|
+5|wpttnn|
+ -012345-
+Solving move n to [(2, 5, 2)]
+ _012345_
+0|bbglcc|
+1|MMglBB|
+2|wprryo|
+3|wp  yo|
+4|wpmmyo|
+5|ttnn  |
+ -012345-
+Solving move t to [(0, 5, 2)]
+ _012345_
+0|bbglcc|
+1|MMglBB|
+2|wprryo|
+3|wp  yo|
+4|wpmmyo|
+5|ttnn  |
+ -012345-
+Solving move p to [(1, 1, 3)]
+*,14, 24, 45, 23
+['l', 'M', 'c', 'B', 'g', 'o', 'w', 'y', 'r']
+Subtasks: [('l', [(1, 1, 2)]), ('M', [(4, 3, 2)]), ('c', [(4, 0, 2)]), ('B', [(0, 2, 2)]), ('g', [(4, 1, 2)]), ('o', [(2, 0, 3)]), ('w', [(1, 3, 3)]), ('y', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbccMy|
+1|B ggMy|
+2|Blorry|
+3| lowww|
+4|  o   |
+5|mm    |
+ -012345-
+Solving move l to [(1, 1, 2)]
+ _012345_
+0|bbccMy|
+1|BlggMy|
+2|Blorry|
+3|  owww|
+4|  o   |
+5|mm    |
+ -012345-
+Solving move M to [(4, 3, 2)]
+ _012345_
+0|bboccy|
+1|ggo  y|
+2|rro  y|
+3| wwwM |
+4|Bl  M |
+5|Bl mm |
+ -012345-
+Solving move c to [(4, 0, 2)]
+ _012345_
+0|bbo cc|
+1|ggo   |
+2|rro  y|
+3| wwwMy|
+4|Bl  My|
+5|Bl mm |
+ -012345-
+Solving move B to [(0, 2, 2)]
+ _012345_
+0|bb ccy|
+1|gg  My|
+2|B rrMy|
+3|B owww|
+4| lo   |
+5| lomm |
+ -012345-
+Solving move g to [(4, 1, 2)]
+ _012345_
+0|bbocc |
+1|  o gg|
+2|rro  y|
+3| www y|
+4|Bl  My|
+5|BlmmM |
+ -012345-
+Solving move o to [(2, 0, 3)]
+ _012345_
+0|bbocc |
+1|  o gg|
+2|rro  y|
+3| www y|
+4|Bl  My|
+5|BlmmM |
+ -012345-
+Solving move w to [(1, 3, 3)]
+ _012345_
+0|bbocc |
+1|  o gg|
+2|rro  y|
+3| www y|
+4|Bl  My|
+5|BlmmM |
+ -012345-
+Solving move y to [(5, 3, 3)]
+ _012345_
+0|bbocc |
+1|  o gg|
+2|rro   |
+3| www y|
+4|Bl  My|
+5|BlmmMy|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,15, 22, 48, 21
+['y', 'm', 'l', 'o', 'p', 'w', 'g', 'b', 'c', 'B', 'r']
+Subtasks: [('y', [(1, 0, 3)]), ('m', [(5, 3, 2)]), ('l', [(4, 3, 2)]), ('o', [(3, 3, 3)]), ('p', [(0, 5, 3)]), ('w', [(0, 4, 3)]), ('g', [(0, 3, 2)]), ('b', [(0, 0, 2)]), ('c', [(1, 1, 2)]), ('B', [(2, 2, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBo  |
+4|wwwolm|
+5|pppolm|
+ -012345-
+Solving move y to [(1, 0, 3)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBo  |
+4|wwwolm|
+5|pppolm|
+ -012345-
+Solving move m to [(5, 3, 2)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBo m|
+4|wwwolm|
+5|pppol |
+ -012345-
+Solving move l to [(4, 3, 2)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move o to [(3, 3, 3)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move p to [(0, 5, 3)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move w to [(0, 4, 3)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move g to [(0, 3, 2)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move b to [(0, 0, 2)]
+ _012345_
+0|byyy  |
+1|b ccMM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move c to [(1, 1, 2)]
+ _012345_
+0|byyy  |
+1|bcc MM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move B to [(2, 2, 2)]
+ _012345_
+0|byyy  |
+1|bcc MM|
+2|rrB   |
+3|ggBolm|
+4|wwwolm|
+5|pppo  |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,16, 25, 27, 24
+['B', 'l', 'c', 'b', 'M', 'g', 'w', 'y', 'r']
+Subtasks: [('B', [(4, 4, 2)]), ('l', [(0, 5, 3)]), ('c', [(2, 0, 2)]), ('b', [(4, 0, 2)]), ('M', [(3, 1, 2)]), ('g', [(0, 0, 3)]), ('w', [(0, 3, 3)]), ('y', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbcy  |
+1|MMcy  |
+2|grry  |
+3|gwww  |
+4|gBB   |
+5|lll   |
+ -012345-
+Solving move B to [(4, 4, 2)]
+ _012345_
+0|bbcy  |
+1|MMcy  |
+2|grry  |
+3|gwww  |
+4|g   BB|
+5|lll   |
+ -012345-
+Solving move l to [(0, 5, 3)]
+ _012345_
+0|bbcy  |
+1|MMcy  |
+2|grry  |
+3|gwww  |
+4|g   BB|
+5|lll   |
+ -012345-
+Solving move c to [(2, 0, 2)]
+ _012345_
+0|bbcy  |
+1|MMcy  |
+2|grry  |
+3|gwww  |
+4|g   BB|
+5|lll   |
+ -012345-
+Solving move b to [(4, 0, 2)]
+ _012345_
+0|g   bb|
+1|gMM   |
+2|grry  |
+3|wwwy  |
+4|  cyBB|
+5|  clll|
+ -012345-
+Solving move M to [(3, 1, 2)]
+ _012345_
+0|g   bb|
+1|g  MM |
+2|grry  |
+3|wwwy  |
+4|  cyBB|
+5|  clll|
+ -012345-
+Solving move g to [(0, 0, 3)]
+ _012345_
+0|g   bb|
+1|g  MM |
+2|grry  |
+3|wwwy  |
+4|  cyBB|
+5|  clll|
+ -012345-
+Solving move w to [(0, 3, 3)]
+ _012345_
+0|g   bb|
+1|g  MM |
+2|grry  |
+3|wwwy  |
+4|  cyBB|
+5|  clll|
+ -012345-
+Solving move y to [(3, 3, 3)]
+*,17, 26, 27, 25
+['w', 'B', 'l', 'M', 'b', 'y', 'c', 'r']
+Subtasks: [('w', [(4, 4, 2)]), ('B', [(0, 4, 3)]), ('l', [(1, 1, 2)]), ('M', [(1, 3, 2)]), ('b', [(2, 1, 2)]), ('y', [(1, 0, 2)]), ('c', [(4, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|  byy |
+1|  b c |
+2| lrrc |
+3| lMMw |
+4| BBBw |
+5|      |
+ -012345-
+Solving move w to [(4, 4, 2)]
+ _012345_
+0|  byy |
+1|  b c |
+2| lrrc |
+3| lMM  |
+4| BBBw |
+5|    w |
+ -012345-
+Solving move B to [(0, 4, 3)]
+ _012345_
+0|  byy |
+1|  b c |
+2| lrrc |
+3| lMM  |
+4|BBB w |
+5|    w |
+ -012345-
+Solving move l to [(1, 1, 2)]
+ _012345_
+0|  byy |
+1| lb c |
+2| lrrc |
+3|  MM  |
+4|BBB w |
+5|    w |
+ -012345-
+Solving move M to [(1, 3, 2)]
+ _012345_
+0|  byy |
+1| lb c |
+2| lrrc |
+3| MM   |
+4|BBB w |
+5|    w |
+ -012345-
+Solving move b to [(2, 1, 2)]
+ _012345_
+0| l yy |
+1| lb c |
+2|rrb c |
+3| MM   |
+4|BBB w |
+5|    w |
+ -012345-
+Solving move y to [(1, 0, 2)]
+ _012345_
+0| yy c |
+1| l  c |
+2| lrrw |
+3|MMb w |
+4|  bBBB|
+5|      |
+ -012345-
+Solving move c to [(4, 0, 2)]
+ _012345_
+0| yy c |
+1| l  c |
+2| lrrw |
+3|MMb w |
+4|  bBBB|
+5|      |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,18, 23, 30, 22
+['b', 'y', 'l', 'M', 'c', 'B', 'g', 'w', 'm', 'r']
+Subtasks: [('b', [(0, 2, 2)]), ('y', [(0, 0, 3)]), ('l', [(0, 4, 2)]), ('M', [(3, 0, 2)]), ('c', [(0, 1, 2)]), ('B', [(2, 1, 2)]), ('g', [(2, 3, 2)]), ('w', [(2, 5, 3)]), ('m', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|b  yyy|
+1|bccM  |
+2|rrBM m|
+3|  B  m|
+4|  gllm|
+5|  gwww|
+ -012345-
+Solving move b to [(0, 2, 2)]
+ _012345_
+0|  Byyy|
+1|  Bcc |
+2|brrM m|
+3|b  M m|
+4|  gllm|
+5|  gwww|
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyy   |
+1|  Bcc |
+2|rrBM m|
+3|   M m|
+4|b gllm|
+5|b gwww|
+ -012345-
+Solving move l to [(0, 4, 2)]
+ _012345_
+0|b Byyy|
+1|b Bcc |
+2|rrgM m|
+3|  gM m|
+4|ll   m|
+5|   www|
+ -012345-
+Solving move M to [(3, 0, 2)]
+ _012345_
+0|yyyM  |
+1|  BMcc|
+2|rrB  m|
+3|  g  m|
+4|b gllm|
+5|b  www|
+ -012345-
+Solving move c to [(0, 1, 2)]
+ _012345_
+0|yyy   |
+1|cc    |
+2|rrBM m|
+3|  BM m|
+4|b gllm|
+5|b gwww|
+ -012345-
+Solving move B to [(2, 1, 2)]
+ _012345_
+0|yyy   |
+1|ccB   |
+2|rrBM m|
+3|   M m|
+4|b gllm|
+5|b gwww|
+ -012345-
+Solving move g to [(2, 3, 2)]
+ _012345_
+0|yyy   |
+1|ccB   |
+2|rrBM m|
+3|  gM m|
+4|b gllm|
+5|b  www|
+ -012345-
+Solving move w to [(2, 5, 3)]
+ _012345_
+0|yyy   |
+1|ccB   |
+2|rrBM m|
+3|  gM m|
+4|b gllm|
+5|b www |
+ -012345-
+Solving move m to [(5, 3, 3)]
+ _012345_
+0|yyy   |
+1|ccB   |
+2|rrBM  |
+3|  gM m|
+4|b gllm|
+5|b wwwm|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,19, 11, 51, 10
+['w', 'y', 'l', 'B', 'b', 'c', 'r']
+Subtasks: [('w', [(0, 3, 3)]), ('y', [(2, 1, 2)]), ('l', [(0, 5, 3)]), ('B', [(3, 3, 3)]), ('b', [(1, 0, 2)]), ('c', [(0, 0, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbyB  |
+1|c yB  |
+2|crrB  |
+3|cwww  |
+4|      |
+5|   lll|
+ -012345-
+Solving move w to [(0, 3, 3)]
+ _012345_
+0|cbbB  |
+1|c  B  |
+2|crrB  |
+3|www   |
+4|  y   |
+5|  ylll|
+ -012345-
+Solving move y to [(2, 1, 2)]
+ _012345_
+0| bbB  |
+1|  yB  |
+2|rryB  |
+3|c  www|
+4|c     |
+5|c  lll|
+ -012345-
+Solving move l to [(0, 5, 3)]
+ _012345_
+0| bbB  |
+1|   B  |
+2|crrB  |
+3|c ywww|
+4|c y   |
+5|lll   |
+ -012345-
+Solving move B to [(3, 3, 3)]
+*,20, 22, 34, 21
+['c', 'M', 'l', 'w', 'B', 'g', 'p', 'm', 'b', 'y', 'o', 'r']
+Subtasks: [('c', [(0, 0, 2)]), ('M', [(3, 1, 2)]), ('l', [(0, 3, 2)]), ('w', [(0, 5, 3)]), ('B', [(1, 1, 2)]), ('g', [(1, 3, 2)]), ('p', [(5, 3, 2)]), ('m', [(1, 4, 2)]), ('b', [(2, 1, 2)]), ('y', [(3, 0, 3)]), ('o', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|  byyy|
+1|c boMM|
+2|crro  |
+3| B ogg|
+4|lBmm p|
+5|lwww p|
+ -012345-
+Solving move c to [(0, 0, 2)]
+ _012345_
+0|c byyy|
+1|c boMM|
+2| rro  |
+3| B ogg|
+4|lBmm p|
+5|lwww p|
+ -012345-
+Solving move M to [(3, 1, 2)]
+ _012345_
+0|yyy   |
+1|c  MM |
+2|crro p|
+3| ggo p|
+4|lBbomm|
+5|lBbwww|
+ -012345-
+Solving move l to [(0, 3, 2)]
+ _012345_
+0|yyy   |
+1|c  MM |
+2|crro p|
+3|lggo p|
+4|lBbomm|
+5| Bbwww|
+ -012345-
+Solving move w to [(0, 5, 3)]
+ _012345_
+0|yyyo  |
+1|c  oMM|
+2|crro p|
+3|lBbggp|
+4|lBb mm|
+5|www   |
+ -012345-
+Solving move B to [(1, 1, 2)]
+*,21, 27, 42, 26
+['y', 'w', 'M', 'b', 'c', 'B', 'l', 'g', 'm', 'r']
+Subtasks: [('y', [(0, 0, 3)]), ('w', [(1, 5, 3)]), ('M', [(2, 3, 2)]), ('b', [(2, 1, 2)]), ('c', [(4, 1, 2)]), ('B', [(3, 0, 2)]), ('l', [(0, 4, 2)]), ('g', [(0, 3, 2)]), ('m', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|  yyym|
+1|  bccm|
+2|  brrm|
+3|  MBgg|
+4|  MBll|
+5|  www |
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyy  m|
+1|  bccm|
+2|  brrm|
+3|  MBgg|
+4|  MBll|
+5|  www |
+ -012345-
+Solving move w to [(1, 5, 3)]
+ _012345_
+0|yyy  m|
+1|  bccm|
+2|  brrm|
+3|  MBgg|
+4|  MBll|
+5| www  |
+ -012345-
+Solving move M to [(2, 3, 2)]
+ _012345_
+0|yyy  m|
+1|  bccm|
+2|  brrm|
+3|  MBgg|
+4|  MBll|
+5| www  |
+ -012345-
+Solving move b to [(2, 1, 2)]
+ _012345_
+0|yyy  m|
+1|  bccm|
+2|  brrm|
+3|  MBgg|
+4|  MBll|
+5| www  |
+ -012345-
+Solving move c to [(4, 1, 2)]
+ _012345_
+0|yyy   |
+1|    cc|
+2|rrbB m|
+3|ggbB m|
+4|  Mllm|
+5|  Mwww|
+ -012345-
+Solving move B to [(3, 0, 2)]
+ _012345_
+0|yyyB  |
+1|   Bcc|
+2|rrb  m|
+3|ggb  m|
+4|  Mllm|
+5|  Mwww|
+ -012345-
+Solving move l to [(0, 4, 2)]
+ _012345_
+0|  byyy|
+1|  bBcc|
+2|rrMB m|
+3|ggM  m|
+4|ll   m|
+5|   www|
+ -012345-
+Solving move g to [(0, 3, 2)]
+ _012345_
+0|  byyy|
+1|  bBcc|
+2|rrMB m|
+3|ggM  m|
+4|ll   m|
+5|   www|
+ -012345-
+Solving move m to [(5, 3, 3)]
+ _012345_
+0|  byyy|
+1|  bBcc|
+2|rrMB  |
+3|ggM  m|
+4|ll   m|
+5| www m|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,22, 30, 38, 29
+['B', 'M', 'm', 'y', 'l', 'b', 'c', 'g', 'r']
+Subtasks: [('B', [(0, 1, 2)]), ('M', [(1, 1, 2)]), ('m', [(4, 4, 2)]), ('y', [(1, 4, 3)]), ('l', [(1, 3, 2)]), ('b', [(2, 1, 2)]), ('c', [(0, 0, 2)]), ('g', [(4, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|  bcc |
+1| Mb   |
+2|BMrrg |
+3|Bll g |
+4|yyy m |
+5|ww  m |
+ -012345-
+Solving move B to [(0, 1, 2)]
+ _012345_
+0|  bcc |
+1|BMb   |
+2|BMrrg |
+3| ll g |
+4|yyy m |
+5|ww  m |
+ -012345-
+Solving move M to [(1, 1, 2)]
+ _012345_
+0|  bcc |
+1|BMb   |
+2|BMrrg |
+3| ll g |
+4|yyy m |
+5|ww  m |
+ -012345-
+Solving move m to [(4, 4, 2)]
+ _012345_
+0|  bcc |
+1|BMb   |
+2|BMrrg |
+3| ll g |
+4|yyy m |
+5|ww  m |
+ -012345-
+Solving move y to [(1, 4, 3)]
+ _012345_
+0|  bcc |
+1|BMb   |
+2|BMrrg |
+3| ll g |
+4| yyym |
+5|ww  m |
+ -012345-
+Solving move l to [(1, 3, 2)]
+ _012345_
+0|  bcc |
+1|BMb   |
+2|BMrrg |
+3| ll g |
+4| yyym |
+5|ww  m |
+ -012345-
+Solving move b to [(2, 1, 2)]
+ _012345_
+0|BM cc |
+1|BMb   |
+2|rrb g |
+3| ll g |
+4| yyym |
+5|ww  m |
+ -012345-
+Solving move c to [(0, 0, 2)]
+ _012345_
+0|cc  g |
+1|BM  g |
+2|BMrrm |
+3|ll  m |
+4|  byyy|
+5|wwb   |
+ -012345-
+Solving move g to [(4, 0, 2)]
+ _012345_
+0|cc  g |
+1|BM  g |
+2|BMrrm |
+3|ll  m |
+4|  byyy|
+5|wwb   |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,23, 26, 32, 25
+['c', 'B', 'b', 'o', 'g', 'w', 'm', 'l', 'p', 'M', 't', 'y', 'r']
+Subtasks: [('c', [(2, 0, 2)]), ('B', [(4, 1, 2)]), ('b', [(0, 0, 2)]), ('o', [(0, 3, 3)]), ('g', [(4, 4, 2)]), ('w', [(2, 3, 3)]), ('m', [(3, 4, 2)]), ('l', [(1, 1, 2)]), ('p', [(1, 4, 2)]), ('M', [(3, 0, 2)]), ('t', [(1, 5, 2)]), ('y', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbc MM|
+1|BBc  y|
+2|orr gy|
+3|owwwgy|
+4|ol mpp|
+5| l mtt|
+ -012345-
+Solving move c to [(2, 0, 2)]
+ _012345_
+0|bbc MM|
+1|BBc  y|
+2|orr gy|
+3|owwwgy|
+4|ol mpp|
+5| l mtt|
+ -012345-
+Solving move B to [(4, 1, 2)]
+ _012345_
+0|obbMM |
+1|o   BB|
+2|orrmgy|
+3|wwwmgy|
+4| lcppy|
+5| lc tt|
+ -012345-
+Solving move b to [(0, 0, 2)]
+ _012345_
+0|bb MM |
+1|   mBB|
+2|orrmgy|
+3|owwwgy|
+4|olcppy|
+5| lc tt|
+ -012345-
+Solving move o to [(0, 3, 3)]
+ _012345_
+0|bb MM |
+1|   mBB|
+2| rrmgy|
+3|owwwgy|
+4|olcppy|
+5|olc tt|
+ -012345-
+Solving move g to [(4, 4, 2)]
+ _012345_
+0| bbMMy|
+1|BBcm y|
+2|rrcm y|
+3|owww  |
+4|olppg |
+5|olttg |
+ -012345-
+Solving move w to [(2, 3, 3)]
+ _012345_
+0| bbMMy|
+1|BBcm y|
+2|rrcm y|
+3|o www |
+4|olppg |
+5|olttg |
+ -012345-
+Solving move m to [(3, 4, 2)]
+ _012345_
+0|obbMMy|
+1|oBB gy|
+2|orr gy|
+3|www   |
+4| lcmpp|
+5| lcmtt|
+ -012345-
+Solving move l to [(1, 1, 2)]
+ _012345_
+0|obbMMy|
+1|olBBgy|
+2|olrrgy|
+3|   www|
+4|  cmpp|
+5|  cmtt|
+ -012345-
+Solving move p to [(1, 4, 2)]
+ _012345_
+0|bbcmMM|
+1|BBcmgy|
+2| lrrgy|
+3|olwwwy|
+4|opp   |
+5|o   tt|
+ -012345-
+Solving move M to [(3, 0, 2)]
+ _012345_
+0|bbcMM |
+1|BBcmgy|
+2| rrmgy|
+3|o wwwy|
+4|ol  pp|
+5|ol  tt|
+ -012345-
+Solving move t to [(1, 5, 2)]
+ _012345_
+0|bbcMM |
+1|BBcmgy|
+2| rrmgy|
+3|olwwwy|
+4|ol  pp|
+5|ott   |
+ -012345-
+Solving move y to [(5, 3, 3)]
+ _012345_
+0|bbcMM |
+1|BBcmg |
+2| rrmg |
+3|olwwwy|
+4|ol ppy|
+5|ott  y|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,24, 28, 91, 27
+['y', 'B', 'm', 'g', 'o', 'l', 'w', 'p', 'c', 'M', 'r']
+Subtasks: [('y', [(2, 0, 3)]), ('B', [(5, 0, 2)]), ('m', [(5, 3, 2)]), ('g', [(0, 3, 2)]), ('o', [(1, 3, 3)]), ('l', [(2, 1, 2)]), ('w', [(0, 5, 2)]), ('p', [(4, 3, 3)]), ('c', [(0, 0, 2)]), ('M', [(3, 4, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0| b yyy|
+1|cb Mp |
+2|crrMpB|
+3|gooopB|
+4|g l  m|
+5|  lwwm|
+ -012345-
+Solving move y to [(2, 0, 3)]
+ _012345_
+0| byyy |
+1|cb Mp |
+2|crrMpB|
+3|gooopB|
+4|g l  m|
+5|  lwwm|
+ -012345-
+Solving move B to [(5, 0, 2)]
+ _012345_
+0| byyyB|
+1|cb MpB|
+2|crrMp |
+3|gooop |
+4|g l  m|
+5|  lwwm|
+ -012345-
+Solving move m to [(5, 3, 2)]
+ _012345_
+0| byyyB|
+1|cb MpB|
+2|crrMp |
+3|gooopm|
+4|g l  m|
+5|  lww |
+ -012345-
+Solving move g to [(0, 3, 2)]
+ _012345_
+0| byyyB|
+1|cb MpB|
+2|crrMp |
+3|gooopm|
+4|g l  m|
+5|  lww |
+ -012345-
+Solving move o to [(1, 3, 3)]
+ _012345_
+0| byyyB|
+1|cb MpB|
+2|crrMp |
+3|gooopm|
+4|g l  m|
+5|  lww |
+ -012345-
+Solving move l to [(2, 1, 2)]
+ _012345_
+0|cyyypB|
+1|c lMpB|
+2|rrlMp |
+3|   ooo|
+4|gb   m|
+5|gb wwm|
+ -012345-
+Solving move w to [(0, 5, 2)]
+ _012345_
+0|cyyypB|
+1|c lMpB|
+2|rrlMp |
+3|gb ooo|
+4|gb   m|
+5|ww   m|
+ -012345-
+Solving move p to [(4, 3, 3)]
+ _012345_
+0|cyyy B|
+1|c lM B|
+2|rrlM  |
+3|gooop |
+4|gb  pm|
+5| bwwpm|
+ -012345-
+Solving move c to [(0, 0, 2)]
+ _012345_
+0|cyyy B|
+1|c lM B|
+2|rrlM  |
+3|gooop |
+4|gb  pm|
+5| bwwpm|
+ -012345-
+Solving move M to [(3, 4, 2)]
+ _012345_
+0|cyyy B|
+1|c l pB|
+2|rrl pm|
+3|ooo pm|
+4|gb M  |
+5|gb Mww|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,25, 29, 47, 28
+['b', 'c', 'M', 'B', 'l', 'w', 'm', 'g', 'y', 'r']
+Subtasks: [('b', [(0, 1, 2)]), ('c', [(0, 0, 2)]), ('M', [(3, 1, 2)]), ('B', [(2, 0, 2)]), ('l', [(2, 2, 2)]), ('w', [(0, 5, 3)]), ('m', [(5, 3, 3)]), ('g', [(0, 3, 2)]), ('y', [(3, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bccy  |
+1|bMMy  |
+2|rrBy m|
+3|  Bggm|
+4|  l  m|
+5|  lwww|
+ -012345-
+Solving move b to [(0, 1, 2)]
+ _012345_
+0|  Bccm|
+1|b BMMm|
+2|brry m|
+3|   ygg|
+4|  ly  |
+5|  lwww|
+ -012345-
+Solving move c to [(0, 0, 2)]
+ _012345_
+0|cc   m|
+1|   MMm|
+2|rrBy m|
+3|  Bygg|
+4|b ly  |
+5|b lwww|
+ -012345-
+Solving move M to [(3, 1, 2)]
+ _012345_
+0|cc   m|
+1|   MMm|
+2|rrBy m|
+3|  Bygg|
+4|b ly  |
+5|b lwww|
+ -012345-
+Solving move B to [(2, 0, 2)]
+ _012345_
+0|ccB  m|
+1|  BMMm|
+2|rr y m|
+3|   ygg|
+4|b ly  |
+5|b lwww|
+ -012345-
+Solving move l to [(2, 2, 2)]
+ _012345_
+0|ccB  m|
+1|  BMMm|
+2|rrly m|
+3|  lygg|
+4|b  y  |
+5|b  www|
+ -012345-
+Solving move w to [(0, 5, 3)]
+ _012345_
+0|ccB  m|
+1|  BMMm|
+2|rrly m|
+3|b lygg|
+4|b  y  |
+5|www   |
+ -012345-
+Solving move m to [(5, 3, 3)]
+ _012345_
+0|ccBy  |
+1|MMBy  |
+2|rrly  |
+3|b lggm|
+4|b    m|
+5|  wwwm|
+ -012345-
+Solving move g to [(0, 3, 2)]
+ _012345_
+0|ccBy  |
+1|MMBy m|
+2|rr y m|
+3|gg   m|
+4|b l   |
+5|b lwww|
+ -012345-
+Solving move y to [(3, 3, 3)]
+ _012345_
+0|ccB  m|
+1|MMB  m|
+2|rrl  m|
+3|b lygg|
+4|b  y  |
+5|wwwy  |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,26, 29, 56, 28
+['m', 'c', 'p', 'l', 'B', 'M', 'w', 'g', 'b', 'y', 'o', 'r']
+Subtasks: [('m', [(3, 5, 2)]), ('c', [(4, 1, 2)]), ('p', [(5, 3, 3)]), ('l', [(1, 5, 2)]), ('B', [(1, 2, 2)]), ('M', [(0, 3, 2)]), ('w', [(1, 4, 3)]), ('g', [(3, 3, 2)]), ('b', [(3, 0, 2)]), ('y', [(0, 0, 3)]), ('o', [(2, 1, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|yyyb  |
+1|  obcc|
+2|rro   |
+3|MBoggp|
+4|MBwwwp|
+5|llmm p|
+ -012345-
+Solving move m to [(3, 5, 2)]
+ _012345_
+0|yyyb  |
+1|  obcc|
+2|rro   |
+3|MBoggp|
+4|MBwwwp|
+5|ll mmp|
+ -012345-
+Solving move c to [(4, 1, 2)]
+ _012345_
+0|yyyb  |
+1|  obcc|
+2|rro   |
+3|MBoggp|
+4|MBwwwp|
+5|ll mmp|
+ -012345-
+Solving move p to [(5, 3, 3)]
+ _012345_
+0|yyyb  |
+1|  obcc|
+2|rro   |
+3|MBoggp|
+4|MBwwwp|
+5|ll mmp|
+ -012345-
+Solving move l to [(1, 5, 2)]
+ _012345_
+0|yyyb  |
+1|  obcc|
+2|rro   |
+3|MBoggp|
+4|MBwwwp|
+5| llmmp|
+ -012345-
+Solving move B to [(1, 2, 2)]
+ _012345_
+0|yyyb  |
+1|cc b p|
+2| Brr p|
+3|MBoggp|
+4|M owww|
+5|llo mm|
+ -012345-
+Solving move M to [(0, 3, 2)]
+ _012345_
+0|yyyb  |
+1|cc b p|
+2| Brr p|
+3|MBoggp|
+4|M owww|
+5|llo mm|
+ -012345-
+Solving move w to [(1, 4, 3)]
+ _012345_
+0|yyyb  |
+1|ccob p|
+2| Borrp|
+3|MBoggp|
+4|Mwww  |
+5|ll  mm|
+ -012345-
+Solving move g to [(3, 3, 2)]
+ _012345_
+0|yyyb  |
+1|ccob p|
+2| Borrp|
+3|MBoggp|
+4|Mwww  |
+5|ll  mm|
+ -012345-
+Solving move b to [(3, 0, 2)]
+ _012345_
+0|yyyb  |
+1|ccob p|
+2| Borrp|
+3|MBoggp|
+4|Mwww  |
+5|ll  mm|
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyyb  |
+1|ccob p|
+2| Borrp|
+3|MBoggp|
+4|Mwww  |
+5|ll  mm|
+ -012345-
+Solving move o to [(2, 1, 3)]
+ _012345_
+0|yyyb  |
+1|ccob p|
+2| Borrp|
+3|MBoggp|
+4|Mwww  |
+5|ll  mm|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,27, 31, 35, 30
+['c', 'y', 'p', 'g', 'm', 'w', 'M', 'B', 'l', 'b', 'o', 'r']
+Subtasks: [('c', [(5, 0, 2)]), ('y', [(0, 0, 3)]), ('p', [(5, 4, 2)]), ('g', [(2, 3, 2)]), ('m', [(3, 0, 2)]), ('w', [(0, 5, 3)]), ('M', [(0, 1, 2)]), ('B', [(0, 3, 2)]), ('l', [(1, 4, 2)]), ('b', [(2, 1, 2)]), ('o', [(4, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|yyy o |
+1|  b o |
+2|rrb oc|
+3|MBBggc|
+4|Mllm p|
+5|wwwm p|
+ -012345-
+Solving move c to [(5, 0, 2)]
+ _012345_
+0|yyy oc|
+1|  b oc|
+2|rrb o |
+3|MBBgg |
+4|Mllm p|
+5|wwwm p|
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyy oc|
+1|  b oc|
+2|rrb o |
+3|MBBgg |
+4|Mllm p|
+5|wwwm p|
+ -012345-
+Solving move p to [(5, 4, 2)]
+ _012345_
+0|yyy oc|
+1|  b oc|
+2|rrb o |
+3|MBBgg |
+4|Mllm p|
+5|wwwm p|
+ -012345-
+Solving move g to [(2, 3, 2)]
+ _012345_
+0|yyy oc|
+1|  bmoc|
+2|rrbmo |
+3|BBgg  |
+4|Mll  p|
+5|Mwww p|
+ -012345-
+Solving move m to [(3, 0, 2)]
+ _012345_
+0|yyymoc|
+1|  bmoc|
+2|rrb o |
+3|BBgg  |
+4|Mll  p|
+5|Mwww p|
+ -012345-
+Solving move w to [(0, 5, 3)]
+ _012345_
+0|yyymoc|
+1|  bmoc|
+2|rrb o |
+3|M BBgg|
+4|Mll  p|
+5|www  p|
+ -012345-
+Solving move M to [(0, 1, 2)]
+ _012345_
+0|yyymoc|
+1|M  moc|
+2|Mrr op|
+3| BBggp|
+4|  bll |
+5|  bwww|
+ -012345-
+Solving move B to [(0, 3, 2)]
+ _012345_
+0|yyymoc|
+1|M  moc|
+2|Mrr op|
+3|BB ggp|
+4|  bll |
+5|  bwww|
+ -012345-
+Solving move l to [(1, 4, 2)]
+ _012345_
+0|yyymoc|
+1|  bmoc|
+2|rrb op|
+3|BB ggp|
+4|Mll   |
+5|M  www|
+ -012345-
+Solving move b to [(2, 1, 2)]
+ _012345_
+0|yyymoc|
+1|  bmoc|
+2|rrb op|
+3|BB ggp|
+4|Mll   |
+5|M  www|
+ -012345-
+Solving move o to [(4, 3, 3)]
+ _012345_
+0|yyym c|
+1|  bm c|
+2|rrb  p|
+3|BBggop|
+4|Mll o |
+5|Mwwwo |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,28, 32, 62, 31
+['w', 'B', 'M', 'l', 'g', 'y', 'b', 'm', 'c', 'r']
+Subtasks: [('w', [(5, 3, 3)]), ('B', [(3, 3, 2)]), ('M', [(1, 3, 2)]), ('l', [(3, 5, 2)]), ('g', [(0, 5, 2)]), ('y', [(0, 1, 3)]), ('b', [(2, 4, 2)]), ('m', [(0, 0, 3)]), ('c', [(3, 0, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3|MMBB w|
+4|     w|
+5|ggll w|
+ -012345-
+Solving move w to [(5, 3, 3)]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3|MMBB w|
+4|     w|
+5|ggll w|
+ -012345-
+Solving move B to [(3, 3, 2)]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3|MM BBw|
+4|     w|
+5|ggll w|
+ -012345-
+Solving move M to [(1, 3, 2)]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3| MMBBw|
+4|     w|
+5|ggll w|
+ -012345-
+Solving move l to [(3, 5, 2)]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3| MMBBw|
+4|     w|
+5|gg llw|
+ -012345-
+Solving move g to [(0, 5, 2)]
+ _012345_
+0|y bmmm|
+1|y bc  |
+2|yrrc  |
+3| MMBBw|
+4|     w|
+5|gg llw|
+ -012345-
+Solving move y to [(0, 1, 3)]
+ _012345_
+0|  bmmm|
+1|y bc  |
+2|yrrc  |
+3|yMMBBw|
+4|     w|
+5|gg llw|
+ -012345-
+Solving move b to [(2, 4, 2)]
+ _012345_
+0|y  mmm|
+1|y    w|
+2|y  rrw|
+3|MM BBw|
+4|  bc  |
+5|ggbcll|
+ -012345-
+Solving move m to [(0, 0, 3)]
+ _012345_
+0|mmm   |
+1|y    w|
+2|y  rrw|
+3|yMMBBw|
+4|  bc  |
+5|ggbcll|
+ -012345-
+Solving move c to [(3, 0, 2)]
+ _012345_
+0|mmmc w|
+1|y  c w|
+2|yrr  w|
+3|yMM BB|
+4|  b   |
+5|ggb ll|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,29, 33, 34, 32
+['y', 'w', 'm', 'b', 'M', 'o', 'l', 'B', 'g', 'c', 'r']
+Subtasks: [('y', [(3, 0, 3)]), ('w', [(2, 0, 3)]), ('m', [(1, 5, 3)]), ('b', [(0, 0, 2)]), ('M', [(3, 1, 2)]), ('o', [(5, 3, 3)]), ('l', [(1, 4, 2)]), ('B', [(0, 3, 2)]), ('g', [(1, 3, 2)]), ('c', [(3, 3, 2)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bb yyy|
+1|   cMM|
+2|Brrc o|
+3|B wggo|
+4|llw  o|
+5|  wmmm|
+ -012345-
+Solving move y to [(3, 0, 3)]
+ _012345_
+0|bb yyy|
+1|   cMM|
+2|Brrc o|
+3|B wggo|
+4|llw  o|
+5|  wmmm|
+ -012345-
+Solving move w to [(2, 0, 3)]
+ _012345_
+0|bbwyyy|
+1|  wcMM|
+2|rrwc o|
+3|B  ggo|
+4|B  llo|
+5|   mmm|
+ -012345-
+Solving move m to [(1, 5, 3)]
+ _012345_
+0|bbwyyy|
+1|  wcMM|
+2|rrwc o|
+3|B  ggo|
+4|B  llo|
+5| mmm  |
+ -012345-
+Solving move b to [(0, 0, 2)]
+ _012345_
+0|bbwyyy|
+1|  wcMM|
+2|rrwc o|
+3|B  ggo|
+4|B  llo|
+5| mmm  |
+ -012345-
+Solving move M to [(3, 1, 2)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrwc o|
+3|Bggc o|
+4|B  llo|
+5| mmm  |
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrwc  |
+3|Bggc o|
+4|B  llo|
+5| mmm o|
+ -012345-
+Solving move l to [(1, 4, 2)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrwc  |
+3|Bggc o|
+4|Bll  o|
+5| mmm o|
+ -012345-
+Solving move B to [(0, 3, 2)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrwc  |
+3|Bggc o|
+4|Bll  o|
+5| mmm o|
+ -012345-
+Solving move g to [(1, 3, 2)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrwc  |
+3|Bggc o|
+4|Bll  o|
+5| mmm o|
+ -012345-
+Solving move c to [(3, 3, 2)]
+ _012345_
+0|bbwyyy|
+1|  wMM |
+2|rrw   |
+3|Bggc o|
+4|Bllc o|
+5| mmm o|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,30, 38, 46, 37
+['c', 'b', 'w', 'B', 'g', 'y', 'r']
+Subtasks: [('c', [(3, 0, 2)]), ('b', [(1, 0, 2)]), ('w', [(1, 5, 2)]), ('B', [(0, 4, 2)]), ('g', [(0, 3, 2)]), ('y', [(2, 1, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbycMM|
+1|  yc  |
+2|rry   |
+3|Bggllo|
+4|B  m o|
+5|ww m o|
+ -012345-
+Solving move c to [(3, 0, 2)]
+ _012345_
+0|bbycMM|
+1|  yc  |
+2|rry   |
+3|Bggllo|
+4|B  m o|
+5|ww m o|
+ -012345-
+Solving move b to [(1, 0, 2)]
+ _012345_
+0| bbcMM|
+1|  yc  |
+2|rry   |
+3|ggyllo|
+4|B  m o|
+5|Bwwm o|
+ -012345-
+Solving move w to [(1, 5, 2)]
+ _012345_
+0| bbcMM|
+1|  yc  |
+2|rry   |
+3|ggyllo|
+4|B  m o|
+5|Bwwm o|
+ -012345-
+Solving move B to [(0, 4, 2)]
+ _012345_
+0| bbcMM|
+1|  yc  |
+2|rry   |
+3|ggyllo|
+4|B  m o|
+5|Bwwm o|
+ -012345-
+Solving move g to [(0, 3, 2)]
+ _012345_
+0| bbcMM|
+1|  yc  |
+2|rry   |
+3|ggyllo|
+4|B  m o|
+5|Bwwm o|
+ -012345-
+Solving move y to [(2, 1, 3)]
+ _012345_
+0| bbcMM|
+1|  yc  |
+2|rry   |
+3|ggyllo|
+4|B  m o|
+5|Bwwm o|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,31, 38, 42, 37
+['o', 'g', 'm', 'l', 'b', 'c', 'M', 'w', 'p', 'B', 'y', 'r']
+Subtasks: [('o', [(5, 3, 3)]), ('g', [(3, 3, 2)]), ('m', [(3, 4, 2)]), ('l', [(0, 4, 2)]), ('b', [(1, 1, 2)]), ('c', [(1, 0, 2)]), ('M', [(4, 0, 2)]), ('w', [(0, 5, 3)]), ('p', [(0, 1, 2)]), ('B', [(0, 3, 2)]), ('y', [(2, 2, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0| by cc|
+1| by   |
+2|rry   |
+3|pBBggo|
+4|pllmMo|
+5|wwwmMo|
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0| by cc|
+1| by   |
+2|rry   |
+3|pBBggo|
+4|pllmMo|
+5|wwwmMo|
+ -012345-
+Solving move g to [(3, 3, 2)]
+ _012345_
+0| by cc|
+1| by   |
+2|rry   |
+3|pBBggo|
+4|pllmMo|
+5|wwwmMo|
+ -012345-
+Solving move m to [(3, 4, 2)]
+ _012345_
+0| by cc|
+1| by   |
+2|rry   |
+3|pBBggo|
+4|pllmMo|
+5|wwwmMo|
+ -012345-
+Solving move l to [(0, 4, 2)]
+ _012345_
+0|pbccMo|
+1|pbymMo|
+2|rrym o|
+3|BBy gg|
+4|ll    |
+5|   www|
+ -012345-
+Solving move b to [(1, 1, 2)]
+ _012345_
+0|p ccMo|
+1|pb  Mo|
+2| b rro|
+3|BBymgg|
+4|llym  |
+5|  ywww|
+ -012345-
+Solving move c to [(1, 0, 2)]
+ _012345_
+0|pcc Mo|
+1|pb  Mo|
+2| b rro|
+3|BBymgg|
+4|llym  |
+5|  ywww|
+ -012345-
+Solving move M to [(4, 0, 2)]
+ _012345_
+0|pcc Mo|
+1|pb  Mo|
+2| b rro|
+3|BBymgg|
+4|llym  |
+5|  ywww|
+ -012345-
+Solving move w to [(0, 5, 3)]
+ _012345_
+0|pcc Mo|
+1|pb  Mo|
+2| byrro|
+3|BBymgg|
+4|llym  |
+5|www   |
+ -012345-
+Solving move p to [(0, 1, 2)]
+ _012345_
+0| cc Mo|
+1|pb  Mo|
+2|pbyrro|
+3|BBymgg|
+4|llym  |
+5|www   |
+ -012345-
+Solving move B to [(0, 3, 2)]
+ _012345_
+0| cc Mo|
+1|pb  Mo|
+2|pbyrro|
+3|BBymgg|
+4|llym  |
+5|www   |
+ -012345-
+Solving move y to [(2, 2, 3)]
+ _012345_
+0| cc Mo|
+1|pb  Mo|
+2|pbyrro|
+3|BBymgg|
+4|llym  |
+5|www   |
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,32, 41, 44, 40
+['y', 'c', 'M', 'm', 'B', 'w', 'g', 'l', 'o', 'r']
+Subtasks: [('y', [(0, 0, 3)]), ('c', [(3, 0, 2)]), ('M', [(4, 0, 2)]), ('m', [(2, 5, 2)]), ('B', [(3, 3, 2)]), ('w', [(0, 3, 3)]), ('g', [(2, 1, 2)]), ('l', [(0, 4, 2)]), ('o', [(5, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|b  yyy|
+1|b  c o|
+2|rr cMo|
+3|wwwBMo|
+4|  gBll|
+5|ppgmm |
+ -012345-
+Solving move y to [(0, 0, 3)]
+ _012345_
+0|yyy   |
+1|b  c o|
+2|brrcMo|
+3|wwwBMo|
+4|  gBll|
+5|ppgmm |
+ -012345-
+Solving move c to [(3, 0, 2)]
+ _012345_
+0|yyyc  |
+1|b  c o|
+2|brr Mo|
+3|wwwBMo|
+4|  gBll|
+5|ppgmm |
+ -012345-
+Solving move M to [(4, 0, 2)]
+ _012345_
+0|yyycM |
+1|b  cMo|
+2|brr  o|
+3|wwwB o|
+4|  gBll|
+5|ppgmm |
+ -012345-
+Solving move m to [(2, 5, 2)]
+ _012345_
+0|yyycMo|
+1|b gcMo|
+2|b grro|
+3|wwwB  |
+4|   Bll|
+5|ppmm  |
+ -012345-
+Solving move B to [(3, 3, 2)]
+ _012345_
+0|yyycMo|
+1|b gcMo|
+2|b grro|
+3|wwwB  |
+4|   Bll|
+5|ppmm  |
+ -012345-
+Solving move w to [(0, 3, 3)]
+ _012345_
+0|yyycMo|
+1|b gcMo|
+2|b grro|
+3|wwwB  |
+4|   Bll|
+5|ppmm  |
+ -012345-
+Solving move g to [(2, 1, 2)]
+ _012345_
+0|yyycMo|
+1|b gcMo|
+2|b grro|
+3|wwwB  |
+4|   Bll|
+5|ppmm  |
+ -012345-
+Solving move l to [(0, 4, 2)]
+ _012345_
+0|b gyyy|
+1|b gc o|
+2| rrcMo|
+3| wwwMo|
+4|ll B  |
+5| ppBmm|
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|b gyyy|
+1|b gc  |
+2| rrcM |
+3|wwwBMo|
+4|ll B o|
+5| ppmmo|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,33, 44, 59, 43
+['M', 'l', 'o', 'b', 'c', 'w', 'g', 'B', 'y', 'r']
+Subtasks: [('M', [(0, 1, 2)]), ('l', [(4, 4, 2)]), ('o', [(5, 3, 3)]), ('b', [(4, 0, 2)]), ('c', [(3, 0, 2)]), ('w', [(2, 3, 3)]), ('g', [(3, 4, 2)]), ('B', [(1, 4, 2)]), ('y', [(2, 0, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|  ybbo|
+1|  yc o|
+2|rryc o|
+3|Mwww  |
+4|MBBgl |
+5|mm gl |
+ -012345-
+Solving move M to [(0, 1, 2)]
+ _012345_
+0|bb c o|
+1|M  clo|
+2|Mrr lo|
+3|  ywww|
+4|  ygBB|
+5|  ygmm|
+ -012345-
+Solving move l to [(4, 4, 2)]
+ _012345_
+0|bbyc o|
+1|  yc o|
+2|rryg o|
+3|wwwg  |
+4|M BBl |
+5|M mml |
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|bbyc  |
+1|  yc  |
+2|rryg  |
+3|wwwg o|
+4|M BBlo|
+5|M mmlo|
+ -012345-
+Solving move b to [(4, 0, 2)]
+ _012345_
+0|  y bb|
+1|  yc  |
+2|rryc  |
+3| www o|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move c to [(3, 0, 2)]
+ _012345_
+0|  ycbb|
+1|  yc  |
+2|rry   |
+3| www o|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move w to [(2, 3, 3)]
+ _012345_
+0|  ycbb|
+1|  yc  |
+2|rry   |
+3|  wwwo|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move g to [(3, 4, 2)]
+ _012345_
+0|  ycbb|
+1|  yc  |
+2|rry   |
+3|  wwwo|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move B to [(1, 4, 2)]
+ _012345_
+0|  ycbb|
+1|  yc  |
+2|rry   |
+3|  wwwo|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move y to [(2, 0, 3)]
+ _012345_
+0|  ycbb|
+1|  yc  |
+2|rry   |
+3|  wwwo|
+4|MBBglo|
+5|Mmmglo|
+ -012345-
+Solving move r to [(4, 2, 2)]
+*,34, 44, 80, 43
+['o', 'g', 'm', 'c', 'b', 'l', 'w', 'M', 'B', 'p', 'y', 'r']
+Subtasks: [('o', [(0, 0, 3)]), ('g', [(2, 1, 2)]), ('m', [(3, 5, 2)]), ('c', [(1, 3, 2)]), ('b', [(4, 0, 2)]), ('l', [(3, 4, 2)]), ('w', [(5, 3, 3)]), ('M', [(4, 1, 2)]), ('B', [(3, 0, 2)]), ('p', [(2, 3, 3)]), ('y', [(0, 2, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|yooobb|
+1|ycMM w|
+2|ycrr w|
+3|pppB w|
+4|  gBll|
+5|mmg   |
+ -012345-
+Solving move o to [(0, 0, 3)]
+ _012345_
+0|ooo bb|
+1|ycMM w|
+2|ycrr w|
+3|yppp w|
+4|  gBll|
+5|mmgB  |
+ -012345-
+Solving move g to [(2, 1, 2)]
+ _012345_
+0|ooobbw|
+1|ycgMMw|
+2|ycgrrw|
+3|y  ppp|
+4|   Bll|
+5|mm B  |
+ -012345-
+Solving move m to [(3, 5, 2)]
+ _012345_
+0|yooobb|
+1|ycgMMw|
+2|ycgrrw|
+3|pppB w|
+4|   Bll|
+5|   mm |
+ -012345-
+Solving move c to [(1, 3, 2)]
+ _012345_
+0|yooobb|
+1|y gMMw|
+2|y grrw|
+3| cpppw|
+4| c Bll|
+5|   Bmm|
+ -012345-
+Solving move b to [(4, 0, 2)]
+ _012345_
+0|yooobb|
+1|y gMMw|
+2|y grrw|
+3| cpppw|
+4| c Bll|
+5|   Bmm|
+ -012345-
+Solving move l to [(3, 4, 2)]
+ _012345_
+0|yooobb|
+1|y  MMw|
+2|yrrB w|
+3|pppB w|
+4| cgll |
+5| cg mm|
+ -012345-
+Solving move w to [(5, 3, 3)]
+ _012345_
+0|yooobb|
+1|y  MM |
+2|yrrB  |
+3|pppB w|
+4| cgllw|
+5| cgmmw|
+ -012345-
+Solving move M to [(4, 1, 2)]
+ _012345_
+0|yooobb|
+1|y   MM|
+2|yrrB  |
+3|pppB w|
+4| cgllw|
+5| cgmmw|
+ -012345-
+Solving move B to [(3, 0, 2)]
+*,35, 45, 48, 44
+['M', 't', 'o', 'c', 'B', 'b', 'm', 'w', 'p', 'g', 'l', 'y', 'r']
+Subtasks: [('M', [(4, 0, 2)]), ('t', [(2, 5, 2)]), ('o', [(5, 3, 3)]), ('c', [(2, 1, 2)]), ('B', [(3, 1, 2)]), ('b', [(1, 0, 2)]), ('m', [(0, 5, 2)]), ('w', [(0, 0, 3)]), ('p', [(0, 3, 3)]), ('g', [(3, 3, 2)]), ('l', [(1, 4, 2)]), ('y', [(4, 3, 3)]), ('r', [(4, 2, 2)])]
+ _012345_
+0|bbc MM|
+1|BBc yo|
+2|wrr yo|
+3|wpppyo|
+4|w  gll|
+5|mm gtt|
+ -012345-
+Solving move M to [(4, 0, 2)]
+ _012345_
+0|bbc MM|
+1|BBc yo|
+2|wrr yo|
+3|wpppyo|
+4|w  gll|
+5|mm gtt|
+ -012345-
+Solving move t to [(2, 5, 2)]
+ _012345_
+0|bbMMyo|
+1| BBgyo|
+2|wrrgyo|
+3|w cppp|
+4|w c ll|
+5|mmtt  |
+ -012345-
+Solving move o to [(5, 3, 3)]
+ _012345_
+0|bbMMy |
+1| BBgy |
+2|wrrgy |
+3|wppp o|
+4|w cllo|
+5|mmctto|
+ -012345-
+Solving move c to [(2, 1, 2)]
+ _012345_
+0|bbMMyo|
+1|BBcgyo|
+2|rrcgyo|
+3|w  ppp|
+4|w  ll |
+5|wmmtt |
+ -012345-
+Solving move B to [(3, 1, 2)]
