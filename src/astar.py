@@ -80,7 +80,7 @@ def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=
     else:
         def tmp_f(start):
             return Astar(start,heur,calcF,is_stop,  search_lapse,plan_correction_level)
-    tmp_f.__name__='A* h:{} f:{} is_stop:{} lapse_rate:{}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate)
+    tmp_f.__name__='A* h:{} f:{} is_stop:{} lapse_rate:{},search_lapse:{}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse)
     return tmp_f
 
 def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
@@ -167,10 +167,10 @@ def astar_tasks(start,astar):
     return ttl_path,stat
 
 
-def lapsingAstar(start,astar,lapse_rate=0.5):
+def lapsingAstar(start,astar,lapse_rate=0.01):
     path=[start]
     while 1:
-        if is_goal(path[-1]):
+        if path[-1].is_goal():
             return path,stat
         astar_path,stat=astar(path[-1])
         for i in range(1,len(astar_path)):

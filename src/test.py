@@ -167,11 +167,10 @@ def draw_dist_instance(instance,alg_name,hist):
     for k,v in samples_per_step.iteritems():
         print 'Step {}:{}{}'.format(max_path-k,''.join(['=' for _ in range(v)]),v)
 
-def write_distribuition_raw(ins,astar,sample_size=100, include_location=False):
+def write_distribuition_raw(ins,astar,sample_size=100):
     print 'sample step state instance alg '
     for sample in range(sample_size):
         path,stats=astar(ins)
-        path.reverse() #start to goal
         for p in range(len(path)):
             print '{} {} {} {} {} '.format(sample, p, path[p].__hash__(), ins.name,astar.__name__.replace(' ','_'))
 
@@ -265,7 +264,7 @@ def compare_tasks_to_no_tasks():
         print '*,{}, {}, {}, {}'.format(i,len(path),len(patht),opt_solution_instances[i])
 
 
-def log_likelihood(instance,model,plan=None,sample_size=100,epsilon=0.1):
+def log_likelihood(instance,model,plan=None,sample_size=100):
     stats=dict(((i,plan[i]),0) for i in range(len(plan)))
     for i in range(sample_size):
         g_p,_ = model(instance)
@@ -277,12 +276,11 @@ def log_likelihood(instance,model,plan=None,sample_size=100,epsilon=0.1):
     for i in range(len(plan)):
         print '{}:{}'.format(i,stats[(i,plan[i])]),
     print ''
-    zeros = sum(-60 for stp in stats.itervalues() if stp == 0)
+    zeros = sum(-10 for stp in stats.itervalues() if stp == 0)
     return zeros+ sum(log(float(stp)/sample_size) for stp in stats.itervalues() if stp != 0)
 
 
-def test_log_likelihood():
-    ins=instance_set_easy[1]
+def test_log_likelihood(model,ins):
     plan=[RHInstance({'r':(3,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1'),
           RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1'),
           RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,2,2)},'easy1'),
@@ -291,28 +289,23 @@ def test_log_likelihood():
           RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,3,3),'g':(3,4,2)},'easy1'),
           RHInstance({'r':(4,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,3,3),'g':(3,4,2)},'easy1'),
  ]
-    def t(ins):
-        return astar_tasks(ins,make_Astar())
+    k=log_likelihood(ins,model,plan,sample_size=10)
+    print '{},{},{}'.format(10,k,model.__name__)
 
-    k=log_likelihood(ins,t,plan,sample_size=10)
-    print '{},{},A*+tasks'.format(10,k)
+    k=log_likelihood(ins,model,plan,sample_size=50)
+    print '{},{},{}'.format(50,k,model.__name__)
 
-    k=log_likelihood(ins,t,plan,sample_size=50)
-    print '{},{},A*+tasks'.format(50,k)
+    k=log_likelihood(ins,model,plan,sample_size=100)
+    print '{},{},{}'.format(100,k,model.__name__)
 
-    k=log_likelihood(ins,t,plan,sample_size=100)
-    print '{},{},A*+tasks'.format(100,k)
+    k=log_likelihood(ins,model,plan,sample_size=1000)
+    print '{},{},{}'.format(1000,k,model.__name__)
 
-    k=log_likelihood(ins,t,plan,sample_size=1000)
-    print '{},{},A*+tasks'.format(1000,k)
-
-    k=log_likelihood(ins,t,plan,sample_size=100000)
-    print '{},{},A*+tasks'.format(100000,k)
+    k=log_likelihood(ins,model,plan,sample_size=100000)
+    print '{},{},{}'.format(100000,k,model.__name__)
 
 
-#test_log_likelihood()
 
-ins=instance_set_easy[1]
 #test_astar_instance(ins,make_Astar())
 #test_astar_tasks_instance(ins,make_Astar())
 #
@@ -333,11 +326,15 @@ ins=instance_set_easy[1]
 
 #def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False,lapse_rate=0,search_lapse=0):
 astar1=make_Astar(search_lapse=0.4)
-for _ in range(10):
-    path,_=astar1(ins)
-    show(path)
-
-
-
-
+astar2=make_Astar(search_lapse=0.2)
+astar3=make_Astar(lapse_rate=0.1)
+test_log_likelihood(make_Astar(),instance_set_easy[1])
+test_log_likelihood(astar1,instance_set_easy[1])
+test_log_likelihood(astar2,instance_set_easy[1])
+test_log_likelihood(astar3,instance_set_easy[1])
+#
+#write_distribuition_raw(ins,make_Astar(),sample_size=100)
+#write_distribuition_raw(ins,astar1,sample_size=100)
+#write_distribuition_raw(ins,astar2,sample_size=100)
+#write_distribuition_raw(ins,astar3,sample_size=100)
 

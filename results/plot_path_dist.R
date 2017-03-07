@@ -5,9 +5,10 @@ setwd("~/gdrivezb9/rushhour/results")
 
 # sample, step, state, instance, alg
 #dist<-read.csv('raw_path_dist1.csv',header = TRUE, sep = ' ')
-dist<-read.csv('raw_dist_algs.1.csv',header = TRUE, sep = ' ')
-dist<-read.csv('raw_path_dist_2.csv',header = TRUE, sep = ' ')
-dist<-read.csv('all_astar.csv',header = TRUE, sep = ' ')
+#dist<-read.csv('raw_dist_algs.1.csv',header = TRUE, sep = ' ')
+#dist<-read.csv('raw_path_dist_2.csv',header = TRUE, sep = ' ')
+#dist<-read.csv('all_astar.csv',header = TRUE, sep = ' ')
+dist<-read.csv('raw_dist_astars_easy1',header = TRUE, sep = ' ')
 
 dists=split(dist,dist[,c('instance')])
 
@@ -49,3 +50,7 @@ dists=split(dist1,dist1[,c('instance')])
 
 slplots=lapply(dists, path_dist_plot)
 do.call('grid.arrange',c(slplots, ncol = 5, top = "Path Distributions"))
+
+
+
+#Summary statistics - ratio of optimal vs. length of optimal
