@@ -3,28 +3,32 @@ from graphviz import Digraph
 from operator import itemgetter
 from copy import deepcopy
 from try_pygame import *
-from random import choice
+from random import choice,shuffle
+from os import path
+from itertools import product
 
 
 class RHInstance:
     length,height=6,6
-    def __init__(self,h,v,name=''):
+    def __init__(self,h,v,name='',goal_car='r',goal_loc=[(4,2,2)]):
         self.h=h
         self.v=v
         self.name=name
+        self.goal_car=goal_car
+        self.goal_loc=goal_loc
     def __eq__(self, other):
         if isinstance(other, RHInstance):
             return ((self.h == other.h) and (self.v== other.v))
         else:
             return False
+    def is_goal(self):
+        st_piece,oriantation = find_piece(self,self.goal_car)
+        return st_piece in self.goal_loc
     def __ne__(self, other):
         return (not self.__eq__(other))
     def __hash__(self):
         fs=frozenset(self.h.items() + self.v.items())
         return hash(fs)
-
-def is_goal(instance):
-    return instance.h['r']==(instance.length-2,2,2)
 
 def mag_pairs(mg):
     return set([(k,k1) for k,v in mg.iteritems() for k1 in v ])
@@ -41,6 +45,27 @@ def unblocking_successors(instance):
         else:
             unblocking.append(s)
     return unblocking,others
+
+def goal_action(instance):
+    """return a plan if a simple one exists"""
+    for ins in expand(instance):
+        if ins.is_goal():
+            return ins
+    return None
+
+def plan_correction(path,plan_correction_level):
+    """
+    TODO: add the level
+    """
+    new_path=[]
+    for p in path:
+        new_path.append(p)
+        ga=goal_action(p)
+        if ga is not None:
+            new_path.append(ga)
+            return new_path
+    return new_path
+
 
 def rand_move_extended(instance,unblocking=True):
     #TODO: not going back to the previous state
@@ -73,6 +98,84 @@ def rand_play(instance,path_length=30,allow_repeats=False):
             insc=insc_s
     return path
 
+def order_tasks(instance,tasks):
+    mag,nodes=constuct_mag(instance)
+    order= dfs_task_order_static(instance.goal_car,mag,set([instance.goal_car]))
+    #print order
+    ret= [(p, tasks[p]) for p in order if p != instance.goal_car ]
+    return ret
+
+def find_tasks(instance):
+    tasks={}
+    terminals=find_terminal_states(instance)
+    t_state = choice(terminals)
+    for ins_o in (instance.h,instance.v):
+        for p,(c,l,s) in ins_o.iteritems():
+            if p == instance.goal_car:
+                continue
+            tasks[p]=[find_piece(t_state,p)[0]]
+    order=order_tasks(instance,tasks)
+    order.append((instance.goal_car,instance.goal_loc))
+    return order
+
+
+
+#def find_tasks(instance):
+#    """ start with red on (4,2,2)
+#    """
+#    if instance.name=='easy4':
+#        return [('g',[(1,0,2),(1,1,2),(1,2,2)]),('b',[(0,5,3)]),('o',[(0,4,2),(1,4,2)]),('p',[(5,3,3)]),('y',[(3,3,3)]),('r',[(4,2,2)])]
+#    if instance.name=='easy3':
+#        return [('r',[(3,2,2)]),('r',[(4,2,2)])]
+#    if instance.name=='easy5':
+#        return [('b',[(2,4,3)]),('r',[(4,2,2)])]
+#    if instance.name=='easy6':
+#        return [('p',[(5,3,3)]),('r',[(4,2,2)])]
+#
+
+def check_instance(h,v):
+    all_occupied=set()
+    for p,(c,l,s) in h.iteritems():
+        new_ones=set(move2occupiedtiles((c,l,s),'h'))
+        if len(new_ones & all_occupied)>0:
+            return False
+        all_occupied |= new_ones
+    for p,(c,l,s) in v.iteritems():
+        new_ones=set(move2occupiedtiles((c,l,s),'v'))
+        if len(new_ones & all_occupied)>0:
+            return False
+        all_occupied |= new_ones
+    return True
+
+
+
+#TODO: Support many locations
+def find_terminal_states(instance):
+    """
+    Return all possible terminal states
+    """
+    terminals=[]
+    goal_car,goal_loc=instance.goal_car,instance.goal_loc
+    goal_o = find_oriantation(instance,goal_car)
+    if goal_car=='r' and goal_loc[0]==(4,2,2):
+        goal_loc=[(3,2,3)]
+    h_options = dict((piece,piece_possible_locations(c,l,s,'h',instance,include_current_location=True)) for piece,(c,l,s) in instance.h.iteritems() if piece != instance.goal_car )
+    v_options = dict((piece,piece_possible_locations(c,l,s,'v',instance,include_current_location=True)) for piece,(c,l,s) in instance.v.iteritems() if piece != instance.goal_car)
+    h_list=[(piece,hlocations) for piece,hlocations in h_options.iteritems()]
+    for vals in product(*[x[1] for x in h_list]):
+        h={}
+        for p in range(len(h_list)):
+            h[h_list[p][0]]=vals[p]
+        v_list=[(piece,vlocations) for piece,vlocations in v_options.iteritems()]
+        for vals in product(*[x[1] for x in v_list]):
+            v={}
+            for p in range(len(v_list)):
+                v[v_list[p][0]]=vals[p]
+            ((h,v)[goal_o=='v'])[goal_car]=goal_loc[0] #currently supports one locations
+            if check_instance(h,v):
+                terminals.append(RHInstance(h,v))
+    return terminals
+
 def expand(instance):
     """
     All possible moves from current instance
@@ -80,14 +183,14 @@ def expand(instance):
     succs=[]
     b=ground_instance(instance)
     for car,(c,l,s) in instance.h.iteritems():
-        possible_moves = expand_piece_moves_given(c,l,s,'h',instance.length,instance.height)
+        possible_moves = piece_possible_locations(c,l,s,'h',instance)
         for m_c,m_l,m_s in possible_moves:
             if len([1 for x,y in find_path_to_location((c,l,s),(m_c,m_l,m_s),'h') if b[y][x] != ' '])==0:
                 suc=deepcopy(instance)
                 do_move(suc,(car,m_c-c))
                 succs.append(suc)
     for car,(c,l,s) in instance.v.iteritems():
-        possible_moves = expand_piece_moves_given(c,l,s,'v',instance.length,instance.height)
+        possible_moves = piece_possible_locations(c,l,s,'v',instance)
         for m_c,m_l,m_s in possible_moves:
             if len([1 for x,y in find_path_to_location((c,l,s),(m_c,m_l,m_s),'v') if b[y][x] != ' '])==0:
                 suc=deepcopy(instance)
@@ -117,6 +220,12 @@ def draw(instance):
         i+=1
     print ' -'+"".join([str(_) for _ in range(instance.length)]) + '-'
 
+def find_oriantation(instance,n):
+    if n in instance.v:
+        return 'v'
+    elif n in instance.h:
+        return 'h'
+    raise(Exception)
 
 def find_piece(instance,piece):
     st_piece =instance.v.get(piece,None)
@@ -143,41 +252,61 @@ def do_move(instance,move):
     else:
         instance.h[piece]=(c+shift,l,s)
 
-def expand_piece_moves_given(c,l,s,o,L,H):
+def piece_possible_locations(c,l,s,o,instance,include_current_location=False):
+    L,H=instance.length,instance.height
     if o=='h':
-        return [(nc,l,s) for nc in range(L-s+1) if nc != c]
-    return [(c,nl,s) for nl in range(H-s+1) if nl != l]
+        sq_before = sum([b_s for b_c,b_l,b_s in instance.h.itervalues() if b_l == l and b_c<c])
+        sq_after = sum([a_s for a_c,a_l,a_s in instance.h.itervalues() if a_l == l and a_c>c])
+        return [(nc,l,s) for nc in range(sq_before,L-s-sq_after+1) if nc != c or include_current_location]
+    sq_before = sum([b_s for b_c,b_l,b_s in instance.v.itervalues() if b_c == c and b_l<l])
+    sq_after = sum([a_s for a_c,a_l,a_s in instance.v.itervalues() if a_c == c and a_l>l])
+    return [(c,nl,s) for nl in range(sq_before,H-s-sq_after+1) if nl != l or include_current_location]
 
 
-def expand_piece_moves(instance,n):
+def piece_possible_locations_find(instance,n):
     (c,l,s),o=find_piece(instance,n)
-    return expand_piece_moves_given(c,l,s,o,instance.length,instance.height),o
+    return piece_possible_locations(c,l,s,o,instance),o
 
+def calc_nodes(mag,instance):
+    nodes = defaultdict(dict) #{'node': {location: (coverage, (blocked_by1,...))}
+    pieces=set([k for X in mag for k in mag[X] ])
+    for p in pieces:
+        locations = dict([(k,v) for k,v in find_coverage(p,instance,mag).iteritems() if v>0])
+        for l in locations:
+            B = find_constraints(p,instance,l)  #(n,(x,y))
+            locations[l]=(locations[l],[bn for bn,_ in B])
+            nodes[p]=locations
+    return nodes
+
+def goal_dummy_constraints(instance):
+    (c,l,s),o=find_piece(instance,instance.goal_car)
+    if o=='h':
+        all_locs=set([(nc,l) for nc in range(instance.length)])
+    else:
+        all_locs=set([(c,nl) for nl in range(instance.height)])
+    allowed = set([x for otl in instance.goal_loc for x in move2occupiedtiles(otl,o) ])
+    goal_constraints = all_locs - allowed
+    return goal_constraints
 
 def constuct_mag(instance):
     mag = defaultdict(dict)
-    nodes = defaultdict(dict)
-    mag['dummy']={'r':((0,2),(1,2),(2,2),(3,2))}
+    nodes = defaultdict(dict) #{'node': {location: (coverage, (blocked_by1,...))}
+    mag['dummy']={instance.goal_car:list(goal_dummy_constraints(instance))}
     closed = set([])
-    q = ['r']
+    q = [instance.goal_car]
     while len(q)>0:
         n=q.pop()
-        #print mag
-        #print "Examining node "+n
         if n in closed:
             continue
         closed.add(n)
-        locations = find_satisfying_locations(n,instance,mag)
-        locations = dict([(k,v) for k,v in locations.iteritems() if v>0])
-        #print 'found locations: {}'.format(locations)
+        locations = dict([(k,v) for k,v in find_coverage(n,instance,mag).iteritems() if v>0])
         constraints=[]
         for l in locations:
             B = find_constraints(n,instance,l)  #(n,(x,y))
-            #print 'finding constaints for location ' + str(l) + ': '+ str(B)
             constraints.append(B)
             locations[l]=(locations[l],[bn for bn,_ in B])
             nodes[n]=locations
-        if len([_ for _ in constraints if len(_)==0])>0:
+        if len([_ for _ in constraints if len(_)==0])>0: #has unconstraint move
             continue
         for B in constraints:
             for nn,nconst in B:
@@ -198,10 +327,13 @@ def move2occupiedtiles(move_m,oriantation):
         return [(move_m[0],move_m[1]+i) for i in range(move_m[2])]
 
 
-def find_satisfying_locations(n,instance,mag):
+def find_coverage(n,instance,mag):
+    """
+    returns a dict of move:coverage
+    """
     locs={}
     constraint_sets = [v[n] for k,v in mag.iteritems() if n in v]
-    moves,o=expand_piece_moves(instance,n)
+    moves,o=piece_possible_locations_find(instance,n)
     for move_m in moves:
         locs[move_m]=0
         for cs in constraint_sets:
@@ -210,22 +342,6 @@ def find_satisfying_locations(n,instance,mag):
     return locs
 
 
-#def find_satis_locations(n,instance,mag):
-#    locs=[]
-#    if n=='r':
-#        locs.append((instance.length-2,2,2)) #for the red
-#    constraints = set([cc for k,v in mag.iteritems() if n in v for cc in v[n] ])
-#    print "constratins for "+n+":" + str(constraints)
-#    if len(constraints)==0:
-#        return locs
-#    moves,o=expand_piece_moves(instance,n)
-#    print "all expanded moves for "+n +" :"+ str(moves)
-#    for move_m in moves:
-#        if len(set(move2occupiedtiles(move_m,o)) & constraints)==0:
-#            locs.append(move_m)
-#    print "satisfying moves  "+n +" :"+ str(locs)
-#    return locs
-#
 def find_path_to_location(current_location,move_loc,oriantation):
     c,l,s=current_location
     move_loc_c, move_loc_l,_ = move_loc
@@ -252,75 +368,135 @@ def find_constraints(n,instance,loc):
     b=ground_instance(instance)
     path=find_path_to_location(st_piece,loc,o)
     for x,y in path:
-        #print 'b['+str(x)+']['+str(y)+']='+b[x][y]
         if b[y][x] != ' ':
             constraints.append((b[y][x],(x,y)))
     return constraints
 
+def dfs_task_order_static(piece,mag,closed):
+    order=[]
+    for succ in mag[piece]:
+        if succ not in closed:
+            closed.add(succ)
+            order += dfs_task_order_static(succ,mag,closed)
+    closed.add(piece)
+    return order+[piece]
 
-def mag2dot(mag):
+
+
+def mag2dot(mag,view=False):
     dot = Digraph()
+    ind=0
     for n in mag:
         dot.node(n,n)
         for n1,c in mag[n].iteritems():
             dot.edge(n,n1,label=str(c))
-    dot.render('tmp.gv', view=True)
+        while 1:
+            dotfile='tmp{}.gv'.format(ind)
+            if not path.isfile(dotfile):
+                break
+            ind+=1
+    print dotfile
+    dot.render(dotfile, view=view)
 
+def is_possible_via_plan(instance,n,blocked_by,move,in_plan):
+    """
+    Checks if performing 'move' on piece n is possible due to moving all 'blocked_by' pieces in in_plan
+    """
+    if len(blocked_by)==0: return True
+    (c,l,s),o = find_piece(instance,n)
+    npath=find_path_to_location((c,l,s),move,o) #[(x1,y1)..]
+    for blocking_piece in blocked_by:
+        bmove=in_plan.get(blocking_piece,None)
+        if bmove is None: return False
+        tiles_of_blocked_piece=move2occupiedtiles(bmove,find_oriantation(instance,blocking_piece)) #[(x1,y1),(x2,y2)...]
+        if len(set(tiles_of_blocked_piece) & set(npath))>0:
+            return False
+    return True
 
-def stop_dfs(instance,mag,nodes,n,visits,in_plan):
-    options = [(move,(coverage,blocked_by)) for move,(coverage,blocked_by) in nodes[n].iteritems() if len(blocked_by)==0]
-    l1 = [(move,(coverage,blocked_by)) for move,(coverage,blocked_by) in options if coverage==1.0]
-    if len(l1)>0:
-        #print 'stop_dfs on {} with coverage:{} and visits: {} returning {}'.format(n,coverage,visits[n],l1[0])
-        return l1[0][0]
-    l2 = [(move,(coverage,blocked_by)) for move,(coverage,blocked_by) in options if coverage==1/2.0 and visits[n]==2]
-    if len(l2)>0:
-        #print 'stop_dfs on {} with coverage:{} and visits: {} returning {}'.format(n,coverage,visits[n],l2[0])
-        return l2[0][0]
+def plan_location(instance,visits,n,nodes,in_plan):
+    print 'Searching location for node:{}. In_plan:{} nodes:{} visits:{}'.format(n,in_plan,nodes,visits)
+    potentials = sorted([(move,(coverage,blocked_by)) for move,(coverage,blocked_by) in nodes[n].iteritems()],key=lambda x: x[1][0], reverse=True)
+    for move,(coverage,blocked_by) in potentials:
+        if is_possible_via_plan(instance,n,blocked_by,move,in_plan):
+            if visits[n]>= 1.0/coverage:
+                print 'node {} returning move: {} visits:{} ratio:{}'.format(n,move,visits[n],1.0/coverage)
+                return move
     return None
 
-def plan_location(n,nodes,in_plan):
-    #print 'planning location for node {} according to {}'.format(n,nodes[n])
-    for move,(coverage,blocked_by) in sorted([(k,v) for k,v in nodes[n].iteritems()],key=lambda x: x[1][0], reverse=True):
-        #print 'checking {}'.format(move)
-        if set(blocked_by) <= in_plan:
-            return move
 
+#TODO: in_plan nodes are less probable
+def select_search_succs(mag,visits,nodes,n):
+    coverage_goal=1.0/visits[n]
+    covering = list(set([tuple(succs) for move, (coverage, succs) in nodes[n].iteritems() if coverage==coverage_goal]))
+    if len(covering)==0: return mag[n]
+    ret=list(choice(covering))
+    shuffle(ret)
+    print 'possible succs for node {} are {} - choice is {}'.format(n,covering,ret)
+    return ret
 
-def dfs(instance,mag,nodes,n,visits,in_plan):
+def search(instance,mag,nodes,n,visits,in_plan,path_so_far,keep_safe=False):
+    print 'calling search on {}'.format(n)
+    if n in in_plan:
+        print '{} already on plan'.format(n)
+        return []
+    if visits[n] > len([1 for X in mag.itervalues() for k in X if k==n]) +1:
+        return []
     visits[n]+=1
-    plan_move=stop_dfs(instance,mag,nodes,n,visits,in_plan)
-    #print 'DFS on {} with {} visits and a plan_move of {}'.format(n,visits[n],plan_move)
-    if plan_move is not None:
-        in_plan.add(n)
-        return [(n,plan_move)]
+    next_location=plan_location(instance,visits,n,nodes,in_plan) #optimize via in_plan=None
+    print 'searching for possible location for node {} - {}'.format(n,next_location)
+    if next_location is not None:
+        in_plan[n]=next_location
+        print 'returning {} to {}'.format(n,next_location)
+        return [(n,next_location)]
+    if len(mag[n])==0 and len([1 for move, (coverage, succs) in nodes[n].iteritems() if coverage<1])>0:
+        return search(instance,mag,nodes,n,visits,in_plan,path_so_far)
     plan=[]
-    for s in mag[n]:
-        plan = dfs(instance,mag,nodes,s,visits,in_plan) + plan
-    in_plan.add(n)
-    return [(n,plan_location(n,nodes,in_plan))]+plan
+    for s in select_search_succs(mag,visits,nodes,n): #selection might be wrong (if it's an OR)
+        plan = search(instance,mag,nodes,s,visits,in_plan,path_so_far) + plan
+    if n in in_plan:
+        print '{} already on plan. Returning {}'.format(n,plan)
+        return plan
+    next_location=plan_location(instance,visits,n,nodes,in_plan)
+    print 'after succs: searching for possible location for node {} - {}'.format(n,next_location)
+    if next_location is not None:
+        in_plan[n]=next_location
+        print 'adding to plan: {} to {}'.format(n,next_location)
+        plan = [(n,next_location)]+plan
+    print 'Returning {}'.format(plan)
+    return plan
 
 
-def mag2plan(instance,mag,nodes):
-    return dfs(instance,mag,nodes,'r',dict((n,0) for n in nodes),set())
+def mag2plan(instance,mag,nodes,path_so_far,keep_safe=False):
+    """
+    Uses "insights": (a) partial move (visits/coverage) (b) red (c) loops (d) safety
+    """
+    return search(instance,mag,nodes,instance.goal_car,defaultdict(int),{},path_so_far)
 
-def verify_plan(instance, tmp_plan):
+def verify_plan(instance, tmp_plan,returned_plan):
     partial_plan=[]
     insc=deepcopy(instance)
+    m = None
     for m in reversed(tmp_plan):
         print 'verifing move '+str(m)
-        if verify_move_for_plan(insc,m):
-            do_move_from_fixed(insc,m)
-            partial_plan.append(m)
-            print 'Partial plan:'+str(partial_plan)
-            draw(insc)
-        else: return insc,partial_plan
-    return None,partial_plan
+        if not verify_move_for_plan(insc,m,returned_plan):
+            break
+        do_move_from_fixed(insc,m)
+        partial_plan.append(m)
+        print 'Partial plan:'+str(partial_plan)
+        draw(insc)
+    return m,insc,partial_plan
 
 
-def verify_move_for_plan(instance,piece_move):
-    piece,(c,l,s)=piece_move
+def verify_move_noloop(piece,instance,(c,l,s),plan_so_far):
+    True
+
+def verify_move_feasible(piece,instance,(c,l,s)):
     return len(find_constraints(piece,instance,(c,l,s)))==0
+
+def verify_move_for_plan(instance,piece_move,plan_so_far):
+    piece,(c,l,s)=piece_move
+    return verify_move_feasible(piece,instance,(c,l,s))
+
 
 def verify_move(instance,move):
     piece,shift=move
@@ -334,16 +510,76 @@ def verify_move(instance,move):
     return len(find_constraints(piece,instance,move_loc))==0
 
 
+def mag_in_edges(mag):
+    return set([(to_node,l) for x in [v for k,v in current_mag.iteritems() if k != 'dummy'] for (to_node,locs) in x.iteritems() for l in locs ])
+
+
+def learn_from_mag(current_mag,last_mag,instance):
+    print 'current_mag:{}'.format(current_mag)
+    print 'last_mag:{}'.format(last_mag)
+    new_mag=deepcopy(current_mag)
+    current_pairs= set([(from_node,to_node,l) for from_node in current_mag if from_node != 'dummy' for (to_node,locs) in current_mag[from_node].iteritems() for l in locs ])
+    to_nodes=set([tn[1] for tn in current_pairs ])
+    last_pairs = set([(from_node,to_node,l) for from_node in last_mag if from_node != 'dummy' for (to_node,locs) in last_mag[from_node].iteritems() for l in locs ])
+    print 'current_pairs:{}'.format(current_pairs)
+    print 'last_pairs:{}'.format(last_pairs)
+    possible_learns = last_pairs - current_pairs
+    for f,n,l in possible_learns:
+        if n in to_nodes:
+            print 'learning \'dummy\':({},{})'.format(n,l)
+            nconsts = new_mag['dummy.'+f].get(n,[])
+            nconsts.append(l)
+            new_mag['dummy.'+f][n]=nconsts
+    return new_mag,calc_nodes(new_mag,instance)
+
+def plan_with_tasks(instance):
+    print 'Starting to plan+tasks for instance:{}'.format(instance.name)
+    tasks = find_tasks(instance)
+    print 'Subtasks for instance:{}'.format(tasks)
+    returned_plan=[]
+    solving_instance=deepcopy(instance)
+    for t,t_locs in tasks:
+        solving_instance.goal_car=t
+        solving_instance.goal_loc=t_locs
+        print 'Subtasks- moving {} to {}'.format(t,t_locs)
+        while 1:
+            if solving_instance.is_goal():
+                break
+            mag,nodes=constuct_mag(solving_instance)
+            print 'starting to plan for node {} from:'.format(t)
+            draw(solving_instance)
+            print 'MAG:{}'.format(mag)
+            print 'NODES:{}'.format(nodes)
+            mag2dot(mag,view=False)
+            tmp_plan=mag2plan(solving_instance,mag,nodes,returned_plan)
+            print ' pending plan:{}'.format(tmp_plan)
+            violating_move,solving_instance,partial_plan=verify_plan(solving_instance,tmp_plan,returned_plan)
+            returned_plan.extend(partial_plan)
+    return returned_plan
+
+
 def plan(instance):
+    print 'Starting to plan for instance:{}'.format(instance.name)
     solving_instance=deepcopy(instance)
     returned_plan=[]
+    last_mag={}
     while 1:
-        mag,nodes=constuct_mag(solving_instance)
-        tmp_plan=mag2plan(solving_instance,mag,nodes)
-        solving_instance,partial_plan=verify_plan(solving_instance,tmp_plan)
+        current_mag,nodes=constuct_mag(solving_instance)
+        mag,nodes = learn_from_mag(current_mag,last_mag,solving_instance)
+        last_mag= current_mag
+        print 'starting to plan from:'
+        draw(solving_instance)
+        print 'MAG:{}'.format(mag)
+        print 'NODES:{}'.format(nodes)
+        mag2dot(mag,view=False)
+        tmp_plan=mag2plan(solving_instance,mag,nodes,returned_plan)
+        print ' pending plan:{}'.format(tmp_plan)
+        violating_move,solving_instance,partial_plan=verify_plan(solving_instance,tmp_plan,returned_plan)
         returned_plan.extend(partial_plan)
-        if solving_instance is None:
+        if solving_instance.is_goal():
+            print '**solved instance!**'
             return returned_plan
+
 
 def make_path_for_plan_model(ins,path_moves):
     path=[ins]
@@ -354,70 +590,6 @@ def make_path_for_plan_model(ins,path_moves):
         path.append(insc)
     path.reverse()
     return path
-
-
-def test_mag(i):
-    draw(i)
-    mag,nodes=constuct_mag(i)
-    mag2dot(mag)
-    print nodes
-
-
-def test():
-    i1 = RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)})
-    i2 = RHInstance({'r':(3,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)})
-    i3 = RHInstance({'r':(2,2,2),'g':(4,3,2),'b':(4,5,2)},{'o':(2,4,2),'y':(4,0,3),'p':(3,3,3)})
-    i4 = RHInstance({'r':(0,2,2),'b':(0,3,3),'g':(4,4,2)},{'y':(2,0,3),'p':(5,1,3)})
-    i5 = RHInstance({'r':(0,2,2),'b':(2,5,3),'o':(3,4,2)},{'g':(1,4,2),'y':(3,0,3),'p':(5,3,3)})
-    i6 = RHInstance({'r':(2,2,2),'g':(0,2,2),'o':(1,4,2), 'b':(3,4,3)},{'y':(5,0,3),'p':(0,3,3)})
-    # Test trivial case
-    #mag={'r':{'a':(0,0),'b':(0,0)},'b':{'c':(),'d':()},'a':{},'c':{},'d':{}}
-    #mag2dot(mag)
-    #print mag2plan(i3,mag)
-    #draw(i3)
-    #mag=constuct_mag(i3)
-    #mag['p']={}
-    #mag2dot(mag)
-    #print mag2plan(i3,mag)
-    draw(i1)
-    mag,nodes=constuct_mag(i1)
-    print mag
-    print nodes
-    print mag2plan(i1,mag,nodes)
-    #test_mag(i3)
-    #find constraints
-    #print find_constraints('y',i,(4,3))
-    #print find_constraints('r',i,(4,2))
-
-def test_stop():
-    nodes={'y': {(4, 3, 3): (1.0, ['g'])}, 'p': {(2, 2, 3): (1.0, ['r']), (2, 0, 3): (1.0, ['r']), (2, 1, 3): (1.0, ['r'])}, 'r': {(3, 2, 2): (0.5, ['y']), (4, 2, 2): (1.0, ['y']), (0, 2, 2): (0.5, [])}, 'g': {(2, 5, 2): (1.0, ['p']), (1, 5, 2): (1.0, ['p']), (0, 5, 2): (1.0, ['p'])}}
-    visits = dict((n,0) for n in nodes)
-    mag = []
-    i1 = RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)})
-    in_plan=set()
-    print stop_dfs(i1,mag,nodes,'y',visits,in_plan)
-    print stop_dfs(i1,mag,nodes,'p',visits,in_plan)
-    print stop_dfs(i1,mag,nodes,'r',visits,in_plan)
-    print stop_dfs(i1,mag,nodes,'g',visits,in_plan)
-    visits['r']=2
-    print stop_dfs(i1,mag,nodes,'r',visits,in_plan)
-
-def test_verify_move():
-    i1 = RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)})
-    draw(i1)
-    print 'True: {}'.format(verify_move(i1,('r',-2)))
-    print 'False: {}'.format(verify_move(i1,('r',-3)))
-    print 'True: {}'.format(verify_move(i1,('y',+1)))
-    print 'False: {}'.format(verify_move(i1,('y',-1)))
-    print 'False: {}'.format(verify_move(i1,('y',+4)))
-    print 'False: {}'.format(verify_move(i1,('r',+1)))
-    print 'False: {}'.format(verify_move(i1,('r',+2)))
-    print 'True: {}'.format(verify_move(i1,('g',-1)))
-    print 'False: {}'.format(verify_move(i1,('g',-2)))
-    print 'False: {}'.format(verify_move_for_plan(i1,('r',(3,2,2))))
-    print 'True: {}'.format(verify_move_for_plan(i1,('r',(1,2,2))))
-    print 'True: {}'.format(verify_move_for_plan(i1,('y',(4,1,3))))
-    print 'False: {}'.format(verify_move_for_plan(i1,('y',(4,3,3))))
 
 
 def make_instance(lines):
@@ -449,5 +621,8 @@ def read_instances(filename='../princeton_AI/code/jams.txt'):
     return instance_set
 
 
-opt_solution_instances={ 0:9, 1:10, 2:15, 3:10, 4:10, 5:11, 6:14, 7:14, 8:13, 9:21, 10:27, 11:19, 12:24, 13:18, 14:24, 15:28, 16:28, 17:27, 18:23, 19:13, 20:22, 21:29, 22:30, 23:29, 24:41, 25:32, 26:34, 27:33, 28:34, 29:38, 30:39, 31:39, 32:49, 33:45, 34:48, 35:46, 36:49, 37:50, 38:58, 39:58}
+opt_solution_instances_mag={ 0:9, 1:10, 2:15, 3:10, 4:10, 5:11, 6:14, 7:14, 8:13, 9:21, 10:27, 11:19, 12:24, 13:18, 14:24, 15:28, 16:28, 17:27, 18:23, 19:13, 20:22, 21:29, 22:30, 23:29, 24:41, 25:32, 26:34, 27:33, 28:34, 29:38, 30:39, 31:39, 32:49, 33:45, 34:48, 35:46, 36:49, 37:50, 38:58, 39:58}
 
+opt_solution_instances={0:8,9:17,10:25,11:17,12:16,13:17,14:23,15:21,16:24,17:25,18:22,1:8,19:10,20:21,21:26,22:29,23:25,24:27,25:28,26:28,27:30,28:31,2:14,29:32,30:37,31:37,32:40,33:43,34:43,35:44,36:47,37:48,38:50,3:9,39:51,4:9,5:9,6:13,7:12,8:12}
+
+opt_solution_instances = dict(('Jam-{}'.format(k+1),v) for k,v in opt_solution_instances.iteritems())

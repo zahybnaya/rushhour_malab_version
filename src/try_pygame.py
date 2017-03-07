@@ -28,7 +28,10 @@ def draw_screen(screen,instance,text_cont):
     screen.fill(GRAY)
     screen.fill(BLACK, (0,0,screen.get_width(), height_top))
     for line_num in range(len(text_cont)):
-        font = pygame.font.SysFont("comicsansms", 15-(line_num*3))
+        #font = pygame.font.SysFont("monospace", 15-(line_num*3))
+        font = pygame.font.Font('/Library/Fonts/Verdana.ttf', 15-(line_num*3))
+        #font = pygame.font.SysFont("comicsansms", 50)
+        #font = pygame.font.SysFont("calibri", 40)
         text = font.render(text_cont[line_num], True, (0, 255, 0))
         screen.blit(text, (0,20*line_num))
     for i in range(7):
@@ -43,12 +46,10 @@ def draw_screen(screen,instance,text_cont):
         c,l,s=place
         pygame.draw.rect(screen, colors[car] , (c*car_w, (l*car_h)+height_top, car_w, car_h*s))
 
-
-def show(path,texts):
-    path.reverse()
+def show(path,texts=['unknown','unknown']):
     pygame.init()
     height_top=40
-    size = width, height = 400+height_top, 400
+    size = width, height = 700+height_top, 600
     screen = pygame.display.set_mode(size)
     i=-1
     model_name=texts[0]
@@ -56,15 +57,16 @@ def show(path,texts):
         for event in pygame.event.get():
             if event.type == pygame.QUIT: sys.exit()
             if event.type == pygame.KEYDOWN:
-                if event.key == 275:
+                if event.key == pygame.K_RIGHT:
                     if i<len(path):
                         i=min(i+1,len(path)-1)
-                elif event.key == 276:
+                elif event.key == pygame.K_LEFT:
                         i=max(0,i-1)
-                elif event.key == 113:
+                elif event.key == pygame.K_q:
                     return
                 else: continue
                 texts[0]='move {}/{}  model:{}'.format(i,len(path)-1,model_name)
+                print texts
                 draw_screen(screen,path[i],texts)
                 pygame.display.update()
             pygame.display.update()
