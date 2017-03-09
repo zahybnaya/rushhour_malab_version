@@ -1,6 +1,6 @@
 from fitting import *
-from system import argv
 from astar import make_Astar
+from sys import argv
 from test import log_likelihood,instance_set_easy,magsize
 from rushhour import RHInstance
 
@@ -30,10 +30,11 @@ def partial_search(lapse_rate,max_expanded):
 def fit_plan(model_ind):
     stimuli=instance_set_easy[1]
     data=plan
-    model,parameters,bounds={'0':(lapse_alg,[0.1],((0,1))),
-            '1':(lapse_in_search_alg,[0.1,0.2],((0,1),(0,1))),
-            '2':(partial_search,[0.1,1000],((0,1),(10,500)))
-            }
+    model,parameters,bounds={0:(lapse_alg,[0.1],((0,1))),
+            1:(lapse_in_search_alg,[0.1,0.2],((0,1),(0,1))),
+            2:(partial_search,[0.1,1000],((0,1),(10,500)))
+            }[model_ind]
+    #print 'fit({},{},{},{},{},{})'.format(stimuli,model,log_likelihood,parameters,bounds,data)
     print fit(stimuli,model,log_likelihood,parameters,bounds,data)
 
 
@@ -44,5 +45,10 @@ def test_00():
     bounds=((0,1),(0,1))
     print fit(stimuli,lapse_in_search_alg,log_likelihood,parameters,bounds,data)
 
+try:
+	alg_ind = int(argv[1])
+except:
+    print 'ERROR: {} alg_id (0-2)'.format(argv[0])
+    exit(0)
 
-
+fit_plan(alg_ind)

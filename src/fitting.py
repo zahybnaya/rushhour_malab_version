@@ -22,7 +22,7 @@ def fit(stimuli, model_creator, likelihood_function,parameters,bounds, data):
                 print 'Out of bound {}<{}<{}. All={} '.format(lb,p,ub,params)
                 return 1000 #float('inf')
         model = model_creator(*params)
-        print 'Checking {} -> '.format(model.__name_),
+        print 'Checking {} -> '.format(model.__name__),
         val=-likelihood_function(stimuli,model,data,1000)
         print val
         return val
