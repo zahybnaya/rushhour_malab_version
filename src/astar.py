@@ -1,10 +1,10 @@
 from heapq import heappop, heappush,heapify
-from graphics import *
+#from graphics import *
 from copy import deepcopy
 from rushhour import *
 from random import randint,random
-import numpy as np
-from scipy.stats import rv_discrete
+#import numpy as np
+#from scipy.stats import rv_discrete
 
 
 """
@@ -36,7 +36,7 @@ def reconstruct_path(backtrace,n,plan_correction_level=1):
 def make_fCalc(gF=1,hF=1,gAddition=1):
     def tmp_f(g,h,s):
         return (gF*(g+gAddition)+hF*h,g+gAddition,hF,s)
-    tmp_f.__name__='{}*(g+{})+{}h'.format(gF,gAddition,hF)
+    tmp_f.__name__='{0}*(g+{1})+{2}h'.format(gF,gAddition,hF)
     return tmp_f
 
 def select_state_from_open(openList):
@@ -80,7 +80,7 @@ def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=
     else:
         def tmp_f(start):
             return Astar(start,heur,calcF,is_stop,  search_lapse,plan_correction_level)
-    tmp_f.__name__='A* h:{} f:{} is_stop:{} lapse_rate:{},search_lapse:{}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse)
+    tmp_f.__name__='A*h:{0}f:{1}is_stop:{2}lapse_rate:{3},search_lapse:{4}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse)
     return tmp_f
 
 def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):

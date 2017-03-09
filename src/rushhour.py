@@ -1,8 +1,8 @@
 from collections import defaultdict
-from graphviz import Digraph
+#from graphviz import Digraph
 from operator import itemgetter
 from copy import deepcopy
-from try_pygame import *
+#from try_pygame import *
 from random import choice,shuffle
 from os import path
 from itertools import product
@@ -623,6 +623,5 @@ def read_instances(filename='../princeton_AI/code/jams.txt'):
 
 opt_solution_instances_mag={ 0:9, 1:10, 2:15, 3:10, 4:10, 5:11, 6:14, 7:14, 8:13, 9:21, 10:27, 11:19, 12:24, 13:18, 14:24, 15:28, 16:28, 17:27, 18:23, 19:13, 20:22, 21:29, 22:30, 23:29, 24:41, 25:32, 26:34, 27:33, 28:34, 29:38, 30:39, 31:39, 32:49, 33:45, 34:48, 35:46, 36:49, 37:50, 38:58, 39:58}
 
-opt_solution_instances={0:8,9:17,10:25,11:17,12:16,13:17,14:23,15:21,16:24,17:25,18:22,1:8,19:10,20:21,21:26,22:29,23:25,24:27,25:28,26:28,27:30,28:31,2:14,29:32,30:37,31:37,32:40,33:43,34:43,35:44,36:47,37:48,38:50,3:9,39:51,4:9,5:9,6:13,7:12,8:12}
 
-opt_solution_instances = dict(('Jam-{}'.format(k+1),v) for k,v in opt_solution_instances.iteritems())
+opt_solution_instances= {'Jam-29': 31, 'Jam-28': 30, 'Jam-21': 21, 'Jam-20': 10, 'Jam-23': 29, 'Jam-22': 26, 'Jam-25': 27, 'Jam-24': 25, 'Jam-27': 28, 'Jam-26': 28, 'Jam-2': 8, 'Jam-3': 14, 'Jam-1': 8, 'Jam-6': 9, 'Jam-7': 13, 'Jam-4': 9, 'Jam-5': 9, 'Jam-8': 12, 'Jam-9': 12, 'Jam-40': 51, 'Jam-14': 17, 'Jam-15': 23, 'Jam-16': 21, 'Jam-17': 24, 'Jam-10': 17, 'Jam-11': 25, 'Jam-12': 17, 'Jam-13': 16, 'Jam-18': 25, 'Jam-19': 22, 'Jam-38': 48, 'Jam-39': 50, 'Jam-32': 37, 'Jam-33': 40, 'Jam-30': 32, 'Jam-31': 37, 'Jam-36': 44, 'Jam-37': 47, 'Jam-34': 43, 'Jam-35': 43}

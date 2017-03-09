@@ -1,7 +1,7 @@
 from rushhour import *
 from math import log
 from astar import *
-from try_pygame import *
+#from try_pygame import *
 from random import random,seed
 from itertools import product
 #import matplotlib.pyplot as plt
@@ -274,35 +274,10 @@ def log_likelihood(instance,model,plan=None,sample_size=100):
             if key in stats:
                 stats[key]+=1
     for i in range(len(plan)):
-        print '{}:{}'.format(i,stats[(i,plan[i])]),
+        print '{0}:{1}'.format(i,stats[(i,plan[i])]),
     print ''
     zeros = sum(-10 for stp in stats.itervalues() if stp == 0)
     return zeros+ sum(log(float(stp)/sample_size) for stp in stats.itervalues() if stp != 0)
-
-
-def test_log_likelihood(model,ins):
-    plan=[RHInstance({'r':(3,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1'),
-          RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1'),
-          RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,2,2)},'easy1'),
-          RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,0,3),'g':(3,2,2)},'easy1'),
-          RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1'),
-          RHInstance({'r':(1,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,3,3),'g':(3,4,2)},'easy1'),
-          RHInstance({'r':(4,2,2),'y':(2,0,3),'o':(1,4,2)},{'p':(5,3,3),'g':(3,4,2)},'easy1'),
- ]
-    k=log_likelihood(ins,model,plan,sample_size=10)
-    print '{},{},{}'.format(10,k,model.__name__)
-
-    k=log_likelihood(ins,model,plan,sample_size=50)
-    print '{},{},{}'.format(50,k,model.__name__)
-
-    k=log_likelihood(ins,model,plan,sample_size=100)
-    print '{},{},{}'.format(100,k,model.__name__)
-
-    k=log_likelihood(ins,model,plan,sample_size=1000)
-    print '{},{},{}'.format(1000,k,model.__name__)
-
-    k=log_likelihood(ins,model,plan,sample_size=100000)
-    print '{},{},{}'.format(100000,k,model.__name__)
 
 
 
@@ -325,13 +300,13 @@ def test_log_likelihood(model,ins):
 #test_unlbocked_h()
 
 #def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False,lapse_rate=0,search_lapse=0):
-astar1=make_Astar(search_lapse=0.4)
-astar2=make_Astar(search_lapse=0.2)
-astar3=make_Astar(lapse_rate=0.1)
-test_log_likelihood(make_Astar(),instance_set_easy[1])
-test_log_likelihood(astar1,instance_set_easy[1])
-test_log_likelihood(astar2,instance_set_easy[1])
-test_log_likelihood(astar3,instance_set_easy[1])
+#astar1=make_Astar(search_lapse=0.4)
+#astar2=make_Astar(search_lapse=0.2)
+#astar3=make_Astar(lapse_rate=0.1)
+#test_log_likelihood(make_Astar(),instance_set_easy[1])
+#test_log_likelihood(astar1,instance_set_easy[1])
+#test_log_likelihood(astar2,instance_set_easy[1])
+#test_log_likelihood(astar3,instance_set_easy[1])
 #
 #write_distribuition_raw(ins,make_Astar(),sample_size=100)
 #write_distribuition_raw(ins,astar1,sample_size=100)
