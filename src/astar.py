@@ -19,7 +19,6 @@ Suboptimality:
 Parameters:
 """
 
-
 def reconstruct_path(backtrace,n,plan_correction_level=1):
     """
     returns a list of states from start to the goal
@@ -142,11 +141,11 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
         if is_stop(stats):
             #print 'stopping'
             n=select_state_from_open(openList)
-            path_,stats_ = Astar(n,heur,calcF,is_stop)
+            path_,stats_ = Astar(n,heur,calcF,is_stop,search_lapse,plan_correction_level)
             stats['stops']+=1
             stats['generated']+=stats_['generated']
             stats['expanded']+=stats_['expanded']
-            path_.extend(reconstruct_path(backtrace,n))
+            path_ = reconstruct_path(backtrace,n) + path_
             return path_,stats
     return 'failure'
 

@@ -7,7 +7,6 @@ from itertools import product
 #import matplotlib.pyplot as plt
 
 
-
 instance_set_easy=[ RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)},'easy0')
 , RHInstance({'r':(3,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1')
 , RHInstance({'r':(2,2,2),'g':(4,3,2),'b':(4,5,2)},{'o':(2,4,2),'y':(4,0,3),'p':(3,3,3)},'easy2')
