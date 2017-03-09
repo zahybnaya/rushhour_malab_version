@@ -80,7 +80,7 @@ def rand_move_extended(instance,unblocking=True):
 
 def rand_move(instance,unblocking=True):
     ub,b=unblocking_successors(instance)
-    if unblocking:
+    if unblocking and len(ub)>0:
         return choice(ub)
     return choice(expand(instance))
 

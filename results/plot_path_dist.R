@@ -2,7 +2,7 @@ library(ggplot2)
 library(grid)
 library(gridExtra)
 setwd("~/gdrivezb9/rushhour/results")
-
+logl = read.csv('aspen_ll_es.csv', header = TRUE)
 # sample, step, state, instance, alg
 #dist<-read.csv('raw_path_dist1.csv',header = TRUE, sep = ' ')
 #dist<-read.csv('raw_dist_algs.1.csv',header = TRUE, sep = ' ')
@@ -12,6 +12,9 @@ dist<-read.csv('raw_dist_astars_easy1',header = TRUE, sep = ' ')
 
 dists=split(dist,dist[,c('instance')])
 
+# plot 1: distribution of 2-3 different models and real data 
+# plot 2: logliklihood of 2-3 different models with different sampling sizes
+# plot 3: Summary statistics - ratio of optimal vs. length of optimal
 
 
 solution_lengths<-function(d){
@@ -33,7 +36,7 @@ solution_length_plot<-function(d){
 }
 
 path_dist_plot<-function(d){
-  g<-ggplot(d,aes(x=factor(d$state,d$state),fill=d$alg)) + geom_bar(position = "dodge")+theme(legend.position="none", axis.title.x=element_blank(),axis.title.y=element_blank())
+  g<-ggplot(d,aes(x=factor(d$state),fill=d$alg)) + geom_bar(position = "dodge")+theme(legend.position="none", axis.title.x=element_blank(),axis.title.y=element_blank())
   return(g);
 }
 
@@ -51,6 +54,3 @@ dists=split(dist1,dist1[,c('instance')])
 slplots=lapply(dists, path_dist_plot)
 do.call('grid.arrange',c(slplots, ncol = 5, top = "Path Distributions"))
 
-
-
-#Summary statistics - ratio of optimal vs. length of optimal

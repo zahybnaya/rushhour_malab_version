@@ -7,7 +7,6 @@ from itertools import product
 #import matplotlib.pyplot as plt
 
 
-
 instance_set_easy=[ RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)},'easy0')
 , RHInstance({'r':(3,2,2),'y':(2,0,3),'o':(4,4,2)},{'p':(5,0,3),'g':(3,4,2)},'easy1')
 , RHInstance({'r':(2,2,2),'g':(4,3,2),'b':(4,5,2)},{'o':(2,4,2),'y':(4,0,3),'p':(3,3,3)},'easy2')
@@ -325,13 +324,13 @@ def test_log_likelihood(model,ins):
 #test_unlbocked_h()
 
 #def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, shuffle=False,lapse_rate=0,search_lapse=0):
-astar1=make_Astar(search_lapse=0.4)
-astar2=make_Astar(search_lapse=0.2)
-astar3=make_Astar(lapse_rate=0.1)
-test_log_likelihood(make_Astar(),instance_set_easy[1])
-test_log_likelihood(astar1,instance_set_easy[1])
-test_log_likelihood(astar2,instance_set_easy[1])
-test_log_likelihood(astar3,instance_set_easy[1])
+#astar1=make_Astar(search_lapse=0.4)
+#astar2=make_Astar(search_lapse=0.2)
+#astar3=make_Astar(lapse_rate=0.1)
+#test_log_likelihood(make_Astar(),instance_set_easy[1])
+#test_log_likelihood(astar1,instance_set_easy[1])
+#test_log_likelihood(astar2,instance_set_easy[1])
+#test_log_likelihood(astar3,instance_set_easy[1])
 #
 #write_distribuition_raw(ins,make_Astar(),sample_size=100)
 #write_distribuition_raw(ins,astar1,sample_size=100)
