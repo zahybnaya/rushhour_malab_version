@@ -18,7 +18,7 @@ class RHInstance:
         self.goal_loc=goal_loc
     def __eq__(self, other):
         if isinstance(other, RHInstance):
-            return ((self.h == other.h) and (self.v== other.v))
+            return (self.h == other.h) and (self.v== other.v)
         else:
             return False
     def is_goal(self):
@@ -29,6 +29,11 @@ class RHInstance:
     def __hash__(self):
         fs=frozenset(self.h.items() + self.v.items())
         return hash(fs)
+    def __repr__(self):
+        return self.__str__()
+    def __str__(self):
+        return '{}{}'.format(self.h,self.v)
+
 
 def mag_pairs(mg):
     return set([(k,k1) for k,v in mg.iteritems() for k1 in v ])

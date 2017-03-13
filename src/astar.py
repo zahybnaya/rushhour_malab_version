@@ -131,7 +131,6 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
                 continue
             # if in openlist and needs to be updates, remove push and hepify.
             backtrace[s]=(g+1,n)
-            #print 'PUSH '+str(s.__hash__())
             hs=heur(s)
             heappush(openList,calcF(g,hs,s))
         stats['open_size']=len(openList)

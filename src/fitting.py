@@ -23,12 +23,10 @@ def fit(stimuli, model_creator, likelihood_function,parameters,bounds, data):
                 return 1000 #float('inf')
         model = model_creator(*params)
         print 'Checking {} -> '.format(model.__name__),
-        val=-likelihood_function(stimuli,model,data,1000)
+        val=-likelihood_function(stimuli,model,data)
         print val
         return val
     p = [param for param in parameters]
-    constraints=[{'type':'ineq', 'fun':lambda x:x[0]>=0 and x[0]<=1},{'type':'ineq', 'fun':lambda x:x[1]>=0 and x[1]<=1}]
-    bounds=((0,1),(0,1))
     return optimize.minimize(f,p,method='Powell')
 
 

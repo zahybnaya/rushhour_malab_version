@@ -30,12 +30,14 @@ def partial_search(lapse_rate,max_expanded):
 def fit_plan(model_ind):
     stimuli=instance_set_easy[1]
     data=plan
-    model,parameters,bounds={0:(lapse_alg,[0.1],((0,1))),
+    model,parameters,bounds={0:(lapse_alg,[0.1],[(0,1)]),
             1:(lapse_in_search_alg,[0.1,0.2],((0,1),(0,1))),
             2:(partial_search,[0.1,1000],((0,1),(10,500)))
             }[model_ind]
-    #print 'fit({},{},{},{},{},{})'.format(stimuli,model,log_likelihood,parameters,bounds,data)
-    print fit(stimuli,model,log_likelihood,parameters,bounds,data)
+    def log_likelihood_func(stimuli,model,data):
+        return log_likelihood(stimuli,model,data)[1]
+
+    print fit(stimuli,model,log_likelihood_func,parameters,bounds,data)
 
 
 def test_00():

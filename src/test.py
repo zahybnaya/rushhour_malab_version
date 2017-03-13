@@ -1,7 +1,7 @@
 from rushhour import *
 from math import log
 from astar import *
-#from try_pygame import *
+from try_pygame import *
 from random import random,seed
 from itertools import product
 #import matplotlib.pyplot as plt
@@ -262,8 +262,27 @@ def compare_tasks_to_no_tasks():
         patht,_=astar_tasks(ins,astar)
         print '*,{}, {}, {}, {}'.format(i,len(path),len(patht),opt_solution_instances[i])
 
+def comp(plan1,plan2):
+    print 'lengths:{}-{}'.format( len(plan1),len(plan2))
+    for a,b in zip(plan1,plan2):
+        print '{}--{}'.format(a,b)
+        print a==b
 
-def log_likelihood(instance,model,plan=None,sample_size=100):
+def count_till_plan(instance,model,plan,max_try=10000):
+    for i in range(max_try):
+        p1,_=model(instance)
+        #print [('F','T')[a==b] for a,b in zip(p1,plan)]
+        if p1==plan:
+            return i
+    return float('inf')
+
+
+def log_likelihood(instance,model,plan=None):
+    c=count_till_plan(instance,model,plan)
+    return c,log(1.0/c)
+
+
+def log_likelihood_old(instance,model,plan=None,sample_size=100):
     stats=dict(((i,plan[i]),0) for i in range(len(plan)))
     for i in range(sample_size):
         g_p,_ = model(instance)
@@ -279,7 +298,6 @@ def log_likelihood(instance,model,plan=None,sample_size=100):
     return zeros+ sum(log(float(stp)/sample_size) for stp in stats.itervalues() if stp != 0)
 
 
-
 #test_astar_instance(ins,make_Astar())
 #test_astar_tasks_instance(ins,make_Astar())
 #
@@ -288,6 +306,10 @@ def log_likelihood(instance,model,plan=None,sample_size=100):
 #    test_astar_instance(ins,make_Astar())
 #    test_astar_tasks_instance(ins,make_Astar())
 #
+astar=make_Astar(search_lapse=0.9,lapse_rate=0.0)
+path,_=astar(instance_set_easy[1])
+show(path)
+#show([instance_set_easy[3]])
 #show(RTA(instance_set_easy[1],heur=lambda x: perfecth(x,0.8,0)),['A*tasks instance:{}'])
 ##test_plan_instance(4)
 #test_plan_tasks_instance(6)

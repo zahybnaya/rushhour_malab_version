@@ -22,6 +22,12 @@ solution_lengths<-function(d){
   return(paste(unique(d$instance),unique(steps$step),sep = ':'))
 }
 
+#A*h:magsizef:1*(g+1)+1his_stop:<lambda>lapse_rate:0.184072757689,search_lapse:0 ->  0:1000 1:478 2:111 3:47 4:15 5:38 6:68
+# 16.1520990724
+#Checking A*h:magsizef:1*(g+1)+1his_stop:<lambda>lapse_rate:0.100012528878,search_lapse:0.277182451791 ->  0:1000 1:464 2:126 3:52 4:19 5:45 6:99
+# 15.1729001771
+#Checking A*h:magsizef:1*(g+1)+1his_stop:stop_Xlapse_rate:0.075196556899,search_lapse:0 ->  0:1000 1:464 2:165 3:65 4:27 5:9 6:33
+# 17.0367453731
 
 solution_length_plot<-function(d){
   alg_splits=split(d, d$alg)
