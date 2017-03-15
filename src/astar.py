@@ -4,7 +4,7 @@ from copy import deepcopy
 from rushhour import *
 from random import randint,random
 #import numpy as np
-#from scipy.stats import rv_discrete
+from scipy.stats import rv_discrete
 
 
 """
@@ -19,18 +19,47 @@ Suboptimality:
 Parameters:
 """
 
-def reconstruct_path(backtrace,n,plan_correction_level=1):
+def zipf(total,rank,s):
+    ret= (1/pow(rank,s)) / sum([1/pow(n,s) for n in total])
+    return ret
+
+def zipf_choice(vals,shape):
+    ranks=sorted(vals)
+    decision=random()
+    t,r=0,0
+    while True:
+        t+=zipf(range(1,len(ranks)+1),r+1,shape)
+        if t>=decision:
+            return ranks[r]
+        r+=1
+
+
+def select_from_backtrace(backtrace,n,shape):
+    dicts=backtrace[n]
+    g=zipf_choice(dicts.keys(),shape)
+    return choice(dicts[g])
+
+def print_backtrace(backtrace):
+    print '**************START backtrace print*************'
+    for n in backtrace:
+        print '-'
+        for g in backtrace[n]:
+            print '{}->{}'.format(g,len(backtrace[n][g]))
+    print '**************END backtrace print*************'
+
+def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
     """
     returns a list of states from start to the goal
+    backtrace is a dict of states and dicts of g and list of possible_backs
     """
+    #print_backtrace(backtrace)
     path=[]
     while n in backtrace:
         path.append(n)
-        _,n = backtrace[n]
+        n = select_from_backtrace(backtrace,n,reconstruct_accuracy)
     path.append(n)
     path.reverse()
-    path=plan_correction(path,plan_correction_level)
-    return path
+    return plan_correction(path,plan_correction_level)
 
 def make_fCalc(gF=1,hF=1,gAddition=1):
     def tmp_f(g,h,s):
@@ -71,15 +100,15 @@ def h_unblocked(instance,level=1):
 def minimin(instance):
     pass
 
-def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1):
+def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0):
     if lapse_rate>0:
-        astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level)
+        astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level,reconstruct_accuracy)
         def tmp_f(start):
             return lapsingAstar(start,astar,lapse_rate)
     else:
         def tmp_f(start):
-            return Astar(start,heur,calcF,is_stop,  search_lapse,plan_correction_level)
-    tmp_f.__name__='A*h:{0}f:{1}is_stop:{2}lapse_rate:{3},search_lapse:{4}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse)
+            return Astar(start,heur,calcF,is_stop,search_lapse,plan_correction_level,reconstruct_accuracy)
+    tmp_f.__name__='A*h:{0}f:{1}istop:{2}lapse:{3}slapse:{4}reca:{5}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse,reconstruct_accuracy)
     return tmp_f
 
 def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
@@ -104,7 +133,17 @@ def perfecth(instance,from_noise=0,to_noise=0):
     add_noise_val=from_noise + random()* (to_noise-from_noise)
     return len(Astar(instance)[0])*(1+add_noise_val)
 
-def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1):
+def add_to_backtrace(backtrace,s,n,g):
+    back_dict = backtrace.get(s,{})
+    possible_backs=back_dict.get(g+1,[])
+    if (len(possible_backs)>10):
+        return
+    possible_backs.append(n)
+    back_dict[g+1]=possible_backs
+    backtrace[s]=back_dict
+
+
+def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1,reconstruct_accuracy=1.0):
     stats={'expanded':0,'generated':0,'open_size':0,'close_size':0,'stops':0}
     backtrace={}
     closed = set()
@@ -119,18 +158,14 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
             heapify(openList)
         #print 'POP '+str(n.__hash__())
         if n.is_goal():
-            return reconstruct_path(backtrace,n),stats
+            return reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy),stats
         closed.add(n)
         succs = expand(n)
         for s in succs:
             #print 'GENERATED '+str(s.__hash__())
             if s in closed:
                 continue
-            best_g,_ = backtrace.get(s,(float('inf'),None))
-            if g+1 >= best_g: #already in open and not better
-                continue
-            # if in openlist and needs to be updates, remove push and hepify.
-            backtrace[s]=(g+1,n)
+            add_to_backtrace(backtrace,s,n,g)
             hs=heur(s)
             heappush(openList,calcF(g,hs,s))
         stats['open_size']=len(openList)
@@ -140,11 +175,11 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
         if is_stop(stats):
             #print 'stopping'
             n=select_state_from_open(openList)
-            path_,stats_ = Astar(n,heur,calcF,is_stop,search_lapse,plan_correction_level)
+            path_,stats_ = Astar(n,heur,calcF,is_stop,search_lapse,plan_correction_level,reconstruct_accuracy)
             stats['stops']+=1
             stats['generated']+=stats_['generated']
             stats['expanded']+=stats_['expanded']
-            path_ = reconstruct_path(backtrace,n) + path_
+            path_ = reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy) + path_
             return path_,stats
     return 'failure'
 
