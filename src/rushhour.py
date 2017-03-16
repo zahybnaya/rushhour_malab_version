@@ -181,6 +181,16 @@ def find_terminal_states(instance):
                 terminals.append(RHInstance(h,v))
     return terminals
 
+def piece_possible_moves(instance,piece):
+    succs=[]
+    b=ground_instance(instance)
+    (c,l,s),o = find_piece(instance,piece)
+    possible_moves = piece_possible_locations(c,l,s,o,instance,True)
+    for m_c,m_l,m_s in possible_moves:
+        if len([1 for x,y in find_path_to_location((c,l,s),(m_c,m_l,m_s),o) if b[y][x] != ' '])==0:
+            succs.append((m_c,m_l,m_s))
+    return succs
+
 def expand(instance):
     """
     All possible moves from current instance

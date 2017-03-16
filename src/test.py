@@ -268,8 +268,8 @@ def comp(plan1,plan2):
         print '{}--{}'.format(a,b)
         print a==b
 
-def count_till_plan(instance,model,plan,max_try=10000):
-    for i in range(max_try):
+def count_till_plan(instance,model,plan,max_try=1000):
+    for i in range(1,max_try):
         p1,_=model(instance)
         #print [('F','T')[a==b] for a,b in zip(p1,plan)]
         if p1==plan:
@@ -279,6 +279,8 @@ def count_till_plan(instance,model,plan,max_try=10000):
 
 def log_likelihood(instance,model,plan=None):
     c=count_till_plan(instance,model,plan)
+    if c==float('inf'):
+        return c,-float('inf')
     return c,log(1.0/c)
 
 
@@ -297,11 +299,20 @@ def log_likelihood_old(instance,model,plan=None,sample_size=100):
     zeros = sum(-10 for stp in stats.itervalues() if stp == 0)
     return zeros+ sum(log(float(stp)/sample_size) for stp in stats.itervalues() if stp != 0)
 
+for i in range(len(instance_set)):
+    play(instance_set[i])
 
-astar=make_Astar()
-astar(instance_set_easy[1])
-
-
+#for p in instance_set_easy[1].h:
+#    print p+':' + str(piece_possible_moves(instance_set_easy[1],p))
+#for p in instance_set_easy[1].v:
+#    print p+':' + str(piece_possible_moves(instance_set_easy[1],p))
+#
+#show([instance_set_easy[1]])
+#astar=make_Astar(heur=magsize)
+#path,_=astar(instance_set[8])
+#show(path)
+#
+#
 #for i in range(10000):
 #    print zipf_choice([6,7],1)
 #test_astar_instance(ins,make_Astar())
