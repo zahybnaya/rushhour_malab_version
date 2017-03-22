@@ -1,8 +1,25 @@
 library(ggplot2)
 library(grid)
 library(gridExtra)
-setwd("~/gdrivezb9/rushhour/results")
+setwd("~/gdrivezb9/rushhour/results/pilot")
 logl = read.csv('aspen_ll_es.csv', header = TRUE)
+
+logl = read.csv('fit_A.csv', header = TRUE)
+
+
+#model 0: 2.639057329615259 ((0.1815603171698146) (14 trials)
+#model 1: 0.6931471805599453 ( 0.08750753,  0.19998829) (2 trials)
+#model 3: 2.3978952727983707 (3.0770971577603987/27.859505401044196)  (11 trials)
+
+ggplot(logl, aes(x=logl$model)) + geom_bar(stat="identity", aes(y=logl$ll))
+
+
+#one instance, 3 models - 
+# 1) Astar + lapse
+# 2) Astar + search lapse 
+# 3) Astar + stop criterion 
+# 4) Astar + reconstruction lapse 
+
 # sample, step, state, instance, alg
 #dist<-read.csv('raw_path_dist1.csv',header = TRUE, sep = ' ')
 #dist<-read.csv('raw_dist_algs.1.csv',header = TRUE, sep = ' ')

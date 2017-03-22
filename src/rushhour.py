@@ -635,6 +635,8 @@ def read_instances(filename='../princeton_AI/code/jams.txt'):
             ins_begin=i+1
     return instance_set
 
+def instance_dict():
+    return dict((x.name, x) for x in read_instances())
 
 opt_solution_instances_mag={ 0:9, 1:10, 2:15, 3:10, 4:10, 5:11, 6:14, 7:14, 8:13, 9:21, 10:27, 11:19, 12:24, 13:18, 14:24, 15:28, 16:28, 17:27, 18:23, 19:13, 20:22, 21:29, 22:30, 23:29, 24:41, 25:32, 26:34, 27:33, 28:34, 29:38, 30:39, 31:39, 32:49, 33:45, 34:48, 35:46, 36:49, 37:50, 38:58, 39:58}
 

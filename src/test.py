@@ -4,6 +4,7 @@ from astar import *
 from try_pygame import *
 from random import random,seed
 from itertools import product
+from time import time
 #import matplotlib.pyplot as plt
 
 
@@ -271,7 +272,6 @@ def comp(plan1,plan2):
 def count_till_plan(instance,model,plan,max_try=1000):
     for i in range(1,max_try):
         p1,_=model(instance)
-        #print [('F','T')[a==b] for a,b in zip(p1,plan)]
         if p1==plan:
             return i
     return float('inf')
@@ -281,7 +281,7 @@ def log_likelihood(instance,model,plan=None):
     c=count_till_plan(instance,model,plan)
     if c==float('inf'):
         return c,-float('inf')
-    return c,log(1.0/c)
+    return c,log(sum([1.0/cc for cc in range(2,c)]))
 
 
 def log_likelihood_old(instance,model,plan=None,sample_size=100):
@@ -299,9 +299,52 @@ def log_likelihood_old(instance,model,plan=None,sample_size=100):
     zeros = sum(-10 for stp in stats.itervalues() if stp == 0)
     return zeros+ sum(log(float(stp)/sample_size) for stp in stats.itervalues() if stp != 0)
 
-for i in range(len(instance_set)):
-    play(instance_set[i])
+def make_summary(stats):
+    text= ['The time allocated for the experiment had passed.','Here are some stats:',' ']
+    t='Instance {} {}completed with {}/{} moves ({} solution quality) and {} restarts'
+    for x in stats:
+        try:
+            text.append(t.format(x['instance'],('NOT ','')[x['complete']],x['solution_length'],x['optimal'],x['solution_quality'],x['restarts']))
+        except:
+            pass
+    text.append('_______')
+    rs=sum([x['restarts'] for x in stats])
+    skips=len([1 for x in stats if not x['complete']])
+    text.append('In total, you skipped {} instances and restarted {} instances'.format(skips,rs))
+    return text
 
+
+
+def run_experiment():
+    start_time = time()
+    exp_time=(60*30)
+    stats=[]
+    for i in range(len(instance_set)):
+        if (time()-start_time)>exp_time:
+            txt=make_summary(stats)
+            message_screen(txt,[25,25]+[10]*(len(txt)-2))
+            break
+        ans,stat=play(instance_set[i])
+        stats.append(stat)
+        if ans:
+            break
+
+#run_experiment()
+
+
+
+#i=2
+#while 1:
+#    t=choice(range(100))
+#    if  t== 3:
+#        break
+#    i+=1
+#print i
+#print log(sum([1.0/c for c in range(1,i)]))
+#
+
+
+#message_screen(['this is a sentence']*10,[25,25]+[10]*8)
 #for p in instance_set_easy[1].h:
 #    print p+':' + str(piece_possible_moves(instance_set_easy[1],p))
 #for p in instance_set_easy[1].v:
