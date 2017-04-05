@@ -1,134 +1,153 @@
-subject, instance, optimal_length, human_length, complete
-gianni.log, Jam-2, 8, 9, True
-gianni.log, Jam-3, 14, 4, False
-gianni.log, Jam-3, 14, 4, False
-gianni.log, Jam-3, 14, 8, False
-gianni.log, Jam-3, 14, 3, False
-gianni.log, Jam-3, 14, 4, False
-gianni.log, Jam-3, 14, 9, False
-gianni.log, Jam-3, 14, 5, False
-gianni.log, Jam-3, 14, 16, True
-gianni.log, Jam-1, 8, 9, True
-gianni.log, Jam-6, 9, 10, True
-gianni.log, Jam-7, 13, 8, False
-gianni.log, Jam-7, 13, 10, False
-gianni.log, Jam-7, 13, 14, True
-gianni.log, Jam-4, 9, 10, True
-gianni.log, Jam-5, 9, 5, False
-gianni.log, Jam-5, 9, 10, True
-gianni.log, Jam-8, 12, 2, False
-gianni.log, Jam-8, 12, 14, True
-gianni.log, Jam-9, 12, 1, False
-gianni.log, Jam-9, 12, 13, True
-gianni.log, Jam-10, 17, 3, False
-gianni.log, Jam-10, 17, 23, True
-gianni.log, Jam-13, 16, 21, False
-gianni.log, Jam-13, 16, 23, False
-gianni.log, Jam-13, 16, 3, False
-gianni.log, Jam-13, 16, 11, False
-gianni.log, Jam-13, 16, 17, False
-gianni.log, Jam-13, 16, 24, False
-gianni.log, Jam-13, 16, 17, True
-gianni.log, Jam-12, 17, 5, False
-gianni.log, Jam-12, 17, 19, True
-gianni.log, Jam-11, 25, 6, False
-gianni.log, Jam-11, 25, 6, False
-gianni.log, Jam-11, 25, 6, False
-gianni.log, Jam-11, 25, 5, False
-gianni.log, Jam-11, 25, 14, False
-gianni.log, Jam-11, 25, 13, False
-gianni.log, Jam-11, 25, 7, False
-gianni.log, Jam-11, 25, 31, True
-maija.log, Jam-21, 21, 29, True
-maija.log, Jam-20, 10, 28, False
-maija.log, Jam-20, 10, 11, True
-maija.log, Jam-23, 29, 28, False
-maija.log, Jam-23, 29, 37, True
-maija.log, Jam-22, 26, 32, True
-maija.log, Jam-2, 8, 15, True
-maija.log, Jam-3, 14, 23, True
-maija.log, Jam-1, 8, 9, True
-maija.log, Jam-6, 9, 10, True
-maija.log, Jam-7, 13, 19, True
-maija.log, Jam-4, 9, 12, True
-maija.log, Jam-5, 9, 10, True
-maija.log, Jam-8, 12, 21, True
-maija.log, Jam-9, 12, 13, True
-maija.log, Jam-14, 17, 21, True
-maija.log, Jam-15, 23, 25, True
-maija.log, Jam-16, 21, 31, False
-maija.log, Jam-16, 21, 46, False
-maija.log, Jam-16, 21, 29, True
-maija.log, Jam-17, 24, 33, True
-maija.log, Jam-10, 17, 24, True
-maija.log, Jam-11, 25, 37, True
-maija.log, Jam-12, 17, 21, True
-maija.log, Jam-13, 16, 44, False
-maija.log, Jam-13, 16, 32, True
-maija.log, Jam-18, 25, 28, True
-maija.log, Jam-19, 22, 26, True
-long.log, Jam-2, 8, 13, True
-long.log, Jam-3, 14, 18, False
-long.log, Jam-3, 14, 25, True
-long.log, Jam-1, 8, 9, True
-long.log, Jam-6, 9, 14, True
-long.log, Jam-7, 13, 17, True
-long.log, Jam-4, 9, 10, True
-long.log, Jam-5, 9, 10, True
-long.log, Jam-8, 12, 15, True
-long.log, Jam-9, 12, 21, True
-long.log, Jam-10, 17, 24, False
-long.log, Jam-10, 17, 80, True
-will.log, Jam-2, 8, 28, True
-will.log, Jam-3, 14, 16, True
-will.log, Jam-16, 21, 26, True
-will.log, Jam-1, 8, 9, True
-will.log, Jam-6, 9, 13, True
-will.log, Jam-7, 13, 14, True
-will.log, Jam-4, 9, 10, True
-will.log, Jam-5, 9, 10, True
-will.log, Jam-14, 17, 18, True
-will.log, Jam-8, 12, 10, False
-will.log, Jam-8, 12, 10, False
-will.log, Jam-8, 12, 1, False
-will.log, Jam-9, 12, 13, True
-will.log, Jam-17, 24, 37, True
-will.log, Jam-10, 17, 16, False
-will.log, Jam-10, 17, 28, True
-will.log, Jam-13, 16, 4, False
-will.log, Jam-13, 16, 25, False
-will.log, Jam-12, 17, 19, True
-will.log, Jam-15, 23, 6, False
-will.log, Jam-15, 23, 33, False
-will.log, Jam-11, 25, 7, False
-will.log, Jam-11, 25, 24, False
-will.log, Jam-11, 25, 1, False
-weiji.log, Jam-2, 8, 9, True
-weiji.log, Jam-3, 14, 15, True
-weiji.log, Jam-16, 21, 37, True
-weiji.log, Jam-1, 8, 9, True
-weiji.log, Jam-6, 9, 11, True
-weiji.log, Jam-7, 13, 15, True
-weiji.log, Jam-4, 9, 10, True
-weiji.log, Jam-5, 9, 10, True
-weiji.log, Jam-14, 17, 30, True
-weiji.log, Jam-8, 12, 19, True
-weiji.log, Jam-9, 12, 15, True
-weiji.log, Jam-17, 24, 28, True
-weiji.log, Jam-10, 17, 24, True
-weiji.log, Jam-13, 16, 19, False
-weiji.log, Jam-13, 16, 28, True
-weiji.log, Jam-12, 17, 18, True
-weiji.log, Jam-15, 23, 24, True
-weiji.log, Jam-11, 25, 15, False
-weiji.log, Jam-11, 25, 36, True
-andra.log, Jam-2, 8, 11, True
-andra.log, Jam-3, 14, 51, True
-andra.log, Jam-1, 8, 13, True
-andra.log, Jam-6, 9, 20, True
-andra.log, Jam-7, 13, 24, True
-andra.log, Jam-4, 9, 12, True
-andra.log, Jam-5, 9, 15, True
-andra.log, Jam-8, 12, 16, True
-andra.log, Jam-9, 12, 13, True
-andra.log, Jam-10, 17, 65, True
+subject, instance, optimal_length, human_length, complete, rt,nodes_expanded, skipped, trial_number
+andra.log,Jam-2,8,11,True,86.1199998856,NA,False,0
+andra.log,Jam-3,14,51,True,749.950000048,NA,False,0
+andra.log,Jam-1,8,13,True,78.5600001812,NA,False,0
+andra.log,Jam-6,9,20,True,85.8099999428,NA,False,0
+andra.log,Jam-7,13,24,True,203.619999886,NA,False,0
+andra.log,Jam-4,9,12,True,100.150000095,NA,False,0
+andra.log,Jam-5,9,15,True,130.069999933,NA,False,0
+andra.log,Jam-8,12,16,True,80.8099999428,NA,False,0
+andra.log,Jam-9,12,13,True,59.2599999905,NA,False,0
+andra.log,Jam-10,17,65,True,363.410000086,NA,False,0
+gianni.log,Jam-2,8,9,True,66.3599998951,NA,False,0
+gianni.log,Jam-3,14,5,False,67.0099999905,NA,False,0
+gianni.log,Jam-3,14,5,False,56.6199998856,NA,False,1
+gianni.log,Jam-3,14,9,False,28.3699998856,NA,False,2
+gianni.log,Jam-3,14,4,False,20.5,NA,False,3
+gianni.log,Jam-3,14,5,False,13.6599998474,NA,False,4
+gianni.log,Jam-3,14,10,False,31.8200001717,NA,False,5
+gianni.log,Jam-3,14,6,False,27.9100000858,NA,False,6
+gianni.log,Jam-3,14,16,True,55.3899998665,NA,False,7
+gianni.log,Jam-1,8,9,True,50.6500000954,NA,False,0
+gianni.log,Jam-6,9,10,True,27.2200000286,NA,False,0
+gianni.log,Jam-7,13,9,False,42.7000000477,NA,False,0
+gianni.log,Jam-7,13,11,False,46.9400000572,NA,False,1
+gianni.log,Jam-7,13,14,True,35.9499998093,NA,False,2
+gianni.log,Jam-4,9,10,True,28.9700000286,NA,False,0
+gianni.log,Jam-5,9,6,False,25.2599999905,NA,False,0
+gianni.log,Jam-5,9,10,True,21.629999876,NA,False,1
+gianni.log,Jam-8,12,3,False,11.8999998569,NA,False,0
+gianni.log,Jam-8,12,14,True,62.7699999809,NA,False,1
+gianni.log,Jam-9,12,2,False,17.8499999046,NA,False,0
+gianni.log,Jam-9,12,13,True,40.0199999809,NA,False,1
+gianni.log,Jam-10,17,4,False,20.5900001526,NA,False,0
+gianni.log,Jam-10,17,23,True,79.7400000095,NA,False,1
+gianni.log,Jam-13,16,22,False,96.9599997997,NA,False,0
+gianni.log,Jam-13,16,24,False,82.8299999237,NA,False,1
+gianni.log,Jam-13,16,4,False,25.8800001144,NA,False,2
+gianni.log,Jam-13,16,12,False,73.6000001431,NA,False,3
+gianni.log,Jam-13,16,18,False,51.5600001812,NA,False,4
+gianni.log,Jam-13,16,25,False,81.3200001717,NA,False,5
+gianni.log,Jam-13,16,17,True,42.0399999619,NA,False,6
+gianni.log,Jam-12,17,6,False,40.9500000477,NA,False,0
+gianni.log,Jam-12,17,19,True,53.4600000381,NA,False,1
+gianni.log,Jam-11,25,7,False,43.3299999237,NA,False,0
+gianni.log,Jam-11,25,7,False,40.7000000477,NA,False,1
+gianni.log,Jam-11,25,7,False,25.0400002003,NA,False,2
+gianni.log,Jam-11,25,6,False,55.3400001526,NA,False,3
+gianni.log,Jam-11,25,15,False,52.5399999619,NA,False,4
+gianni.log,Jam-11,25,14,False,59.9300000668,NA,False,5
+gianni.log,Jam-11,25,8,False,22.2100000381,NA,False,6
+gianni.log,Jam-11,25,31,True,97.0399999619,NA,False,7
+jenn.log,Jam-2,8,16,True,88.2200000286,NA,False,0
+jenn.log,Jam-3,14,9,False,50.0099999905,NA,False,0
+jenn.log,Jam-3,14,25,True,158.779999971,NA,False,1
+jenn.log,Jam-1,8,15,True,123.470000029,NA,False,0
+jenn.log,Jam-6,9,13,True,54.8299999237,NA,False,0
+jenn.log,Jam-7,13,16,True,136.75999999,NA,False,0
+jenn.log,Jam-4,9,10,True,27.6100001335,NA,False,0
+jenn.log,Jam-5,9,11,True,32.9600000381,NA,False,0
+jenn.log,Jam-8,12,13,True,43.0699999332,NA,False,0
+jenn.log,Jam-9,12,13,True,57.5399999619,NA,False,0
+jenn.log,Jam-10,17,3,False,22.8699998856,NA,False,0
+jenn.log,Jam-10,17,29,True,209.75,NA,False,1
+jenn.log,Jam-13,16,8,False,154.169999838,NA,False,0
+jenn.log,Jam-13,16,75,True,384.159999847,NA,False,1
+jenn.log,Jam-12,17,8,False,36.7599999905,NA,False,0
+jenn.log,Jam-12,17,19,True,144.859999895,NA,False,1
+jenn.log,Jam-11,25,25,False,126.399999857,NA,False,0
+jenn.log,Jam-11,25,9,False,100.069999933,NA,False,1
+jenn.log,Jam-11,25,6,False,52.8400001526,NA,True,2
+long.log,Jam-2,8,13,True,142.760000229,NA,False,0
+long.log,Jam-3,14,19,False,323.330000162,NA,False,0
+long.log,Jam-3,14,25,True,288.24000001,NA,False,1
+long.log,Jam-1,8,9,True,111.769999981,NA,False,0
+long.log,Jam-6,9,14,True,80.5099999905,NA,False,0
+long.log,Jam-7,13,17,True,142.5,NA,False,0
+long.log,Jam-4,9,10,True,56.8200001717,NA,False,0
+long.log,Jam-5,9,10,True,57.9499998093,NA,False,0
+long.log,Jam-8,12,15,True,119.179999828,NA,False,0
+long.log,Jam-9,12,21,True,189.619999886,NA,False,0
+long.log,Jam-10,17,25,False,278.129999876,NA,False,0
+long.log,Jam-10,17,80,True,771.149999857,NA,False,1
+maija.log,Jam-21,21,29,True,51.4900000095,NA,False,0
+maija.log,Jam-20,10,29,False,62.8399999142,NA,False,0
+maija.log,Jam-20,10,11,True,31.0199999809,NA,False,1
+maija.log,Jam-23,29,29,False,63.6400001049,NA,False,0
+maija.log,Jam-23,29,37,True,88.5899999142,NA,False,1
+maija.log,Jam-22,26,32,True,65.3500001431,NA,False,0
+maija.log,Jam-2,8,15,True,52.4399998188,NA,False,0
+maija.log,Jam-3,14,23,True,70.4700000286,NA,False,0
+maija.log,Jam-1,8,9,True,23.9900000095,NA,False,0
+maija.log,Jam-6,9,10,True,30.2400000095,NA,False,0
+maija.log,Jam-7,13,19,True,47.0399999619,NA,False,0
+maija.log,Jam-4,9,12,True,37.8999998569,NA,False,0
+maija.log,Jam-5,9,10,True,28.3499999046,NA,False,0
+maija.log,Jam-8,12,21,True,51.1300001144,NA,False,0
+maija.log,Jam-9,12,13,True,37.6700000763,NA,False,0
+maija.log,Jam-14,17,21,True,62.5699999332,NA,False,0
+maija.log,Jam-15,23,25,True,59.0799999237,NA,False,0
+maija.log,Jam-16,21,32,False,78.25,NA,False,0
+maija.log,Jam-16,21,47,False,145.74000001,NA,False,1
+maija.log,Jam-16,21,29,True,70.0699999332,NA,False,2
+maija.log,Jam-17,24,33,True,80.3399999142,NA,False,0
+maija.log,Jam-10,17,24,True,91.8499999046,NA,False,0
+maija.log,Jam-11,25,37,True,93.7200000286,NA,False,0
+maija.log,Jam-12,17,21,True,58.0499999523,NA,False,0
+maija.log,Jam-13,16,45,False,164.140000105,NA,False,0
+maija.log,Jam-13,16,32,True,73.1099998951,NA,False,1
+maija.log,Jam-18,25,28,True,52.7799999714,NA,False,0
+maija.log,Jam-19,22,26,True,63.4000000954,NA,False,0
+weiji.log,Jam-2,8,9,True,56.2899999619,NA,False,0
+weiji.log,Jam-3,14,15,True,119.610000134,NA,False,0
+weiji.log,Jam-16,21,37,True,118.360000134,NA,False,0
+weiji.log,Jam-1,8,9,True,73.2899999619,NA,False,0
+weiji.log,Jam-6,9,11,True,44.2200000286,NA,False,0
+weiji.log,Jam-7,13,15,True,68.0899999142,NA,False,0
+weiji.log,Jam-4,9,10,True,36.1400001049,NA,False,0
+weiji.log,Jam-5,9,10,True,40.1000001431,NA,False,0
+weiji.log,Jam-14,17,30,True,106.630000114,NA,False,0
+weiji.log,Jam-8,12,19,True,133.940000057,NA,False,0
+weiji.log,Jam-9,12,15,True,82.7400000095,NA,False,0
+weiji.log,Jam-17,24,28,True,73.5800001621,NA,False,0
+weiji.log,Jam-10,17,24,True,132.430000067,NA,False,0
+weiji.log,Jam-13,16,20,False,146.789999962,NA,False,0
+weiji.log,Jam-13,16,28,True,105.929999828,NA,False,1
+weiji.log,Jam-12,17,18,True,60.4000000954,NA,False,0
+weiji.log,Jam-15,23,24,True,100.9599998,NA,False,0
+weiji.log,Jam-11,25,16,False,97.7100000381,NA,False,0
+weiji.log,Jam-11,25,36,True,166.519999981,NA,False,1
+will.log,Jam-2,8,28,True,80.3499999046,NA,False,0
+will.log,Jam-3,14,16,True,60.9199998379,NA,False,0
+will.log,Jam-16,21,26,True,110.730000019,NA,False,0
+will.log,Jam-1,8,9,True,44.7999999523,NA,False,0
+will.log,Jam-6,9,13,True,44.9199998379,NA,False,0
+will.log,Jam-7,13,14,True,64.7600002289,NA,False,0
+will.log,Jam-4,9,10,True,29.1300001144,NA,False,0
+will.log,Jam-5,9,10,True,46.3299999237,NA,False,0
+will.log,Jam-14,17,18,True,89.7300000191,NA,False,0
+will.log,Jam-8,12,11,False,92.6500000954,NA,False,0
+will.log,Jam-8,12,11,False,96.3100001812,NA,False,1
+will.log,Jam-8,12,1,False,0.0,NA,True,2
+will.log,Jam-9,12,13,True,47.4500000477,NA,False,0
+will.log,Jam-17,24,37,True,141.519999981,NA,False,0
+will.log,Jam-10,17,17,False,70.6500000954,NA,False,0
+will.log,Jam-10,17,28,True,114.480000019,NA,False,1
+will.log,Jam-13,16,5,False,93.1300001144,NA,False,0
+will.log,Jam-13,16,25,False,85.0200002193,NA,True,1
+will.log,Jam-12,17,19,True,79.2699999809,NA,False,0
+will.log,Jam-15,23,7,False,87.2999999523,NA,False,0
+will.log,Jam-15,23,33,False,86.5899999142,NA,True,1
+will.log,Jam-11,25,8,False,53.4200000763,NA,False,0
+will.log,Jam-11,25,25,False,119.279999971,NA,False,1
+will.log,Jam-11,25,1,False,0.0,NA,True,2
