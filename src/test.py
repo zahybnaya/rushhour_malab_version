@@ -26,7 +26,8 @@ instance_set = read_instances()
 def test_mag(i):
     draw(i)
     mag,nodes=constuct_mag(i)
-    mag2dot(mag)
+    #mag2dot(mag)
+    print mag
     print nodes
 
 
@@ -59,6 +60,13 @@ def test_verify_move():
     print 'True: {}'.format(verify_move_for_plan(i1,('r',(1,2,2))))
     print 'True: {}'.format(verify_move_for_plan(i1,('y',(4,1,3))))
     print 'False: {}'.format(verify_move_for_plan(i1,('y',(4,3,3))))
+
+
+def magsize_admissible(instance):
+    """
+    """
+    mag,nodes=constuct_mag(instance) # nodes: {'y': {(4, 3, 3): (1.0, ['g'])}
+    return len(mag)
 
 
 def magsize(instance):
@@ -330,8 +338,17 @@ def run_experiment():
             break
 
 #run_experiment()
-
-
+#test_mag(instance_set[0])
+#am=make_Astar(heur=magsize_admissible)
+#a0=make_Astar(heur=zeroh)
+#
+#for ins in instance_set:
+#    print ins.name
+#    path,stat= am(ins)
+#    print len(path)
+#    path,stat=a0(ins)
+#    print len(path)
+#
 
 #i=2
 #while 1:

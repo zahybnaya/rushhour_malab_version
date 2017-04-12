@@ -304,8 +304,8 @@ def goal_dummy_constraints(instance):
     return goal_constraints
 
 def constuct_mag(instance):
-    mag = defaultdict(dict)
-    nodes = defaultdict(dict) #{'node': {location: (coverage, (blocked_by1,...))}
+    mag = defaultdict(dict) #{'node':{'node2':[(x,y),(x2,y2)...]}}
+    nodes = defaultdict(dict) #{'node': {location: (coverage, (blocked_by1,...))} {'y': {(4, 3, 3): (1.0, ['g'])}
     mag['dummy']={instance.goal_car:list(goal_dummy_constraints(instance))}
     closed = set([])
     q = [instance.goal_car]

@@ -100,14 +100,14 @@ def h_unblocked(instance,level=1):
 def minimin(instance):
     pass
 
-def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0):
+def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0,search_limit=float('inf')):
     if lapse_rate>0:
-        astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level,reconstruct_accuracy)
+        astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level,reconstruct_accuracy,search_limit)
         def tmp_f(start):
             return lapsingAstar(start,astar,lapse_rate)
     else:
         def tmp_f(start):
-            return Astar(start,heur,calcF,is_stop,search_lapse,plan_correction_level,reconstruct_accuracy)
+            return Astar(start,heur,calcF,is_stop,search_lapse,plan_correction_level,reconstruct_accuracy,search_limit)
     tmp_f.__name__='A*h:{0}f:{1}istop:{2}lapse:{3}slapse:{4}reca:{5}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse,reconstruct_accuracy)
     return tmp_f
 
@@ -136,14 +136,14 @@ def perfecth(instance,from_noise=0,to_noise=0):
 def add_to_backtrace(backtrace,s,n,g):
     back_dict = backtrace.get(s,{})
     possible_backs=back_dict.get(g+1,[])
-    if (len(possible_backs)>10):
+    if (len(possible_backs)>1):
         return
     possible_backs.append(n)
     back_dict[g+1]=possible_backs
     backtrace[s]=back_dict
 
 
-def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1,reconstruct_accuracy=1.0):
+def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0, search_limit=float('inf')):
     stats={'expanded':0,'generated':0,'open_size':0,'close_size':0,'stops':0}
     backtrace={}
     closed = set()
@@ -167,7 +167,9 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
                 continue
             add_to_backtrace(backtrace,s,n,g)
             hs=heur(s)
-            heappush(openList,calcF(g,hs,s))
+            f_val=calcF(g,hs,s)
+            if f_val[0] <= search_limit:
+                heappush(openList,f_val)
         stats['open_size']=len(openList)
         stats['close_size']=len(closed)
         stats['generated']+=len(succs)
