@@ -6,6 +6,7 @@ from copy import deepcopy
 from random import choice,shuffle
 from os import path
 from itertools import product
+from terminal_states import terms_by_ins
 
 
 class RHInstance:
@@ -32,7 +33,7 @@ class RHInstance:
     def __repr__(self):
         return self.__str__()
     def __str__(self):
-        return '{}{}'.format(self.h,self.v)
+        return '({},{})'.format(self.h,self.v)
 
 
 def mag_pairs(mg):
@@ -153,11 +154,25 @@ def check_instance(h,v):
     return True
 
 
+def min_manhattan_distance(instance):
+    return min([manhattan_distance(instance,i) for i in terms_by_ins[instance.name]])
+
+
+def manhattan_distance(instance1, instance_pair):
+    md=0
+    for cars1,cars2 in zip([instance1.h, instance1.v],instance_pair):
+        for piece,loc1 in cars1.iteritems():
+            loc2 = cars2[piece]
+            if loc1!=loc2:
+                md+=1
+    return md
+
+
 
 #TODO: Support many locations
 def find_terminal_states(instance):
     """
-    Return all possible terminal states
+    Return all possible terminal states of instance.
     """
     terminals=[]
     goal_car,goal_loc=instance.goal_car,instance.goal_loc
