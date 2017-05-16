@@ -47,7 +47,41 @@ def print_backtrace(backtrace):
             print '{}->{}'.format(g,len(backtrace[n][g]))
     print '**************END backtrace print*************'
 
+
+def add_to_backtrace(backtrace,s,n,g):
+    """
+    Single backtrace per node
+    """
+    og,on=backtrace.get(s,(float('inf'),None))
+    if g<og:
+        backtrace[s]=(g,n)
+
 def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
+    """
+    returns a list of states from start to the goal
+    """
+    path=[]
+    while n in backtrace:
+        path.append(n)
+        g,n = backtrace[n]
+    #path.append(n)
+    path.reverse()
+    return plan_correction(path,plan_correction_level)
+
+"""
+This is for multiple backtracks
+"""
+def add_to_backtrace_m(backtrace,s,n,g):
+    back_dict = backtrace.get(s,{})
+    possible_backs=back_dict.get(g+1,[])
+    if (len(possible_backs)>1):
+        return
+    possible_backs.append(n)
+    back_dict[g+1]=possible_backs
+    backtrace[s]=back_dict
+
+
+def reconstruct_path_m(backtrace,n,plan_correction_level,reconstruct_accuracy):
     """
     returns a list of states from start to the goal
     backtrace is a dict of states and dicts of g and list of possible_backs
@@ -60,6 +94,9 @@ def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
     path.append(n)
     path.reverse()
     return plan_correction(path,plan_correction_level)
+
+
+
 
 def make_fCalc(gF=1,hF=1,gAddition=1):
     def tmp_f(g,h,s):
@@ -133,14 +170,16 @@ def perfecth(instance,from_noise=0,to_noise=0):
     add_noise_val=from_noise + random()* (to_noise-from_noise)
     return len(Astar(instance)[0])*(1+add_noise_val)
 
-def add_to_backtrace(backtrace,s,n,g):
-    back_dict = backtrace.get(s,{})
-    possible_backs=back_dict.get(g+1,[])
-    if (len(possible_backs)>1):
-        return
-    possible_backs.append(n)
-    back_dict[g+1]=possible_backs
-    backtrace[s]=back_dict
+
+
+def replace_in_open(openList,f_val):
+    f,g,h,n=f_val
+    for i in range(len(openList)):
+        if openList[i][3]==n:
+            openList[i]=f_val
+            heapify(openList)
+            return
+    raise(Exception)
 
 
 def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0, search_limit=float('inf')):
@@ -165,11 +204,17 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
             #print 'GENERATED '+str(s.__hash__())
             if s in closed:
                 continue
-            add_to_backtrace(backtrace,s,n,g)
+            old_g,_ = backtrace.get(s,(float('inf'),None))
+            if old_g <= g:
+                continue
             hs=heur(s)
             f_val=calcF(g,hs,s)
             if f_val[0] <= search_limit:
-                heappush(openList,f_val)
+                add_to_backtrace(backtrace,s,n,g)
+                if old_g != float('Inf'):
+                    replace_in_open(openList,f_val)
+                else:
+                    heappush(openList,f_val)
         stats['open_size']=len(openList)
         stats['close_size']=len(closed)
         stats['generated']+=len(succs)
