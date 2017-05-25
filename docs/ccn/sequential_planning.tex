@@ -1,20 +1,14 @@
 %	(step vs. move) 
-%	Too much background on search which is not linked back. Introduction gives only context. Abstract gives concrete results (including what it means).
-%	Check is meta-cognition could be error-monitoring. See lit.
-%	Add the metacognition term in title, abstract and conclutions
-%	Add conclusions add the end of solution progress.
-%	Raise questions in introduction that I'm going to answer later
+%	Abstract:
+	%	Put concrete results and interpretation in abstract
+%	Background:
+	%	Shorten background on search which is not linked back or context. 
+	%	Check is meta-cognition could be error-monitoring. See lit.
+	%	Raise questions in introduction that I'm going to answer later
+%	Add conclusions to the end of solution progress.
 % 	Make sure all figures have the same font sizes 
 %	Make Figure:Puzzle smaller and nicer(better colors).
 %	Move figure descriptions to captions.
-%       distinct between rt before and rt after a move
-%       calculate rt per path
-%       p11: see how we can describe the "bursts" effect with http://www.sciencedirect.com/science/article/pii/S0165027006004742
-%       Examine the difference in human solution length per instance. See if we can explain this with a model/heuristics.
-% 	Real results - real-dist
-% 	real results - total expansions per instance 
-% 	Look at all instances, measure mistakes per instance. Show that there is something else that determines mistakes
-% 	Show that path length/mistakes/rt/ corresponds to weight and not to noise
 %	Make sure error bars are always across subjects.
 %	Consider saying combinatorial tasks instead of planning. 
 %	Talk about the lack of understanding. - that people are relatively good at this, but suboptimal
@@ -33,7 +27,6 @@
 \usepackage{graphicx}
 \usepackage{multirow}
 \graphicspath{ {figures/} }
- 
 
 
 \title{Suboptimality and Metacognition in Human Sequential Planning}
@@ -44,15 +37,20 @@ Center For Neural Science and Department of Psychology, New York University\\
 
 \begin{document}
 
+\vspace{-0.5cm}
 \maketitle
+\vspace{-0.5cm}
 
-\section{Abstract} {\bf
- 
-People are naturally good (but suboptimal) at sequential planning tasks such as navigation or puzzles. While suboptimal planning can be done efficiently in various ways, we still do not understand properly the mechanisms and processes underlying human behavior. In this paper we report preliminary results that characterize human behavior on a combinatorial planning task. We show patterns in solution lengths, solution progress, and response times. We identified a pattern of "bursting" behavior in the response times within a solution. Subjects perform a slow move, followed by a series of multiple rapid moves. This might indicate that subjects spend time planning on some choices and then executing their plan fast on others. This burst pattern repeats itself multiple time within a solution which might also suggest that people perform partial search, which is a powerful method to find suboptimal solutions. We found that response times are affected by the distance to the goal and the step number within the solution. Additionally, our results suggest that people have some degree of knowledge about how well they are doing in the task. Subjects react slower when they are about to make mistakes and tend to forfeit a task only when they drifted far away from the goal. 
+\section{Abstract}
+
+{\bf
+\vspace{-0.1cm}
+%Can be shorter and more precise 
+People are naturally good (yet suboptimal) at various sequential planning tasks. Computational approaches for suboptimal planning are extensively studied; for example \emph{agent-centered} search, where the agent searches for an incomplete strategy. Human planning is still largely not understood. Here we present data collected from 11 subjects that performed a planning task. Our contribution is twofold. First, we provide initial evidence that subjects search for incomplete strategies, similar to agent-centered search. Subjects tend to perform a slow move, followed by a series of multiple rapid moves, which indicate that on some steps subjects devise a plan and execute it on consecutive steps. 
+Second, our results suggest meta-cognition in planning. We found that subjects respond faster when they are far away from the goal, possibly realizing that finding a strategy is too difficult. This provides further evidence that subjects do not necessarily try to calculate a full strategy. We show that subjects react slower when they are about to make mistakes and tend to forfeit a puzzle only when they drifted far away from the goal. Our results demonstrate human suboptimal behavior in sequential planning tasks but also provide important evidence that people might relay on partial strategies and have metacognition abilities.
 
 
-
-%The abstract should be identical to the text version submitted in the webform and should not exceed 1,500 characters, including spaces and any special characters. The       abstract should thus be relatively short. Aim for 150 words.
+%The abstract should be identical to the text version submitted in the webform and should not exceed 1,500 characters, including spaces and any special characters. The abstract should thus be relatively short. Aim for 150 words.
 %Max length is 200 words. Arbitrarily long German words like "Donaudampfschiffartskapit\"an" are not encouraged.
 %CCN has an interdisciplinary audience. Hence a good abstract should
 %(a) give context about what the problem is and why it matters
@@ -61,6 +59,7 @@ People are naturally good (but suboptimal) at sequential planning tasks such as 
 %the way we think about the universe.
 }
 
+\vspace{-0.23cm}
 \begin{quote}
 \small
 \textbf{Keywords:} 
@@ -68,46 +67,38 @@ decision making; planning; heuristic search
 \end{quote}
 
 
-\vspace{-0.7cm}
+\vspace{-0.5cm}
 \section{Introduction}
-\vspace{-0.3cm}
-In sequential planning the goal is to find a strategy that accomplishes a desired goal, given the initial state of the world and a set of possible actions. The common approach in Artificial Intelligence is to perform \emph{search} in the state space~\cite{russell1995modern}. Search methods can be \emph{optimal}, in the sense that the resulting strategy achieves the goal with minimal number of steps~\cite{korf1985depth,hart1968formal}. Planning tasks can quickly become difficult due to combinatorial explosion, therefore there is also a myriad of suboptimal search techniques such as performing hierarchical search~\cite{holte2005hierarchical} or performing partial search that finds an approximate or incomplete strategy~\cite{korf1990real,koenig2001agent}. Suboptimal techniques deal with memory or computational limitations in a principled way by efficiently sacrificing optimality for tractability and speed, usually without dramatically damaging the solution quality. Humans are not optimal planners but show good abilities in some planning tasks~\cite{acuna2008bayesian,pizlo2005solving,macgregor1996human,van2016people}. The mechanisms behind human behavior and how people balance solution quality and speed are still not well understood. In this paper we present preliminary results that characterize human behavior. 
+%\vspace{-0.2cm}
 
+The goal in sequential planning is to find a strategy that reaches a desired state, given the initial state and the possible actions.
+Previous studies show that humans are not optimal planners but perform well in various planning tasks~\cite{acuna2008bayesian,pizlo2005solving,macgregor1996human,van2016people}. While human planning is still not well understood, Artificial Intelligence planning, where the common approach is to perform \emph{search} in the state space~\cite{russell1995modern} is extensively studied. Planning tasks can quickly become intractable due to combinatorial explosion, making \emph{optimal} search that find the shortest strategy ~\cite{korf1985depth,hart1968formal} less attractive than suboptimal methods. A common approach for suboptimal planning is \emph{real-time} or \emph{agent-centered} search~\cite{korf1990real,koenig2001agent} which finds only a limited or partial strategy and then revise if necessary. In this paper we present preliminary results that characterize human behavior and study the relation between human behavior and agent-centered search. We study related mechanism that might play a role in human planning, the implicit awareness of mistakes~\cite{yeung2012metacognition}. Although there is no explicit feedback in our task, our subjects have some indication of how well they are doing.
 
-
-%Check if minimal is really minimal. Use 770x320
-%TODO: Cut black lines.
-%TODO: Change color schemes
-%TODO: Fix labels 
-%TODO: Switch sides
-
+%Suboptimal techniques use principled ways to efficiently sacrifice optimality for tractability and speed, usually without dramatically damaging the solution quality. 
 \begin{figure}[ht]
 	\includegraphics[width=0.5\textwidth]{puzzle_j}
 \vspace{-0.5cm}
-\caption{ (a) mean number of moves performed to solve each puzzle (minimal solution length in black). (b) number of subjects who decided to surrender, restart (at least once), or solved the puzzle on the first trial; two puzzles we used in our experiment, easy puzzle-1 (c) and more difficult puzzle-16 (d)}
+\caption{ Two example puzzles: (a) puzzle-1 (easy) and (c) puzzle-16 (difficult); (b) mean number of moves performed to solve each puzzle (minimal solution length in black). (d) number of subjects who decided to surrender, restart (at least once), or solved the puzzle on the first trial}
 	\label{fig:puzzle}
-\vspace{-0.5cm}
+\vspace{-1.0cm}
 \end{figure}
 
 
-\vspace{-0.5cm}
+\vspace{-0.6cm}
 \section{Methods}
 \vspace{-0.1cm}
-11 subjects solved up to 40 puzzles of the game \emph{rush-hour}\footnote{\url{www.thinkfun.com/play-online/rush-hour/}}. Rush-hour is a planning game, shown to be in PSPACE-complete~\cite{flake2002rush}. The puzzle (Figure~\ref{fig:puzzle}(a,c)) consists of a set of cars located on a 6 x 6 grid. Cars are oriented horizontally or vertically and can move only on the direction of orientation. The goal is to find a sequence of moves, such that the red car moves to the right edge of the screen. Subjects used a mouse and a keyboard to move the cars around. We imposed a time limit of 30 minutes. The order of puzzles was chosen arbitrary, but with a tendency to increase in difficulty (Figure~\ref{fig:puzzle}(b)). At any point, subjects were allowed to \emph{surrender} and move to the next puzzle or \emph{restart} the current puzzle by pressing a key on the keyboard. We recorded response times. 
+Eleven subjects solved up to 40 puzzles of \emph{rush-hour}\footnote{\url{www.thinkfun.com/play-online/rush-hour/}}. Rush-hour is a planning game, shown to be in PSPACE-complete~\cite{flake2002rush}. The puzzle (Figure~\ref{fig:puzzle}) consists of a set of cars located on a 6 x 6 grid. Cars are oriented either horizontally or vertically and can move only in the direction of orientation. The goal is to find a sequence of moves, such that the red car moves to the right edge of the screen. Subjects used a mouse and a keyboard to move the cars around. We imposed a time limit of 30 minutes. The order of puzzles was chosen arbitrary, but with a tendency to increase in difficulty (Figure~\ref{fig:puzzle}(b)). At any point, subjects were allowed to \emph{surrender} or \emph{restart} the puzzle by pressing the relevant key on the keyboard. We recorded response times. 
 
+
+\vspace{-0.2cm}
+\section{Results}
 \vspace{-0.1cm}
-\section{Experiment results}
-\vspace{-0.1cm}
-All errors are SEMS across subjects.
-Subjects completed on average $13.6 \pm 0.9$ puzzles (min=6, max=24), with $41.6\%\pm 2.4\%$ more moves than the minimal solution. Out of 231 solutions, 45 were optimal. Subjects tended to avoid the restart and surrender buttons. Five subjects surrendered, and only three surrendered more than once. Eight subjects chose to restart at least one puzzle~(Figure~\ref{fig:puzzle}(c)).
+Subjects completed on average $13.6 \pm 0.9$ puzzles (min=6, max=24; all errors reported are s.e.m across subjects) and performed $41.6\%\pm2.4\%$ more moves than the minimal solution. Out of 231 solutions, 45 were optimal. Subjects tended to avoid the restart and surrender buttons. Five subjects surrendered, and only three surrendered more than once. Eight subjects chose to restart at least one puzzle~(Figure~\ref{fig:puzzle}(c)).
 
-\subsubsection{Response times}
-Response times was correlated with the step number ($-0.216\pm0.011$, Spearman, Figure~\ref{fig:rt}(a)). Subjects spent a factor of $5.67 \pm 0.18$ more time before their first decision than the rest of steps, possibly to devise a plan.  
 
-\subsubsection{Burst analysis}
-As a preliminary test of whether response times follow a "burst" pattern we performed a median split into \emph{fast} and \emph{slow} moves of each solution attempt. We define a \emph{burst} of size $n$ has a sequence of a slow move followed by $n-1$ fast moves. We found that subjects mean \emph{burst length} was $28.7\% \pm 0.5\%$ longer than the expected mean burst length of random ordering. This suggests that subjects tend to have a slow decision followed by a burst of fast decisions. Possibly for the sake of planning and executing the plan respectively. 
-Response times were also correlated with the distance from the goal ($0.211\pm0.019$; Figure~\ref{fig:rt}(b)).
-However, we could also detect a quadratic relationship ($R^2=0.041\pm0.004$). Subjects tend to react faster when they were closer to the goal, probably because finding plans for easier states is faster. Response times were also faster when subjects were far away from the goal. This can be explained by subjects switching to a fast strategy when the complete plan seems difficult to find. (link to partial search, link to meta-cognition).
+\subsubsection{Burst patterns}
+Response times correlated with the step number in the plan ($-0.216\pm0.011$, Spearman, Figure~\ref{fig:rt}(a)). We found that subjects spent considerable time on first decisions (factor of $5.67\pm0.18$ more than the mean) and other steps within a plan. A possible interpretation is that subjects search for a plan on some steps, which they later execute on consecutive steps, not unlike in agent-centered search. We further examined this idea by testing whether response times follow a pattern. As a preliminary test, we performed a median split on response times for each solution attempt, splitting moves into \emph{fast} and \emph{slow} moves. We define a \emph{burst} of length $n$ to be a sequence of one slow move followed by $n$-1 fast moves. We found that the mean \emph{burst length} in our results was $28.7\%\pm0.5\%$ larger than if moves did not follow any particular pattern, showing that slow decisions tend to be followed by "bursts" of fast decisions. 
+
 \begin{figure}[t]
 \vspace{-0.03cm}
 	\centering
@@ -119,39 +110,40 @@ However, we could also detect a quadratic relationship ($R^2=0.041\pm0.004$). Su
 	\label{fig:rt}
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[!t]
 \begin{center}
 \includegraphics[width=0.44\textwidth]{p6_1}
 \end{center}
-\vspace{-0.6cm}
-\caption{Solution Progress in example puzzles. A complete solution reaches distance zero, other solution paths either restarted or surrendered. Easier puzzles showed less variability (the top row) than difficult puzzles (bottom row).} 
-\vspace{-0.2cm}
+\vspace{-0.25cm}
+\caption{Solution Progress in example puzzles. A complete solution reaches distance zero, other solution paths either restarted or surrendered. Easier puzzles (top row) show less variability than more difficult puzzles (bottom row).} 
 \label{fig:progress}
+\vspace{-0.65cm}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[t]
 \vspace{-0.5cm}
 	\centering
-	\subfloat[][]{\includegraphics[width=0.32\textwidth]{p16_1}}
-	\subfloat[][]{\includegraphics[width=0.18\textwidth]{p16_3}}
+	\subfloat[][]{\includegraphics[width=0.28\textwidth]{p16_1}}
+	\subfloat[][]{\includegraphics[width=0.13\textwidth]{p16_3}}
 	\vspace{-0.1cm}
 	\caption{(a) CDF of one subject rt per category (b) Mean response times for move category} 
 	\label{fig:rt_cat}
-\vspace{-0.5cm}
+\vspace{-0.7cm}
 \end{figure}
+\vspace{-0.1cm}
+\subsubsection{Meta-cognition in planning}
 
-\vspace{-0.2cm}
-\subsubsection{Solution progress}
-We calculate the progress of solutions by examining the minimal distance to the goal after each move~(Figure~\ref{fig:progress}). Subjects generally recover from errors and move towards the goal. Variability in progress increased on difficult puzzles(show or delete). Usually subjects decided to surrender when they were X steps further from the initial state, and restart when they where Y steps far away from the initial state. This suggests that subjects had some indication of their solution progress. In order to check if subjects are aware to their progress, we categorize moves into \emph{positive} moves, if the move progressed closer to the goal,\emph{negative} (moved away from the goal), or \emph{neutral} (kept the same distance). In total, 2,891 moves were positive, 702 negative and 816 neutral. The mean numbers of moves per subject were $262.8 \pm 23.6$ (positive), $74.1 \pm 8.0$ (negative) and $63.8 \pm 7.6$ (neutral).
-We tested whether response times vary on different categories of moves. We found that the mean response time of positive moves is different than that of negative moves ({\bf p-val $< 0.001$}), the mean response time of positive moves is different than that of neutral moves ({\bf p-val $= 0.004$}). We did not find evidence that negative and natural moves are different.
-We used wilcoxon paired test.
-
-\vspace{-0.3cm}
+We track the progress throughout plan executions by calculating the minimal distance to goal after each move~(Figure~\ref{fig:progress}). Subjects are generally able to recover from errors and move quickly towards the goal. Usually subjects decided to surrender when they were X steps further from the goal than they were in the initial state, and restart when they where Y steps. 
+We categorize moves into \emph{positive} moves, if the move progressed closer to the goal, \emph{negative} (moved away from the goal), or \emph{neutral} (kept the same distance). The mean number of moves was $262.8\pm23.6$ (positive), $74.1\pm8.0$ (negative) and $63.8\pm7.6$ (neutral).
+We tested whether the distribution of response times vary on different categories of moves~(Figure\ref{fig:rt_cat}). We found that the mean response time of positive moves is different than that of negative moves (p-val$<0.001$;wilcoxon paired test), and positive different from neutral moves (p-val$=0.004$). We did not find evidence that negative and natural moves are different. This suggests that subjects perform more processing before they are about to make mistake. Another indication for such meta-cognition is that although response times were correlated with the distance to the goal ($0.211\pm0.019$; Figure~\ref{fig:rt}(b)), we also detected a quadratic relationship ($R^2=0.041\pm0.004$). Subjects tend to react faster when they are closer to the goal, probably due to the less demanding computation task. But interestingly, response times were also faster when subjects were far away from the goal, which might suggest that subjects switched to a faster strategy when finding a complete strategy seemed too difficult. This provides further evidence that people are not searching for completes strategies on some cases.
+\vspace{-0.75cm}
 \section{Discussion and conclusion}
-\vspace{-0.15cm}
+\vspace{-0.2cm}
 %structure - finding, conclution, intepretation (join findings where possible)
-We present preliminary results and show that people are suboptimal with sequential planning task. Subjects spend more time on earlier steps within a plan and on decisions which were objectively wrong. This suggests that subjects had some sense of of how well they were doing. Another indication for the same phenomenon is that subjects decide to restart or surrender only when they were getting far away from the goal.  We further examined the patterns in response times and found that subjects act in an interleaved periods of fast and slow moves. This might suggest that people are performing partial search, a powerful suboptimal method. An additional indication for partial search is that subjects tend to decide faster not only when they are close to the goal but also when they are far away from the goal and cannot find a complete plan. For future work we plan to fit models of human behavior, examine additional behavioral aspects and perform a larger experiment.
-
+We present preliminary results and show that people are suboptimal with sequential planning task. We show initial evidence that human behavior relates to agent-centered search, a powerful suboptimal method. Patterns in response times suggests that subjects repeat interleaved periods of fast and slow moves and sometimes do not search a complete plan. We also show metacognitive behavior. Subjects spend more time before making incorrect decisions and decide to restart or surrender only when they were getting far away from the goal. 
+Subjects tend to decide faster not only when they are close to the goal but also when they are far away from the goal and cannot find a complete plan. 
+This an indication not only of the metacognitive ability but also provides additional evidence that subjects use agent-centered search.
+For future work we plan to fit models of human behavior, examine additional behavioral aspects and perform a larger experiment.
 
 
 
@@ -313,12 +305,12 @@ We present preliminary results and show that people are suboptimal with sequenti
 %\nocite{NewellSimon1972a}
 %\nocite{ShragerLangley1990a}
 %
-\vspace{-0.3cm}
+\vspace{-0.1cm}
 \bibliographystyle{apacite}
 
 \setlength{\bibleftmargin}{.125in}
 \setlength{\bibindent}{-\bibleftmargin}
-
+\vspace{-0.1cm}
 \bibliography{sequential_planning}
 
 
