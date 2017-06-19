@@ -1,11 +1,12 @@
 from rushhour import *
 from math import log
 from astar import *
-from try_pygame import *
+#from try_pygame import *
 from random import random,seed
 from itertools import product
 from time import time
 #import matplotlib.pyplot as plt
+from collections import deque
 
 
 instance_set_easy=[ RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)},'easy0')
@@ -29,6 +30,15 @@ def test_mag(i):
     #mag2dot(mag)
     print mag
     print nodes
+
+
+
+
+def report_instance(ins,am=make_Astar(heur=min_manhattan_distance)):
+    path,stat= am(ins)
+    d=[ins.name,len(path),stat['generated'],stat['expanded'],stat['close_size'],stat['open_size']]
+    d=[str(x) for x in d]
+    print ','.join(d)
 
 
 def test_stop():
@@ -64,9 +74,24 @@ def test_verify_move():
 
 def magsize_admissible(instance):
     """
+    Shortest path on mag
     """
+    root=instance.goal_car
     mag,nodes=constuct_mag(instance) # nodes: {'y': {(4, 3, 3): (1.0, ['g'])}
-    return len(mag)
+    q=deque(root)
+    length=1
+    visited=set()
+    while len(q)>0:
+        n=q.pop()
+        if n not in mag or n in visited:
+            return length
+        else:
+            length+=1
+            q.extendleft(mag[n].keys())
+            visited.add(n)
+    return length
+
+
 
 
 def magsize(instance):
@@ -337,18 +362,16 @@ def run_experiment():
         if ans:
             break
 
+
 #run_experiment()
 #test_mag(instance_set[0])
 #am=make_Astar(heur=magsize_admissible)
 #a0=make_Astar(heur=zeroh)
-#
 #for ins in instance_set:
 #    print ins.name
-#    path,stat= am(ins)
-#    print len(path)
 #    path,stat=a0(ins)
 #    print len(path)
-#
+#    print stat
 
 #i=2
 #while 1:

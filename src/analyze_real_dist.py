@@ -1,4 +1,4 @@
 from sys import argv
 from analyze import *
 
-calc_real_dist(argv[1])
+calc_real_dist(argv[1], argv[2])

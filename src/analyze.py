@@ -1,9 +1,9 @@
 import re
-from test import magsize
+from test import magsize,magsize_admissible
 from collections import namedtuple
-from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances
+from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances,min_manhattan_distance
 from copy import deepcopy
-from try_pygame import show
+#from try_pygame import show
 from astar import make_Astar, h_unblocked
 
 Rec=namedtuple('Rec','t event piece move_nu move instance')
@@ -67,24 +67,53 @@ def show_paths(filename,instance_name):
     for p in paths:
         show(p)
 
-
-def calc_real_dist(filename):
+def calc_real_dist(filename,dist_filename):
+    rd=read_dist_log(dist_filename)
     recs=read_log(filename)
     instances=set([r.instance for r in recs])
     for ins in instances:
-        search_limit=opt_solution_instances[ins]+2
         paths,rs_paths=recs_to_paths(recs,ins)
         for path,rs_path in zip(paths,rs_paths):
+            search_limit=opt_solution_instances[ins]+2
             for i in range(len(path)):
                 state=path[i]
                 rec = rs_path[i]
-                a=make_Astar(heur=h_unblocked,search_limit=search_limit)
+		if rec in rd:
+		    print 'skipped '+str(rec)  
+		    continue
+                a=make_Astar(heur=min_manhattan_distance,search_limit=search_limit)
                 the_path,stat=a(state)
                 real_dist=len(the_path)
-                search_limit=real_dist+1
-                print rec,real_dist
+		if real_dist==0:
+		     search_limit=opt_solution_instances[ins]+2
+		else:
+		     search_limit=real_dist+2 # one for the step and one for error 
+                line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
+		subject=filename.split('/')[-1]
+		outf='../output/'+subject+'_md_dist.csv'
+		with open(outf, 'a') as f:
+			f.write(line)
 
 
+
+
+#def calc_real_dist(filename):
+#    recs=read_log(filename)
+#    instances=set([r.instance for r in recs])
+#    for ins in instances:
+#        paths,rs_paths=recs_to_paths(recs,ins)
+#        for path,rs_path in zip(paths,rs_paths):
+#	    search_limit=opt_solution_instances[ins]+2
+#            for i in range(len(path)):
+#                state=path[i]
+#                rec = rs_path[i]
+#                a=make_Astar(heur=magsize_admissible,search_limit=search_limit)
+#                the_path,stat=a(state)
+#                real_dist=len(the_path)
+#                search_limit=real_dist+1
+#                print rec,real_dist
+#
+#
 #
 # TODO: Add surrender,restart events to all logs
 
