@@ -47,6 +47,56 @@ def print_backtrace(backtrace):
             print '{}->{}'.format(g,len(backtrace[n][g]))
     print '**************END backtrace print*************'
 
+
+def add_to_backtrace(backtrace,s,n,g):
+    """
+    Single backtrace per node
+    """
+    og,on=backtrace.get(s,(float('inf'),None))
+    if g<og:
+        backtrace[s]=(g,n)
+
+def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
+    """
+    returns a list of states from start to the goal
+    """
+    path=[]
+    while n in backtrace:
+        #print 'APPEND: {} '.format(n)
+        path.append(n)
+        g,n = backtrace[n]
+    path.append(n)
+    #print 'APPEND: {}'.format(n)
+    path.reverse()
+    return plan_correction(path,plan_correction_level)
+
+"""
+This is for multiple backtracks
+"""
+def add_to_backtrace_m(backtrace,s,n,g):
+    back_dict = backtrace.get(s,{})
+    possible_backs=back_dict.get(g+1,[])
+    if (len(possible_backs)>1):
+        return
+    possible_backs.append(n)
+    back_dict[g+1]=possible_backs
+    backtrace[s]=back_dict
+
+
+def reconstruct_path_m(backtrace,n,plan_correction_level,reconstruct_accuracy):
+    """
+    returns a list of states from start to the goal
+    backtrace is a dict of states and dicts of g and list of possible_backs
+    """
+    #print_backtrace(backtrace)
+    path=[]
+    while n in backtrace:
+        path.append(n)
+        n = select_from_backtrace(backtrace,n,reconstruct_accuracy)
+    path.append(n)
+    path.reverse()
+    return plan_correction(path,plan_correction_level)
+
 def make_fCalc(gF=1,hF=1,gAddition=1):
     def tmp_f(g,h,s):
         return (gF*(g+gAddition)+hF*h,g+gAddition,hF,s)
@@ -108,9 +158,9 @@ def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
         previous_loc=physical_loc
         _,physical_loc=heappop(potentials)
         draw(physical_loc)
-        next_val,_ = heappop(potentials)
+        next_best_val,_ = heappop(potentials)
         potentials=[]
-        heappush(potentials,(next_val+1,previous_loc))
+        heappush(potentials,(next_best_val+1,previous_loc))
         plan.append(physical_loc)
     return plan
 
@@ -136,21 +186,13 @@ def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
     """
     path=[]
     while n in backtrace:
+        #print 'APPEND: {} '.format(n)
         path.append(n)
         g,n = backtrace[n]
-    #path.append(n)
+    path.append(n)
+    #print 'APPEND: {}'.format(n)
     path.reverse()
     return plan_correction(path,plan_correction_level)
-
-
-def add_to_backtrace(backtrace,s,n,g):
-    """
-    Single backtrace per node
-    """
-    og,on=backtrace.get(s,(float('inf'),None))
-    if g<og:
-        backtrace[s]=(g,n)
-
 
 def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0, search_limit=float('inf')):
     stats={'expanded':0,'generated':0,'open_size':0,'close_size':0,'stops':0}
@@ -170,6 +212,7 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
             heapify(openList)
         #print 'POP '+str(n.__hash__())
         if n.is_goal():
+            #print 'SOLVED'
             return reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy),stats
         closed.add(n)
         succs = expand(n)

@@ -5,8 +5,10 @@ from astar import *
 from random import random,seed
 from itertools import product
 from time import time
+from collections import deque
 #import matplotlib.pyplot as plt
 from collections import deque
+
 
 
 instance_set_easy=[ RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3)},'easy0')
@@ -24,12 +26,19 @@ instance_set_easy=[ RHInstance({'r':(2,2,2),'g':(4,5,2)},{'y':(4,0,3),'p':(2,3,3
 
 instance_set = read_instances()
 
+def print_nodes(nodes):
+    for n in nodes:
+        print '[{}] loc coverage blocking_nodes'.format(n)
+        for l,(cov,blocking_nodes) in nodes[n].iteritems():
+            print ' {} {} {}'.format(l,cov,blocking_nodes)
+
+
 def test_mag(i):
     draw(i)
     mag,nodes=constuct_mag(i)
-    #mag2dot(mag)
-    print mag
-    print nodes
+    mag2dot(mag)
+    #print mag
+    print_nodes(nodes)
 
 
 
@@ -79,7 +88,7 @@ def magsize_admissible(instance):
     root=instance.goal_car
     mag,nodes=constuct_mag(instance) # nodes: {'y': {(4, 3, 3): (1.0, ['g'])}
     q=deque(root)
-    length=1
+    length=1 #move the goal
     visited=set()
     while len(q)>0:
         n=q.pop()
@@ -90,9 +99,6 @@ def magsize_admissible(instance):
             q.extendleft(mag[n].keys())
             visited.add(n)
     return length
-
-
-
 
 def magsize(instance):
     mag,nodes=constuct_mag(instance)
@@ -362,28 +368,114 @@ def run_experiment():
         if ans:
             break
 
+def compare_heur():
+    am=make_Astar(heur=magsize_admissible)
+    a0=make_Astar(heur=zeroh)
+    for ins in instance_set:
+        print ins.name
+        path,stat= am(ins)
+        print 'magsize admissible:'
+        print len(path)
+        print stat
+        path,stat=a0(ins)
+        print 'zero_h:'
+        print len(path)
+        print stat
+
+def test_path_length_bug():
+    solved=RHInstance( {'B': (0, 5, 3), 'r': (4, 2, 2), 'c': (1, 4, 2), 'w': (4, 0, 2)},{'y': (0, 3, 2), 'b': (0, 0, 3), 'M': (5, 3, 3), 'l': (3, 3, 3)},'Jam-1')
+    oneStep = RHInstance({'r': (1, 2, 2), 'B': (0, 5, 3), 'c': (1, 4, 2), 'w': (4, 0, 2)},{'y': (0, 3, 2), 'b': (0, 0, 3), 'M': (5, 3, 3), 'l': (3, 3, 3)},'Jam-1')
+    am=make_Astar(heur=min_manhattan_distance)
+    solve_instance(solved,True)
+    print '****'
+    solve_instance(oneStep,True)
+
+
+def test_456():
+    for i in range(100):
+        report_instance(instance_set[3],make_Astar(heur=min_manhattan_distance,calcF=make_fCalc(0)))
+        report_instance(instance_set[4],make_Astar(heur=min_manhattan_distance,calcF=make_fCalc(0)))
+        report_instance(instance_set[5],make_Astar(heur=min_manhattan_distance,calcF=make_fCalc(0)))
+
+
+def report_instance(ins,am=make_Astar(heur=min_manhattan_distance)):
+    path,stat= am(ins)
+    d=[ins.name,len(path),stat['generated'],stat['expanded'],stat['close_size'],stat['open_size']]
+    d=[str(x) for x in d]
+    print ','.join(d)
+
+
+
+
+def solve_instance(ins, show_path=False):
+    am=make_Astar(heur=min_manhattan_distance)
+    print ins.name
+    path,stat= am(ins)
+    print am
+    print len(path)
+    print stat
+    if show_path:
+        for pi in path:
+            draw(pi)
+            print pi
+
+def compare_heur_instance(ins):
+    #am=make_Astar(heur=magsize_admissible)
+    am=make_Astar(heur=min_manhattan_distance)
+    a0=make_Astar(heur=zeroh)
+    print ins.name
+    path,stat= am(ins)
+    print am
+    print len(path)
+    print stat
+    path,stat=a0(ins)
+    print a0
+    print len(path)
+    print stat
+
+def test_admissible_md():
+    for ins in instance_set[:30]:
+        print ins.name
+        print opt_solution_instances[ins.name],
+        print min_manhattan_distance(ins)
+
+
+def test_admissible():
+    for ins in instance_set:
+        print ins.name
+        print opt_solution_instances[ins.name],
+        print magsize_admissible(ins)
 
 #run_experiment()
-#test_mag(instance_set[0])
-#am=make_Astar(heur=magsize_admissible)
-#a0=make_Astar(heur=zeroh)
-#for ins in instance_set:
-#    print ins.name
-#    path,stat=a0(ins)
-#    print len(path)
-#    print stat
 
-#i=2
-#while 1:
-#    t=choice(range(100))
-#    if  t== 3:
-#        break
-#    i+=1
-#print i
-#print log(sum([1.0/c for c in range(1,i)]))
-#
+def test_manhatten():
+    for ins in instance_set:
+        print 'should be 0:' + str(manhattan_distance(ins,ins))
+        ins2 = rand_move(ins)
+        print 'should be 1:' + str(manhattan_distance(ins,ins2))
 
+def explort_all_terminals():
+    print 'terms_by_ins={'
+    for ins in instance_set[10:30]:
+        t=find_terminal_states(ins)
+        print '{}:{},'.format(ins.name,t),
+    print '}'
 
+#solve_instance(instance_set[0])
+
+#test_456()
+
+#play(instance_set[15])
+#explort_all_terminals()
+#test_admissible_md()
+#compare_heur_instance(instance_set[0])
+#test_path_length_bug()
+#solve_instance(instance_set[0], True)
+
+#test_astar_instance(instance_set[0],make_Astar(heur=min_manhattan_distance))
+
+#compare_heur_instance(instance_set[5])
+#test_admissible()
 #message_screen(['this is a sentence']*10,[25,25]+[10]*8)
 #for p in instance_set_easy[1].h:
 #    print p+':' + str(piece_possible_moves(instance_set_easy[1],p))
@@ -411,7 +503,8 @@ def run_experiment():
 #    path,_=astar(instance_set_easy[1])
 #    show(path)
 #show([instance_set_easy[3]])
-#show(RTA(instance_set_easy[1],heur=lambda x: perfecth(x,0.8,0)),['A*tasks instance:{}'])
+#show(RTA(instance_set[1],heur=min_manhattan_distance),['RTA'])
+show(RTA(instance_set[1],heur=lambda x: perfecth(x,0.8,0)),['RTA'])
 ##test_plan_instance(4)
 #test_plan_tasks_instance(6)
 ## instance 3 - landmark

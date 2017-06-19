@@ -8,6 +8,41 @@ from os import path
 from itertools import product
 from terminal_states import terms_by_ins
 
+def rhstring(instance):
+    """
+    This is not a unique string, it is used only for instances of the same problem (e.g., different solutions paths)
+    """
+    d={}
+    for p,(c,l,s) in instance.h.iteritems(): #only c changes
+        d[p]=c
+    for p,(c,l,s) in instance.v.iteritems(): #only l changes
+        d[p]=l
+    return "".join([str(d[p]) for p in sorted(d)])
+
+#class RHInstance:
+#    length,height=6,6
+#    def __init__(self,h,v,name='',goal_car='r',goal_loc=[(4,2,2)]):
+#        self.h=h
+#        self.v=v
+#        self.name=name
+#        self.goal_car=goal_car
+#        self.goal_loc=goal_loc
+#    def __eq__(self, other):
+#        if isinstance(other, RHInstance):
+#            return rhstring(self)==rhstring(other)
+#    def is_goal(self):
+#        st_piece,oriantation = find_piece(self,self.goal_car)
+#        return st_piece in self.goal_loc
+#    def __ne__(self, other):
+#        return (not self.__eq__(other))
+#    def __hash__(self):
+#        return hash(rhstring(self))
+#    def __repr__(self):
+#        return self.__str__()
+#    def __str__(self):
+#        return '({},{})'.format(self.h,self.v)
+#
+
 
 class RHInstance:
     length,height=6,6
@@ -67,7 +102,7 @@ def plan_correction(path,plan_correction_level):
     for p in path:
         new_path.append(p)
         ga=goal_action(p)
-        if ga is not None:
+        if ga is not None and not p.is_goal():
             new_path.append(ga)
             return new_path
     return new_path
