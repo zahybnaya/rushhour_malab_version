@@ -62,9 +62,11 @@ def reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy):
     """
     path=[]
     while n in backtrace:
+        #print 'APPEND: {} '.format(n)
         path.append(n)
         g,n = backtrace[n]
-    #path.append(n)
+    path.append(n)
+    #print 'APPEND: {}'.format(n)
     path.reverse()
     return plan_correction(path,plan_correction_level)
 
@@ -159,9 +161,9 @@ def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
         previous_loc=physical_loc
         _,physical_loc=heappop(potentials)
         draw(physical_loc)
-        next_val,_ = heappop(potentials)
+        next_best_val,_ = heappop(potentials)
         potentials=[]
-        heappush(potentials,(next_val+1,previous_loc))
+        heappush(potentials,(next_best_val+1,previous_loc))
         plan.append(physical_loc)
     return plan
 
@@ -197,6 +199,7 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
             heapify(openList)
         #print 'POP '+str(n.__hash__())
         if n.is_goal():
+            #print 'SOLVED'
             return reconstruct_path(backtrace,n,plan_correction_level,reconstruct_accuracy),stats
         closed.add(n)
         succs = expand(n)

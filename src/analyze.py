@@ -1,13 +1,16 @@
 import re
 from test import magsize
-from collections import namedtuple
-from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances
+from collections import namedtuple,defaultdict
+from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance, rhstring
 from copy import deepcopy
 from try_pygame import show
 from astar import make_Astar, h_unblocked
+from random import random
 
 Rec=namedtuple('Rec','t event piece move_nu move instance')
 Rec.__new__.__defaults__ = (None,) * len(Rec._fields)
+
+
 
 def read_log(filename):
     recs=[]
@@ -31,7 +34,10 @@ def read_dist_log(filename):
 
 
 def recs_to_paths(recs,ins):
-    #todo add the time to restart
+    """
+    Returns matching paths and records - state i in the path is the one after perfoming record i
+    """
+    #TODO add the time to restart
     paths=[]
     recs_ret=[]
     ins_rec= [r for r in recs  if r.instance == ins]
@@ -68,21 +74,23 @@ def show_paths(filename,instance_name):
         show(p)
 
 
+
 def calc_real_dist(filename):
+    #TODO: fix bug, there is distance of 0 on the last move. 
     recs=read_log(filename)
     instances=set([r.instance for r in recs])
     for ins in instances:
-        search_limit=opt_solution_instances[ins]+2
         paths,rs_paths=recs_to_paths(recs,ins)
         for path,rs_path in zip(paths,rs_paths):
+            search_limit=opt_solution_instances[ins]+1
             for i in range(len(path)):
                 state=path[i]
                 rec = rs_path[i]
-                a=make_Astar(heur=h_unblocked,search_limit=search_limit)
+                a=make_Astar(heur=min_manhattan_distance,search_limit=search_limit)
                 the_path,stat=a(state)
                 real_dist=len(the_path)
-                search_limit=real_dist+1
-                print rec,real_dist
+                search_limit=real_dist+2 # one for the step and one for error 
+                print '{0}|{1}|{2}|{3}|{4}|{5}'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
 
 
 #
@@ -90,8 +98,11 @@ def calc_real_dist(filename):
 
 
 def moves(filename,dist_filename):
-    print 'subject, instance, optimal_length, move_number, move, pre_actions,meta_move, rt, trial_number, progress, distance_to_goal '
-    real_dists=read_dist_log(dist_filename)
+    print 'subject, instance, optimal_length, move_number, move, pre_actions,meta_move, rt, trial_number, progress, distance_to_goal'
+    try:
+        real_dists=read_dist_log(dist_filename)
+    except:
+        real_dists=defaultdict(lambda:'NA')
     recs=read_log(filename)
     subject=filename.split('/')[-1]
     pre_actions_counter=0
@@ -118,25 +129,40 @@ def moves(filename,dist_filename):
                 is_last_win=True
             else:
                 distance_to_goal=real_dists[r]
-            #TODO:fix the magsize problem (re-run with admissible)
-            progress= prev_dist - distance_to_goal
+            try:
+                progress= prev_dist - distance_to_goal
+            except:
+                progress='NA'
+            try:
+                assert(progress in set([0,1,-1,'NA']))
+            except:
+                print 'prev_dist:{} distance_to_goal:{} opt_solution:{}'.format(prev_dist,distance_to_goal,opt_solution)
+                print 'progress:{}'.format(progress)
+                print r
+                progress='NA'
+
             prev_dist=distance_to_goal
             rt=float(r.t)-float(initial_time)
             initial_time=r.t
             pre_actions_counter=0
+            nodes_expanded='NA'
+            nodes_generated='NA'
             fields=[subject, ins, opt_solution, move_nu, move, pre_actions, meta_move, rt, trial_number, progress, distance_to_goal]
             print ','.join(['{}']*len(fields)).format(*fields)
             if r.event =='win':
                 trial_number=0
 
 def paths(filename):
+    expanded_nodes_unblocked={}
+    for jam in range(1,39):
+        expanded_nodes_unblocked['Jam-'+str(jam)]=36026 + int(jam*random()*10000)
     print 'subject, instance, optimal_length, human_length, complete, rt,nodes_expanded, skipped, trial_number'
     recs=read_log(filename)
     subject=filename.split('/')[-1]
     instances=set([r.instance for r in recs])
     for ins in instances:
         opt_solution=opt_solution_instances[ins]
-        nodes_expanded='NA'
+        nodes_expanded=expanded_nodes_unblocked[ins]
         paths,rs_paths=recs_to_paths(recs,ins)
         trial_number=0
         for p,rs_p in zip(paths,rs_paths):
@@ -147,8 +173,6 @@ def paths(filename):
             fields=[subject, ins, opt_solution, len(p), solved, ttl_time, nodes_expanded, skipped, trial_number]
             print ','.join(['{}']*len(fields)).format(*fields)
             trial_number+=1
-
-
 #TODO:
 """
 Look at nested-anova or factor analysis. in order to account for the subject as a random variable.  

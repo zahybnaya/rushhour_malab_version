@@ -120,7 +120,8 @@ def play(initial_state,show_texts=False):
     pygame.init()
     height_top=40
     size = width, height = 700+height_top, 600
-    screen = pygame.display.set_mode(size,pygame.FULLSCREEN)
+    screen = pygame.display.set_mode(size)
+    #screen = pygame.display.set_mode(size,pygame.FULLSCREEN)
     i=0
     piece_selected=False
     piece=None
