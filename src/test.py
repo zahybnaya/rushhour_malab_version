@@ -1,7 +1,7 @@
 from rushhour import *
 from math import log
 from astar import *
-#from try_pygame import *
+from try_pygame import *
 from random import random,seed
 from itertools import product
 from time import time
@@ -39,6 +39,18 @@ def test_mag(i):
     mag2dot(mag)
     #print mag
     print_nodes(nodes)
+
+
+def report_LRTA_instance(ins,lrta):
+    plan,hvals= lrta(ins)
+    am=make_Astar(heur=min_manhattan_distance)
+    step_n=1
+    for p,h in zip(plan,hvals):
+        op,st=am(p)
+        d=[ins.name,lrta.__name__,len(plan),len(op),step_n]
+        d=[str(x) for x in d]
+        step_n+=1
+        print ','.join(d)
 
 
 
@@ -503,8 +515,44 @@ def explort_all_terminals():
 #    path,_=astar(instance_set_easy[1])
 #    show(path)
 #show([instance_set_easy[3]])
+def test_minimin():
+    ins=instance_set[1]
+    zero_dist = min_manhattan_distance(ins)
+    print 'min_dist: {}, real_dist: {}'.format(zero_dist,opt_solution_instances[ins.name])
+    am=make_Astar()
+    path,stat=am(ins)
+    print 'real_dist'+str(len(path))
+    assert(minimin(ins,0)==zero_dist)
+    prv_dist=zero_dist
+    for d in range(1,6):
+        n_dist=minimin(ins,d)
+        print 'level:{} val:{}'.format(d,n_dist)
+        assert(n_dist>=prv_dist)
+        prv_dist=n_dist
+
+#test_minimin()
+#show(RTA(instance_set[0],heur=lambda x: minimin(x,6,h_unblocked)),['RTA'])
+#show(RTA(instance_set_easy[0],heur=lambda x: minimin(x,7,h_unblocked)),['RTA'])
+#show(LRTA(instance_set[1],heur=min_manhattan_distance,update_h=False),['LRTA'])
+#path,hvals=LRTA(instance_set[1],heur=lambda x: minimin(x,3,min_manhattan_distance),update_h=True,iters=5)
+#path,hvals=LRTA(instance_set[2],heur=lambda x: 1.5*min_manhattan_distance(x),update_h=True,iters=15)
+#show(path,hvals,['LRTA'])
+#
+#am=make_Astar(heur=min_manhattan_distance)
+#for p,hs in zip(path,hvals):
+#    path,stat=am(p)
+#    print 'h*='+str(len(path)),hs
+#
+
+
+#show(LRTA(instance_set[1],heur=magsize,update_h=True),['LRTA'])
+#show(LRTA(instance_set[2],heur=magsize,update_h=True),['LRTA'])
+#show(LRTA(instance_set[1],heur=lambda x: 2.5*min_manhattan_distance(x)),['LRTA'])
+#show(LRTA(instance_set[1],heur=lambda x: magsize(x)),['LRTA+mag'])
+#show(LRTA(instance_set[2],heur=lambda x: magsize(x)),['LRTA+mag'])
+#show(LRTA(instance_set[1],heur=lambda x: minimin(x,3,min_manhattan_distance)),['LRTA'])
 #show(RTA(instance_set[1],heur=min_manhattan_distance),['RTA'])
-show(RTA(instance_set[1],heur=lambda x: perfecth(x,0.8,0)),['RTA'])
+#show(RTA(instance_set[0],heur=lambda x: perfecth(x,0.0,0)),['RTA'])
 ##test_plan_instance(4)
 #test_plan_tasks_instance(6)
 ## instance 3 - landmark
