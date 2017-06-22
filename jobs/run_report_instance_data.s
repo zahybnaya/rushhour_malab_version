@@ -11,10 +11,10 @@
 #SBATCH --mail-user=zb9@nyu.edu
 #SBATCH --output=report_ins_data1_%j.out
 
-instance=${SLURM_ARRAY_TASK_ID}
+run_id=${SLURM_ARRAY_TASK_ID}
 module purge
 module load python/intel/2.7.12
 
 
 cd /scratch/$USER/rushhour/src
-python run_report_instance_data.py 100 1 ${instance} >> ../output/report_instance_data${instance}_1.txt
+python run_report_instance_data.py 1 ${run_id} >> ../output/report_LRTA_instance_data${run_id}.txt

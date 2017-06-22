@@ -9,14 +9,13 @@ from scipy.stats import rv_discrete
 
 """
 Suboptimality:
-    1) Using inadmissible heuristic - Factor it    (done)
-    1) Using inadmissible heuristic - adding Gaussian noise (done)
-    1) ClosedList expiration limitation (works well only with partial search)
-    2) Lapses (done, not tested)
-    6) Weighting of g+h (done)
-    3) Partial search -Limited openList/Closed/Generated. (done)
-
-Parameters:
+     RTA*/LRTA*
+     Search on Reduced/relaxed problem
+     Using inadmissible heuristic with a factor (one for H)
+     Using inadmissible heuristic with Gaussian noise.
+     ClosedList/OpenList expiration limitation (works well only with partial search)
+     Lapses (done, not tested)
+     Partial search -Limited openList/Closed/Generated. (done)
 """
 
 def zipf(total,rank,s):
@@ -133,8 +132,32 @@ def zeroh(instance):
 def h_unblocked(instance,level=1):
     return len(find_constraints(instance.goal_car,instance,instance.goal_loc[0]))
 
-def minimin(instance):
-    pass
+def minimin_rec(instance,alpha,level,max_level,h_func):
+    if level>=max_level:
+        mm=h_func(instance)
+        #print 'returning {}+{}={}'.format(level,mm,level+mm)
+        return level+mm
+    succs = [(level+1+h_func(s),s) for s in expand(instance)]
+    succs = sorted(succs,key=lambda x:x[0])
+    alpha=succs[0][0]
+    for sh,s in succs:
+        #print '{}branch:{} alpha:{}'.format('.'*level,sh,alpha)
+        if sh <= alpha:
+            alpha = max(minimin_rec(s,alpha,level+1,max_level,h_func),alpha)
+            #print 'updating alpha'.format(alpha)
+    #print 'returning alpha'.format(alpha)
+    return alpha
+
+def minimin(instance,max_level,h_func=min_manhattan_distance):
+    return minimin_rec(instance,h_func(instance),0,max_level,h_func)
+
+#def minimin(instance,max_level):
+#    succs=[instance]
+#    for l in range(max_level):
+#        succs = [s1 for s in succs for s1 in expand(s)]
+#    return max_level+min([min_manhattan_distance(s) for s in succs])
+#
+
 
 def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0,search_limit=float('inf')):
     if lapse_rate>0:
@@ -162,7 +185,41 @@ def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
         potentials=[]
         heappush(potentials,(next_best_val+1,previous_loc))
         plan.append(physical_loc)
-    return plan
+    return plan_correction(plan,None)
+
+
+def get_heur(s,hcache,heur):
+    if s not in hcache:
+        hcache[s] = heur(s)
+    return hcache[s]
+
+def update_hcache(hcache,plan,heur):
+    for s in reversed(plan):
+        hcache[s]=min([get_heur(s1,hcache,heur) for s1 in expand(s)])+1
+
+def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1):
+    plan=[start]
+    physical_loc=start
+    previous_loc=None
+    potentials=[]
+    while not physical_loc.is_goal():
+        succs = expand(physical_loc)
+        [heappush(potentials,(get_heur(s,hcache,heur),s)) for s in succs if s != previous_loc]
+        previous_loc=physical_loc
+        value_best,physical_loc=heappop(potentials)
+        #print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
+        #draw(physical_loc)
+        potentials=[]
+        hcache[previous_loc]=value_best+1
+        if update_h: update_hcache(hcache,plan,heur)
+        heappush(potentials,(value_best+1,previous_loc))
+        plan.append(physical_loc)
+    plan=plan_correction(plan,None)
+    if iters>1:
+        return LRTA(start,heur,calcF,is_stop,update_h,hcache,iters-1)
+    return plan,['hU='+str(get_heur(p,hcache,heur))+' h='+str(heur(p)) for p in plan]
+
+
 
 
 def perfecth(instance,from_noise=0,to_noise=0):
