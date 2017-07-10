@@ -159,6 +159,10 @@ def minimin(instance,max_level,h_func=min_manhattan_distance):
 #
 
 
+
+
+
+
 def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0,search_limit=float('inf')):
     if lapse_rate>0:
         astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level,reconstruct_accuracy,search_limit)
@@ -207,7 +211,7 @@ def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=Tru
         [heappush(potentials,(get_heur(s,hcache,heur),s)) for s in succs if s != previous_loc]
         previous_loc=physical_loc
         value_best,physical_loc=heappop(potentials)
-        #print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
+        print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
         #draw(physical_loc)
         potentials=[]
         hcache[previous_loc]=value_best+1

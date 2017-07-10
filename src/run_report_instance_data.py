@@ -1,6 +1,22 @@
 from sys import argv
 from test import *
+from astar import make_Astar
 from itertools import product
+
+def report_ASTR_instance_data(iterations, run_id):
+    phs0=make_Astar(heur=min_manhattan_distance, calcF=make_fCalc(0,1,1))
+    phs1=make_Astar(heur=min_manhattan_distance, calcF=make_fCalc(0,1.5,1))
+    phs2=make_Astar(heur=magsize, calcF=make_fCalc(0,1,1))
+
+    runs=[_ for _ in product(range(3),range(20))]
+    alg_ind,instance_ind=runs[run_id]
+
+    instance=instance_set[instance_ind]
+    phs=[phs0,phs1,phs2][alg_ind]
+
+    for i in range(iterations):
+        report_ASTR_instance(instance,phs)
+
 
 def report_LRTA_instance_data(iterations, run_id):
     def lrta0(instance):
@@ -38,6 +54,7 @@ except:
     print "script <iterations> <run_id> "
     exit()
 
-report_LRTA_instance_data(iterations, run_id)
+#report_LRTA_instance_data(iterations, run_id)
+report_ASTR_instance_data(iterations, run_id)
 
 

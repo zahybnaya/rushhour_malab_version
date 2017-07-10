@@ -7,7 +7,11 @@ from itertools import product
 from time import time
 from collections import deque
 #import matplotlib.pyplot as plt
+from numpy import var
 from collections import deque
+from fitting import *
+import csv as csv
+
 
 
 
@@ -39,6 +43,20 @@ def test_mag(i):
     mag2dot(mag)
     #print mag
     print_nodes(nodes)
+
+def report_ASTR_instance(ins,astr):
+    plan,stat= astr(ins)
+    am=make_Astar(heur=min_manhattan_distance)
+    step_n=1
+    h_weight=astr.__name__[astr.__name__.rindex('+')+1:astr.__name__.index('histop')]
+    for p in plan:
+        op,st=am(p)
+        d=[ins.name,astr.__name__,h_weight,0,len(plan),len(op),step_n]
+        d=[str(x) for x in d]
+        step_n+=1
+        print ','.join(d)
+
+
 
 
 def report_LRTA_instance(ins,lrta):
@@ -530,12 +548,55 @@ def test_minimin():
         assert(n_dist>=prv_dist)
         prv_dist=n_dist
 
+
+def test_fitting(data_file):
+    def model_creator(h_weight,g_weight,learning_iters,local_learn):
+        model=make_Astar(heur=min_manhattan_distance,calcF=make_fCalc(g_weight,h_weight,1))
+        return model
+
+    # define likelihood function:
+    def r_square_function(instances,model,data):
+        model_data=[]
+        subject_data=[]
+        for i in instances:
+            #print i.name
+            path,stat=model(i)
+            model_data.append(len(path))
+            entry=[d['human_length'] for d in data if d['instance']==i.name and d['complete']=='True']
+            print '{} {}'.format(entry[0],len(path))
+            subject_data.append(int(entry[0]))
+            residuals = [pow(predicted-int(observed),2) for predicted,observed in zip(model_data,subject_data)]
+        return sum(residuals)
+
+    # data
+    with open(data_file, 'r') as d:
+        reader = csv.DictReader(d, delimiter=',')
+        data=[r for r in reader if r['subject']=='andra.log']
+    instances_data = set([d['instance'] for d in data])
+    instances = [i for i in instance_set if i.name in instances_data]
+
+    # giving initial parameters
+    h_weight=1
+    g_weight=1
+    learning_iters=1
+    local_learn = 0
+    params=[2*h_weight,0*g_weight,learning_iters,local_learn]
+    bounds=[(1,2),(0,1),(1,4),(0,1)]
+
+
+    #fit 
+
+    print try_f(instances,model_creator,r_square_function, params,bounds, data)
+    #print fit(instances,model_creator,r_square_function, params,bounds, data)
+
+#test_fitting('../results/pilot/paths.csv')
+
 #test_minimin()
 #show(RTA(instance_set[0],heur=lambda x: minimin(x,6,h_unblocked)),['RTA'])
 #show(RTA(instance_set_easy[0],heur=lambda x: minimin(x,7,h_unblocked)),['RTA'])
 #show(LRTA(instance_set[1],heur=min_manhattan_distance,update_h=False),['LRTA'])
 #path,hvals=LRTA(instance_set[1],heur=lambda x: minimin(x,3,min_manhattan_distance),update_h=True,iters=5)
-#path,hvals=LRTA(instance_set[2],heur=lambda x: 1.5*min_manhattan_distance(x),update_h=True,iters=15)
+#path,hvals=LRTA(instance_set[2],heur=lambda x: min_manhattan_distance(x),update_h=True,iters=3)
 #show(path,hvals,['LRTA'])
 #
 #am=make_Astar(heur=min_manhattan_distance)

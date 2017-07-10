@@ -236,7 +236,9 @@ def log_message(*args):
     print t
     return t
 
-def show(path,texts=['unknown','unknown']):
+def show(path,aux=None,texts=['unknown','unknown']):
+    if aux is None:
+        aux=['' for p in path]
     pygame.init()
     height_top=40
     size = width, height = 700+height_top, 600
@@ -255,7 +257,7 @@ def show(path,texts=['unknown','unknown']):
                 elif event.key == pygame.K_q:
                     return
                 else: continue
-                texts[0]='move {}/{}  model:{}'.format(i,len(path)-1,model_name)
+                texts[0]='move {}/{} {}  model:{}'.format(i,len(path)-1,aux[i],model_name)
                 print texts
                 draw_screen(screen,path[i],texts)
                 pygame.display.update()
