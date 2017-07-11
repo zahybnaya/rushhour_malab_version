@@ -5,25 +5,38 @@ import numpy as np
 from test import instance_set
 from csv import DictReader
 from random import random
+from sys import argv
 
 
-# LOOCV calculation (where to find the logp? how to weigh the samples?)
+# Two parameters 
+try:
+    subject=argv[1]
+    path_file=argv[2]
+except:
+    print 'Args:  <subject> <path_file>'
 
 __all__=['instances','path_length','learning_iter',
 'h_epsilon']
 
-ins_limit=2
 learning_iter=DiscreteUniform('learning_iter', lower=1, upper=5, doc='learning_iter')
 h_epsilon = Uniform('h_epsilon',lower=0.,upper=1.)
-instances=np.array(instance_set[:ins_limit])
+
+def get_instances_by_subject(path_file,subject):
+    with open(path_file,'rb') as f:
+        reader=DictReader(f)
+        data=[d['instance'] for d in reader if d['subject']==subject and d['complete']=='True']
+        return sorted(data)
+
+
+instances=np.array([i for i in instance_set if i.name in get_instances_by_subject(path_file,subject)])
 
 def model_path_length(i,h_epsilon,learning_iter):
     return len(LRTA(i,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter))
 
 
-def get_paths_by_subject(paths_file,subject,instances,fun):
+def get_paths_by_subject(path_file,subject,fun):
     instance_names=[i.name for i in instances]
-    with open(paths_file,'rb') as f:
+    with open(path_file,'rb') as f:
         reader=DictReader(f)
         data=[(d['instance'],fun(d)) for d in reader if d['subject']==subject and d['instance'] in instance_names]
         return [fr for (x,fr) in sorted(data, key=lambda x: instance_names.index(x[0]))]
@@ -31,7 +44,7 @@ def get_paths_by_subject(paths_file,subject,instances,fun):
 def sub_path_length(x):
     return float(x['human_length'])
 
-d=get_paths_by_subject('../results/pilot/paths.csv','andra.log',instances,sub_path_length)
+d=get_paths_by_subject(path_file,subject,sub_path_length)
 sample_data={}
 
 def logp(instances,h_epsilon,learning_iter,subject_ratio):
@@ -46,6 +59,7 @@ def logp(instances,h_epsilon,learning_iter,subject_ratio):
         print '{0},{1},{2},{3}'.format(i.name,h_epsilon,learning_iter,trials)
         sample_data[(i.name,str(h_epsilon),str(learning_iter))]=trials
         lp+=sum([(1./t) for t in range(1,trials+1)])
+        trials=1
     return -lp
 
 
