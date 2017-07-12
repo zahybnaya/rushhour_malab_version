@@ -211,7 +211,7 @@ def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=Tru
         [heappush(potentials,(get_heur(s,hcache,heur),s)) for s in succs if s != previous_loc]
         previous_loc=physical_loc
         value_best,physical_loc=heappop(potentials)
-        print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
+        #print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
         #draw(physical_loc)
         potentials=[]
         hcache[previous_loc]=value_best+1

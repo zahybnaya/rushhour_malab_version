@@ -31,7 +31,7 @@ def get_instances_by_subject(path_file,subject):
 instances=np.array([i for i in instance_set if i.name in get_instances_by_subject(path_file,subject)])
 
 def model_path_length(i,h_epsilon,learning_iter):
-    return len(LRTA(i,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter))
+    return len(LRTA(i,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter)[0])
 
 
 def get_paths_by_subject(path_file,subject,fun):
