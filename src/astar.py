@@ -5,6 +5,7 @@ from rushhour import *
 from random import randint,random
 #import numpy as np
 from scipy.stats import rv_discrete
+import theano.tensor as tn
 
 
 """
@@ -191,7 +192,6 @@ def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
         plan.append(physical_loc)
     return plan_correction(plan,None)
 
-
 def get_heur(s,hcache,heur):
     if s not in hcache:
         hcache[s] = heur(s)
@@ -201,6 +201,13 @@ def update_hcache(hcache,plan,heur):
     for s in reversed(plan):
         hcache[s]=min([get_heur(s1,hcache,heur) for s1 in expand(s)])+1
 
+def eval_theano(var):
+    print 'var:{} {}'.format(var,type(var))
+    r= var.eval()
+    print 'r:{}'.format(r)
+    return r
+
+
 def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1):
     plan=[start]
     physical_loc=start
@@ -208,6 +215,7 @@ def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=Tru
     potentials=[]
     while not physical_loc.is_goal():
         succs = expand(physical_loc)
+#        print '{}'.format([type(get_heur(s,hcache,heur)) for s in succs])
         [heappush(potentials,(get_heur(s,hcache,heur),s)) for s in succs if s != previous_loc]
         previous_loc=physical_loc
         value_best,physical_loc=heappop(potentials)
