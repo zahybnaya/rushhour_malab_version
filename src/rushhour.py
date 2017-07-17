@@ -241,7 +241,7 @@ def piece_possible_moves(instance,piece):
             succs.append((m_c,m_l,m_s))
     return succs
 
-def expand(instance):
+def expand(instance,do_shuffle=True):
     """
     All possible moves from current instance
     """
@@ -261,6 +261,7 @@ def expand(instance):
                 suc=deepcopy(instance)
                 do_move(suc,(car,m_l-l))
                 succs.append(suc)
+    if do_shuffle: shuffle(succs)
     return succs
 
 

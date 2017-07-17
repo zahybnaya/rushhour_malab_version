@@ -18,7 +18,7 @@ except:
 __all__=['instances','path_length','learning_iter',
 'h_epsilon']
 
-learning_iter=DiscreteUniform('learning_iter', lower=1, upper=5, doc='learning_iter')
+learning_iter=DiscreteUniform('learning_iter', lower=1, upper=3, doc='learning_iter')
 h_epsilon = Uniform('h_epsilon',lower=0.,upper=1.)
 
 def get_instances_by_subject(path_file,subject):
@@ -57,6 +57,8 @@ def logp(instances,h_epsilon,learning_iter,subject_ratio):
             if trials > max_trials:
                 break
         print '{0},{1},{2},{3}'.format(i.name,h_epsilon,learning_iter,trials)
+        with open('lrta_{0}_{1}'.format(subject,path_file.replace('.','_').replace('/','_')),'a') as f:
+            f.write('{0},{1},{2},{3}\n'.format(i.name,h_epsilon,learning_iter,trials))
         sample_data[(i.name,str(h_epsilon),str(learning_iter))]=trials
         lp+=sum([(1./t) for t in range(1,trials+1)])
         trials=1

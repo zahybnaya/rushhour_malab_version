@@ -2,10 +2,9 @@ from heapq import heappop, heappush,heapify
 #from graphics import *
 from copy import deepcopy
 from rushhour import *
-from random import randint,random
+from random import randint,random,seed
 #import numpy as np
 from scipy.stats import rv_discrete
-import theano.tensor as tn
 
 
 """
@@ -207,6 +206,16 @@ def eval_theano(var):
     print 'r:{}'.format(r)
     return r
 
+def heappop_random(potentials):
+    c=[]
+    val=potentials[0][0]
+    c.append(heappop(potentials))
+    while len(potentials)>0:
+        v,p=heappop(potentials)
+        if v!=val:
+            break
+        c.append((v,p))
+    return choice(c)
 
 def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1):
     plan=[start]
@@ -214,13 +223,11 @@ def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=Tru
     previous_loc=None
     potentials=[]
     while not physical_loc.is_goal():
-        succs = expand(physical_loc)
-#        print '{}'.format([type(get_heur(s,hcache,heur)) for s in succs])
-        [heappush(potentials,(get_heur(s,hcache,heur),s)) for s in succs if s != previous_loc]
+        for s in expand(physical_loc,True):
+            if s != previous_loc:
+                heappush(potentials,(get_heur(s,hcache,heur),s))
         previous_loc=physical_loc
-        value_best,physical_loc=heappop(potentials)
-        #print 'step: {} potentials:{} value_best:{}'.format(len(plan),[sh for sh,_ in potentials],value_best)
-        #draw(physical_loc)
+        value_best,physical_loc=heappop_random(potentials)
         potentials=[]
         hcache[previous_loc]=value_best+1
         if update_h: update_hcache(hcache,plan,heur)
