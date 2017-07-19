@@ -5,10 +5,9 @@ iter_=200
 burn_=100
 thin_=1
 
-M = MCMC(model)
-
+M = MCMC(model,db='pickle', dbname='lrta.pickle')
 M.sample(iter=iter_, burn=burn_, thin=thin_)
-
+M.db.close()
 for s in model.sample_data.iteritems():
     print s
 
