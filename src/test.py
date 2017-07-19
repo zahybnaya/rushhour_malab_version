@@ -589,6 +589,17 @@ def test_fitting(data_file):
     print try_f(instances,model_creator,r_square_function, params,bounds, data)
     #print fit(instances,model_creator,r_square_function, params,bounds, data)
 
+def lrta_marginalization():
+    h_epsilon = 0.
+    learning_iter=1
+    ins = instance_set[0]
+    exp_select = 3
+    seed(0)
+    for i in range(500):
+        print str(len(LRTA(ins,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter,exp=exp_select)[0]))
+
+#lrta_marginalization()
+
 #test_fitting('../results/pilot/paths.csv')
 
 #test_minimin()

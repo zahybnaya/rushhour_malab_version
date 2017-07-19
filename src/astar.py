@@ -217,17 +217,28 @@ def heappop_random(potentials):
         c.append((v,p))
     return choice(c)
 
-def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1):
+
+def heap_random(potentials,exp):
+    hrs=[p for (p,_) in potentials]
+    hmx=max(hrs)
+    norm=float(sum([(hmx-x+1.0)**exp for x in hrs]))
+    probs=[((hmx-x+1.0)**exp)/norm for x in hrs]
+    distrib = rv_discrete(values=(range(len(potentials)),probs))
+    ind=distrib.rvs(size=1)
+    return potentials[ind[0]]
+
+def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1,exp=5):
     plan=[start]
     physical_loc=start
     previous_loc=None
     potentials=[]
     while not physical_loc.is_goal():
+        #print physical_loc
         for s in expand(physical_loc,True):
             if s != previous_loc:
-                heappush(potentials,(get_heur(s,hcache,heur),s))
+                potentials.append((get_heur(s,hcache,heur),s))
         previous_loc=physical_loc
-        value_best,physical_loc=heappop_random(potentials)
+        value_best,physical_loc=heap_random(potentials,exp)
         potentials=[]
         hcache[previous_loc]=value_best+1
         if update_h: update_hcache(hcache,plan,heur)
