@@ -4,6 +4,54 @@ library(gridExtra)
 library(Cairo)
 library(reshape2)
 
+######################################################## 
+# LRTA distributions 
+#######################################################
+
+setwd("~/gdrivezb9/rushhour/results/pilot/lrta")
+d=read.csv('lrta_fitting_exp.csv', header = T, sep = ',')
+
+######################################################## 
+# LRTA distributions 
+#######################################################
+
+setwd("~/gdrivezb9/rushhour/results/pilot/lrta")
+no_exp=read.csv('dist_lrta_best', header= FALSE, sep = ',')
+exp3=read.csv('dist_lrta_exp3', header= FALSE, sep = ',')
+exp5=read.csv('dist_lrta_exp5', header= F, sep = ',')
+exp50=read.csv('dist_lrta_exp50', header= F, sep = ',')
+p1<-ggplot(no_exp, aes(x=V1)) + geom_histogram(binwidth = 1) + ggtitle('max node')
+p2<-ggplot(exp3, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=3')
+p3<-ggplot(exp5, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=5')
+p4<-ggplot(exp50, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=50')
+setwd("~/gdrivezb9/rushhour/results/pilot")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+d=subset(paths, paths$complete=='True' & paths$instance=='Jam-1')
+p5<-ggplot(d, aes(x=d$human_length))+ geom_histogram(binwidth = 1)+ ggtitle('Subject Data')
+grid.arrange(p5,p1,p4,p3,p2, ncol=3, top='Random Selection of nodes')
+
+
+######################################################## 
+# LRTA fitting MCMC
+#######################################################
+
+setwd("~/gdrivezb9/rushhour/results/pilot/lrta/")
+d=read.csv('lrta_fitting_exp.csv', header= TRUE, sep = ',')
+d=read.csv('lrta_subs.csv', header= TRUE, sep = ',')
+
+#Percentage of 21 trials for data_point,subject
+ratio=ddply(d, .(subject, h_epsilon, exp,learning_iter), function(x){return(length(which(x$trials=='21'))/nrow(x))})
+ggplot(ratio, aes(x=ratio$V1)) + geom_histogram(binwidth = 0.05)
+ggplot(d, aes(x=trials)) + geom_histogram(binwidth=1)
+
+#s=split(d, list(d$subject,d$h_epsilon,d$learning_iter))
+#x=s$andra.log.0.000686180040586.1
+#ggplot(x, aes(x=trials)) + geom_histogram(binwidth=1)
+
+######################################################## 
+# Pilot Data analysis
+#######################################################
+
 setwd("~/gdrivezb9/rushhour/results/pilot")
 figpath<-'../../docs/ccn/figures'
 
@@ -320,6 +368,7 @@ g
 ###
 # Plot 1: Scatter plot of Human solution length, vs Optimal solution length, shape/color by instance.
 ###
+setwd("~/gdrivezb9/rushhour/results/pilot")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(paths, paths$complete=='True')
 d$instance=factor(d$instance, levels = lvls_sl)
@@ -332,9 +381,19 @@ ggplot(d, aes(x=d$optimal_length))+ geom_point(stroke=2,aes(y=d$human_length, sh
 #######
 paths=read.csv('paths.fake.nodes.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=aggregate(paths, by = list(instance=paths$instance), FUN=mean)[,c('instance', 'optimal_length','nodes_expanded')]
-d$instance=factor(d$instance, levels = lvls_e)
-ggplot(d, aes(x = d$instance)) +geom_bar(stat="identity",aes(y = d$optimal_length)) + 
-  ggtitle('Optimal solution lengths per instance')+ xlab('Instance') + ylab('Optimal length')
+d$instance=factor(d$instance, levels = lvls_e, labels = 1:length(lvls_e))
+g<-ggplot(d, aes(x = d$instance)) +geom_bar(stat="identity",aes(y = d$optimal_length)) + xlab('puzzle') + ylab('Optimal length') +
+  theme_classic()
+Cairo(file=paste(figpath,"/p2.png",sep=''), 
+      type="png",
+      units="px", 
+      width=1124, 
+      height=320,
+      pointsize=12*2, 
+      dpi=72*2)
+g
+dev.off()
+
 
 
 ######
@@ -368,6 +427,7 @@ dev.off()
 
 ###
 # Plot 3: scatter plot of response-time as move number, by subject
+# per path
 ###
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subject)) +
@@ -375,12 +435,13 @@ ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subje
   ggtitle("Response Times") + xlab('move number') + ylab('Seconds') + ylim(0,90)
 
 
+
 ###
 # Plot 3.1: scatter plot of response-time as move number, by subject
 ###
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 g<-ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt)) +
-   xlab('move number') + ylab('Seconds') + ylim(0,90) +
+   xlab('move number') + ylab('seconds') + ylim(0,90) +
   theme(text = element_text(size=18))
 Cairo(file=paste(figpath,"/p3_1.png",sep=''), 
       type="png",
@@ -416,18 +477,80 @@ cors$sem=(cors$ymax-cors$ymin)/2
 ggplot(d2, aes(x=type, y=COR)) + stat_summary(geom = 'bar', fun.data = mean_sem) +
   stat_summary(geom = "errorbar", fun.data = mean_sem, width=0.22) 
 
+
+
+###
+# Plot 3.4: line plot of response-time as move number, by subject
+# per path
+###
+
+do_plot<-function(moves) {
+  g<-ggplot(moves, aes(x=moves$move_number)) + geom_line(aes(y=moves$rt)) +
+  scale_color_manual(values=1:11, guide=FALSE) + 
+    theme(axis.line=element_blank(),
+          axis.text.x=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title.x=element_blank(),
+          axis.title.y=element_blank(),
+          legend.position="none",
+          #panel.background=element_blank(),
+          #panel.border=element_blank(),
+          #panel.grid.major=element_blank(),
+          panel.grid.minor=element_blank()
+          #plot.background=element_blank()
+          )
+  return(g)
+}
+k<-burst_analysis(function(x){return(mean(x))},spearman_corr,1000)
+hbursts=head(k[order(k$diff,decreasing = T),c('path')], 100)
+
+moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
+#moves=subset(moves, moves$path in hbursts)
+
+moves_sp=split(moves, moves$path)
+moves_sp=tail(moves_sp, n = 100)
+
+slplots<-lapply(moves_sp,do_plot)
+do.call('grid.arrange',c(slplots, ncol = 5))
+
+Cairo(file=paste(figpath,"/p3_4.png",sep=''), 
+      type="png",
+      units="px", 
+      width=770, 
+      height=350,
+      pointsize=12*2, 
+      dpi=72*2)
+do.call('grid.arrange',c(slplots, ncol = 4))
+dev.off()
+
 ###
 # Plot 4: Bar plot of how many moves on each move number
 ###
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=moves$move_number, fill=instance)) + geom_bar() + ggtitle("occurences per move_number")
 
+
 ####
 # Plot 5: Bar plot of number of (good, neutral, wrong) moves
+# scale_fill_manual(values = c('darkred','darkorange','darkgreen'))
 ####
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-moves$category=with(moves, ifelse(progress==0, 'Same',ifelse(progress>0,'Closer','Further')))
-ggplot(moves,aes(x=moves$category)) + geom_bar() + ggtitle('Moves Category') + xlab('Moving closer/same/further from solution')
+moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
+moves<-subset(moves, category!='NA')
+g<-ggplot(moves,aes(x=moves$category)) + geom_bar(aes(fill=moves$category)) + xlab('move')  +guides(fill=FALSE)
+g
+Cairo(file=paste(figpath,"/p5.png",sep=''), 
+      type="png",
+      units="px", 
+      width=500, 
+      height=350,
+      pointsize=12*4, 
+      dpi=72*3.7)
+g
+dev.off()
+
 
 ####
 # Plot 6: Line plot of progress of every solution path
@@ -534,7 +657,7 @@ paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$c
                      ,levels = rev(c('Solved','Restart','Surrender')))
 paths=subset(paths,status!= 'NA' & instance !='Jam-25')
 paths$instance=factor(paths$instance, levels = lvls_e,labels = 1:length(lvls_e))
-g<-ggplot(paths, aes(x=paths$instance, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('Puzzle') + ylab('#Subejcts')+
+g<-ggplot(paths, aes(x=paths$instance, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('puzzle') + ylab('#subejcts')+
   scale_y_continuous(breaks=1:length(unique(paths$subject)))+ 
   scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
   theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
@@ -554,10 +677,20 @@ dev.off()
 # Plot 8: Bar plot of #Moves Category Across Subjects
 ####  
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-moves$category=with(moves, ifelse(progress==0, 'Same',ifelse(progress>0,'Closer','Further')))
+moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
 d=aggregate(moves,by = list("category"=moves$category,"subject"=moves$subject), FUN = "length")
-ggplot(d,aes(x=d$category, y=d$rt)) + stat_summary( fun.y="mean", geom="bar") + xlab('Moving closer/same/further from solution')+
-  ylab("Count") + stat_summary(geom = "errorbar", position = "dodge", width=0.2, size=1,fun.data = mean_sem)
+g<-ggplot(d,aes(x=d$category, y=d$rt)) + stat_summary( fun.y="mean",aes(fill=category), geom="bar") + xlab('move')+
+  ylab("Count") + stat_summary(geom = "errorbar", position = "dodge", width=0.2, size=1,fun.data = mean_sem)+guides(fill=F)
+g
+Cairo(file=paste(figpath,"/p8.png",sep=''), 
+      type="png",
+      units="px", 
+      width=500, 
+      height=350,
+      pointsize=12*4, 
+      dpi=72*3.2)
+g
+dev.off()
 
 
 ####  
@@ -658,8 +791,63 @@ ggplot(moves, aes(x=moves$move_number, y=moves$rt)) +
 ####
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, rt<60)
-ggplot(moves, aes(x=moves$rt)) + geom_histogram(bins = 100)  + xlab("Seconds")
+g<-ggplot(moves, aes(x=moves$rt)) + geom_histogram(bins = 1000)  + xlab("Seconds")+
+theme(axis.line=element_blank(),
+      #axis.text.x=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks=element_blank(),
+      #axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      legend.position="none",
+      #panel.background=element_blank(),
+      #panel.border=element_blank(),
+      #panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank()
+      #plot.background=element_blank()
+)
+Cairo(file=paste(figpath,"/p13.png",sep=''), 
+      type="png",
+      units="px", 
+      width=470*1.2, 
+      height=300,
+      pointsize=12*2, 
+      dpi=72*2)
+g
+dev.off()
 
+
+
+
+#####
+# Plot 13.1:  histogram of rt of subjects 
+####
+moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+srt=ddply(moves, .(subject), function(x){return(mean(x$rt))})
+moves$subject = factor(moves$subject, levels = srt[order(srt$V1),c('subject')])
+g<-ggplot(moves, aes(x=moves$subject, y=moves$rt)) + stat_summary(geom = 'bar', fun.y = 'mean') + 
+  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2) + xlab('subject') + ylab('seconds')+
+theme(axis.line=element_blank(),
+      axis.text.x=element_blank(),
+      #axis.text.y=element_blank(),
+      axis.ticks=element_blank(),
+      #axis.title.x=element_blank(),
+      #axis.title.y=element_blank(),
+      legend.position="none",
+      #panel.background=element_blank(),
+      #panel.border=element_blank(),
+      #panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank()
+      #plot.background=element_blank()
+)
+Cairo(file=paste(figpath,"/p13_1.png",sep=''), 
+      type="png",
+      units="px", 
+      width=470*1.2, 
+      height=300,
+      pointsize=12*2, 
+      dpi=72*2)
+g
+dev.off()
 
 
 #####
@@ -736,17 +924,18 @@ d<-rbind(d,mr)
 d[nrow(d),12]<-'Neutral'
 
 g<-ggplot(d, aes(y=ecdf, x=rt)) + geom_line(aes(color=category), size=1) +
-  xlab('Response time') + ylab('CDF')+
+  xlab('response time') + ylab('accum. probability')+
   theme(legend.position=c(.6, .5),
         legend.title = element_text(size=12),
         legend.text = element_text(size=10), 
         text = element_text(size=18), 
         legend.key.height = unit(0.2,'cm'))
+g
 Cairo(file=paste(figpath,"/p16_1.png",sep=''), 
       type="png",
       units="px", 
       width=470*1.2, 
-      height=300,
+      height=400,
       pointsize=12*2, 
       dpi=72*2)
 g
@@ -767,6 +956,7 @@ g<-ggplot() +
   theme(legend.position=c(.8, .6), text = element_text(size=18))+
   theme(legend.title = element_text(size=12), legend.text = element_text(size=12),legend.key.height = unit(0.5,'cm'))+
   xlab("Seconds")
+g
 Cairo(file=paste(figpath,"/p16_2.png",sep=''), 
       type="png",
       units="px", 
@@ -787,14 +977,15 @@ moves= subset(moves, category!='NA')
 d=ddply(moves, .(subject, category), function(x){return(mean_sem(x$rt))})
 g<-ggplot(d, aes(x=d$category,y=d$y)) +  stat_summary(geom='bar', fun.y = 'mean')  + 
   stat_summary(geom='errorbar', fun.data = mean_sem, size=2, width=0.4)+  
-  theme(text = element_text(size=18))+ xlab("category") + ylab("seconds") 
+  theme(text = element_text(size=18))+ xlab("category") + ylab("Rt(sec)") 
+g
 Cairo(file=paste(figpath,"/p16_3.png",sep=''), 
       type="png",
       units="px", 
-      width=400*1.2, 
-      height=300,
+      width=470*1.4, 
+      height=400,
       pointsize=12*2, 
-      dpi=72*2)
+      dpi=72*2.5)
 g
 dev.off()
 
@@ -1120,51 +1311,200 @@ d1=ddply(d, .(Var1), function(x){return (mean_sem_(x$Freq))})
 ######
 ## Stat 11: Bursts
 ######
-avg_burst<-function(x){
-  h=which(c('H',as.character(x$level),'H')=='H')
-  return(mean(diff(h)))
+
+do_burst<-function(x){
+  return(burst(as.character(x$level)))
 }
 
-library(combinat)
-rand_burst<-function(x){
-  l=as.character(x$level)
-  pp=unique(permn(l))
-  for (p in pp){
-    h=which(c('H',p,'H')=='H')
-    res=c(res,mean(diff(h)))
-  }
-  return(mean(res))
+burst<-function(x){
+  return(diff(which(c('H',x,'H')=='H')))
 }
 
-rand_burst<-function(x){
+
+#sampling
+do_rand_burst<-function(x,f,sample_size){
   res=c()
   l=as.character(x$level)
-  for(i in 1:100){
-    h=which(sample(c('H',l,'H'))=='H')
-    res=c(res,mean(diff(h)))
+  for(i in 1:sample_size){
+    s=sample(l)
+    res=c(res,f(burst(s)))
   }
-  #return(res)
-  return(mean(res))
+  return(res)
 }
 
-library(boot)
+burst_analysis<-function(sp,f,sample_size){
+  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
+  d=ddply(moves, .(path), function(x){return(sp(x$rt))})
+  names(d)<-c('path','rt_med')
+  moves=merge(moves,d)
+  moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
+  ab=ddply(moves, .(path), function(x){return(f(do_burst(x)))})
+  names(ab)<-c('path','ab') #actual variance in burst size
+  rb=ddply(moves, .(path), function(x){return(mean(do_rand_burst(x,f,sample_size)))}) #random variance in burst size
+  names(rb)<-c('path','rb')
+  k=merge(ab,rb)
+  k$diff=k$rb-k$ab
+  k$ratio=k$ab/k$rb
+  return(k)
+}
+
+#Stat 11.1, Ratio of median split of SD
+k=burst_analysis(function(x){return(median(x))},function(x){return(sd(x))},10000)
+mean_sem(k$diff[!is.na(k$diff)])
+mean_sem_(k$ratio[!is.na(k$ratio)])
+
+
+
+
+
+
+#Stat 11.2, Spearman correlation
+burst_analysis<-function(sp,f,sample_size){
+  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
+  d=ddply(moves, .(path), function(x){return(sp(x$rt))})
+  names(d)<-c('path','rt_med')
+  moves=merge(moves,d)
+  moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
+  ab=ddply(moves, .(path), function(x){return(f(do_burst(x)))})
+  names(ab)<-c('path','ab') #actual variance in burst size
+  rb=ddply(moves, .(path), function(x){return(mean(do_rand_burst(x,f,sample_size)))}) #random variance in burst size
+  names(rb)<-c('path','rb')
+  k=merge(ab,rb)
+  k$diff=k$rb-k$ab
+  k$ratio=k$ab/k$rb
+  return(k)
+}
+
+spearman_corr<-function(x){
+  return(cor(x,1:length(x), method = 'spearman'))
+}
+k=burst_analysis(function(x){return(median(x))},spearman_corr,1000)
+mean_sem(k$rb[!is.na(k$rb)])
+mean_sem_(k$ab[!is.na(k$ab)])
+
+g<-ggplot(k,aes(k$ab)) + geom_histogram(binwidth = .1) + xlab('spearman') + 
+    #geom_vline(xintercept = 0, linetype=4, size=1.3)+
+  theme(#axis.line=element_blank(),
+    #axis.text.x=element_blank(),
+    axis.text.y=element_blank(),
+    axis.ticks=element_blank(),
+    #axis.title.x=element_blank(),
+    axis.title.y=element_blank(),
+    legend.position="none",
+    #panel.background=element_blank(),
+    #panel.border=element_blank(),
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank()
+    #plot.background=element_blank()
+  )
+g
+Cairo(file=paste(figpath,"/stat11_2.png",sep=''), 
+      type="png",
+      units="px", 
+      width=770, 
+      height=350,
+      pointsize=12*2, 
+      dpi=72*4)
+g
+dev.off()
+
+#stat 11.3 sd CDF histogram 
+burst_analysis<-function(sp,f,sample_size){
+  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
+  d=ddply(moves, .(path), function(x){return(sp(x$rt))})
+  names(d)<-c('path','rt_med')
+  moves=merge(moves,d)
+  moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
+  ab=ddply(moves, .(path), function(x){return(f(do_burst(x)))})
+  names(ab)<-c('path','ab') #actual variance in burst size
+  rb=ddply(moves, .(path), function(x){
+    actual=f(do_burst(x))
+    rnds=do_rand_burst(x,f,sample_size)
+    return(length(which(rnds<=actual))/sample_size)}) #random
+  names(rb)<-c('path','rb')
+  k=merge(ab,rb)
+  k$diff=k$rb-k$ab
+  k$ratio=k$ab/k$rb
+  return(k)
+}
+
+k=burst_analysis(function(x){return(median(x))},sd,1000)
+t=ks.test(k$rb, 'punif',0,1)
+g<-ggplot(k,aes(k$rb)) + geom_histogram(binwidth = .05) + xlab('accumulated probability of sd') + 
+  #geom_vline(xintercept = 0.5, linetype=4, size=1.3)+
+  theme(#axis.line=element_blank(),
+      #axis.text.x=element_blank(),
+      axis.text.y=element_blank(),
+      axis.ticks=element_blank(),
+      #axis.title.x=element_blank(),
+      axis.title.y=element_blank(),
+      legend.position="none",
+      #panel.background=element_blank(),
+      #panel.border=element_blank(),
+      panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank()
+      #plot.background=element_blank()
+)
+g
+Cairo(file=paste(figpath,"/stat11.png",sep=''), 
+      type="png",
+      units="px", 
+      width=770, 
+      height=350,
+      pointsize=12*2, 
+      dpi=72*4)
+g
+dev.off()
+
+# time_dist plot per subject
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
-d=ddply(moves, .(path), function(x){return(mean(x$rt))})
-names(d)<-c('path','rt_med')
-moves=merge(moves,d)
-moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
-ab=ddply(moves, .(path), avg_burst)
-names(ab)<-c('path','ab')
-rb=ddply(moves, .(path), rand_burst)
-names(rb)<-c('path','rb')
-k=merge(ab,rb)
-k$diff=k$ab-k$rb
-k$ratio=k$ab/k$rb
-mean_sem_(k$ratio)
-bk=boot(k$diff, statistic = function(x, indices){return(mean(x[indices]))}, R=100000)
-plot(bk)
-ggplot(k, aes(x=diff)) + geom_histogram()
+moves=subset(moves,moves$rt<10)
+g<-ggplot(moves, aes(x=moves$rt)) + geom_density(aes(color=moves$subject)) + guides(color=FALSE) +
+  theme(#axis.line=element_blank(),
+  #axis.text.x=element_blank(),
+  #axis.text.y=element_blank(),
+  #axis.ticks=element_blank(),
+  axis.title.x=element_blank(),
+  axis.title.y=element_blank(),
+  legend.position="none"
+  #panel.background=element_blank(),
+  #panel.border=element_blank()
+  #panel.grid.major=element_blank(),
+  #panel.grid.minor=element_blank()
+  #plot.background=element_blank()
+)
+g
+Cairo(file=paste(figpath,"/time_dist.png",sep=''), 
+      type="png",
+      units="px", 
+      width=770, 
+      height=150,
+      pointsize=12*2, 
+      dpi=72*3)
+g
+dev.off()
+
+#bk=boot(k$diff, statistic = function(x, indices){return(mean(x[indices]))}, R=100000)
+#plot(bk)
+#ggplot(k, aes(x=diff)) + geom_histogram()
+
+
+
+#library(combinat)
+#exshustive (slow)
+#rand_burst<-function(x){
+#  l=as.character(x$level)
+#  pp=unique(permn(l))
+#  for (p in pp){
+#    h=which(c('H',p,'H')=='H')
+#    res=c(res,mean(diff(h)))
+#  }
+#  return(mean(res))
+#}
+
 
 ####
 # Trying to say something about the distribution of RT

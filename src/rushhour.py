@@ -189,8 +189,12 @@ def check_instance(h,v):
     return True
 
 
+def h_unblocked(instance,level=1):
+    return len(find_constraints(instance.goal_car,instance,instance.goal_loc[0]))
+
+
 def min_manhattan_distance(instance):
-    return min([manhattan_distance(instance,i) for i in terms_by_ins[instance.name]])
+    return min([manhattan_distance(instance,i)+h_unblocked(instance) for i in terms_by_ins[instance.name]])
 
 
 def manhattan_distance(instance1, instance_pair):
@@ -243,7 +247,7 @@ def piece_possible_moves(instance,piece):
 
 def expand(instance,do_shuffle=True):
     """
-    All possible moves from current instance
+    all possible moves from current instance
     """
     succs=[]
     b=ground_instance(instance)

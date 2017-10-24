@@ -1,83 +1,89 @@
-from pymc3 import Model, DiscreteUniform, Uniform, Discrete, Deterministic
+from pymc3 import Model, DiscreteUniform, Uniform, Discrete, Deterministic, sample, loo, Metropolis
 import theano.tensor as tt
+import theano
 from theano.compile.ops import as_op
 from rushhour import min_manhattan_distance, opt_solution_instances
-from astar import LRTA, eval_theano
+from astar import LRTA, eval_theano,RTA
 import numpy as np
 from test import instance_set
-from csv import DictReader
-from random import random
+from random import random,randint
 from sys import argv
+from logp import calc_logp_path_length,get_instance_names_by_subject, get_paths_by_subject
 
-# Two parameters 
+#Set these for debugging
+#theano.config.exception_verbosity='high'
+#theano.config.optimizer='fast_compile'
+# Takes two args
 try:
     subject=argv[1]
     path_file=argv[2]
 except:
     print 'Args:  <subject> <path_file>'
 
-class IVS(Discrete):
-    def __init__(self,instances,h_epsilon,learning_iter, *args, **kwargs):
-        super(IVS, self).__init__(*args, **kwargs)#What does discrete expects?
-        self.instances = instances
-        self.h_epsilon = h_epsilon
+class IBS(Discrete):
+    def __init__(self,learning_iter,exp_select, *args, **kwargs):
+        super(IBS, self).__init__(*args, **kwargs)#What does discrete expects?
         self.learning_iter = learning_iter
+        self.exp = exp_select
 
     def logp(self, value):
-        print value
-        return logp(self.instances,self.h_epsilon,self.learning_iter,value)
+        return calc_logp_path_length_op(self.exp,value)
 
+@as_op(itypes=[tt.dscalar,tt.lvector], otypes=[tt.dscalar])
+def calc_logp_path_length_op(exp,value):
+    return calc_logp_path_length(RTA(exp=exp),instances,value)
 
-def get_instances_by_subject(path_file,subject):
-    with open(path_file,'rb') as f:
-        reader=DictReader(f)
-        data=[d['instance'] for d in reader if d['subject']==subject and d['complete']=='True']
-        return sorted(data)
-
-def get_paths_by_subject(path_file,instance_names,subject,fun):
-    with open(path_file,'rb') as f:
-        reader=DictReader(f)
-        data=[(d['instance'],fun(d)) for d in reader if d['subject']==subject and d['instance'] in instance_names]
-        return [fr for (x,fr) in sorted(data, key=lambda x: instance_names.index(x[0]))]
 
 def make_model_path_length(i):
-    @as_op(itypes=[tt.dscalar,tt.lscalar], otypes=[tt.lscalar])
-    def model_path_length(h_epsilon,learning_iter):
-        path,_= LRTA(i,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter)
-        print len(path)
-        return len(path)
+    def model_path_length(learning_iter,exp):
+        #path,_= LRTA(i,heur=min_manhattan_distance,update_h=True,iters=learning_iter,exp=exp)
+        #return len(path)
+        return randint(1,100)
     return model_path_length
 
-# TODO: store per trial 
-def logp(instances,h_epsilon,learning_iter,sub_path_length):
-    max_trials=20
-    lp=0
-    trials=1;
-    for i,sr in zip(instances,sub_path_length):
-        m_path_f = make_model_path_length(i)
-        while True:
-            r=m_path_f(h_epsilon,learning_iter)
-            print 'Model:{} Subject:{}'.format(r,sr)
-            if len([1 for _ in r]) == len([1 for _ in sr]) or trials > max_trials:
-                break
-            trials+=1
-        print '{0},{1},{2},{3}'.format(i.name,h_epsilon,learning_iter,trials)
-        sample_data[(i.name,str(h_epsilon),str(learning_iter))]=trials
-        lp+=sum([(1./t) for t in range(1,trials+1)])
-        trials=1
-    return -lp
+@as_op(itypes=[tt.lscalar,tt.dscalar,tt.lvector], otypes=[tt.dscalar])
+def logp(learning_iter,exp,sub_path_length):
+    k=100
+    lp=sum([calc_logp_path_length(learning_iter,exp,sub_path_length) for _ in range(k)])/k
+    print 'lp={0}'.format(lp)
+    return np.array(-lp)
 
+#mlp should be -0.69
+#def calc_logp_path_length(model,sub_path_lengths):
+#    lp=0
+#    trials=1;
+#    for i,sr in zip(instances,sub_path_length):
+#        m_path_f = path=make_model_path_length(i)
+#        while True:
+#            r=m_path_f(learning_iter,exp)
+#            if  r ==  sr or trials > max_trials:
+#                break
+#            trials+=1
+#        #print '{0},{1},{2},{3},{4}'.format(subject,i.name,learning_iter,exp,trials)
+#        sample_data[(i.name,str(learning_iter))]=trials
+#        mlp=sum([(1./t) for t in range(1,trials+1)])
+#        lp+=mlp
+#        print '  Guessed {0} with {1} trials. mlp={2} lp={3}'.format(sr,trials,mlp,lp)
+#        trials=1
+#    return lp
+#
+#
 
 lrta_model=Model()
-with lrta_model:
-    d=get_paths_by_subject(path_file,get_instances_by_subject(path_file,subject),subject,lambda x:int(x['human_length']))
-    print d
+with lrta_model as lrta_model:
+    max_trials=40
+    instance_names=get_instance_names_by_subject(path_file,subject)
+    instances=np.array([i for i in instance_set if i.name in instance_names]) #is this sorted properly?
+    d=get_paths_by_subject(path_file,instance_names,subject,lambda x:int(x['human_length']))
+    print 'guessing {}'.format(d)
     sample_data={}
-    learning_iter_=DiscreteUniform('learning_iter_',lower=1, upper=5)
-    learning_iter=Deterministic('learning_iter',learning_iter_)
-    h_epsilon_ = Uniform('h_epsilon_',lower=0.,upper=1.)
-    h_epsilon = Deterministic('h_epsilon',h_epsilon_)
-    instances=np.array([i for i in instance_set if i.name in get_instances_by_subject(path_file,subject)]) #is this sorted properly?
-    path_length=IVS('path_length',instances,h_epsilon,learning_iter, observed=d)
+    learning_iter=DiscreteUniform('learning_iter',lower=1, upper=5)
+    exp_select = Uniform('exp', lower=4., upper=20.)
+    path_length=IBS('path_length',learning_iter,exp_select, observed=d)
+    step2=Metropolis(vars=[learning_iter])
+    step3=Metropolis(vars=[exp_select])
+    trace = sample(2000,step=[step2,step3])
+    print '****** loo ********'
+    print loo(trace,pointwise=True)
 
 

@@ -386,7 +386,7 @@ def make_summary(stats):
 
 def run_experiment():
     start_time = time()
-    exp_time=(60*30)
+    exp_time=(60*300)
     stats=[]
     for i in range(len(instance_set)):
         if (time()-start_time)>exp_time:
@@ -476,7 +476,6 @@ def test_admissible():
         print opt_solution_instances[ins.name],
         print magsize_admissible(ins)
 
-#run_experiment()
 
 def test_manhatten():
     for ins in instance_set:
@@ -604,7 +603,11 @@ def lrta_marginalization():
 
 #test_minimin()
 #show(RTA(instance_set[0],heur=lambda x: minimin(x,6,h_unblocked)),['RTA'])
-#show(RTA(instance_set_easy[0],heur=lambda x: minimin(x,7,h_unblocked)),['RTA'])
+#show(RTA(instance_set[1],heur=min_manhattan_distance,exp=5),None,['RTA_exp5'])
+#show(RTA(instance_set[1],heur=min_manhattan_distance,exp=1),None,['RTA_exp1'])
+#rta=RTA(heur=min_manhattan_distance,exp=20)
+#show(rta.solve(instance_set[1]),None,['RTA_exp20'])
+#show(RTA(instance_set[1],heur=lambda x: minimin(x,4,min_manhattan_distance),exp=20),None,['RTA_exp20'])
 #show(LRTA(instance_set[1],heur=min_manhattan_distance,update_h=False),['LRTA'])
 #path,hvals=LRTA(instance_set[1],heur=lambda x: minimin(x,3,min_manhattan_distance),update_h=True,iters=5)
 #path,hvals=LRTA(instance_set[2],heur=lambda x: min_manhattan_distance(x),update_h=True,iters=3)

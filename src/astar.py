@@ -1,4 +1,5 @@
 from heapq import heappop, heappush,heapify
+import logging
 #from graphics import *
 from copy import deepcopy
 from rushhour import *
@@ -129,9 +130,6 @@ def heappop_shuffle(openList):
 def zeroh(instance):
     return 0
 
-def h_unblocked(instance,level=1):
-    return len(find_constraints(instance.goal_car,instance,instance.goal_loc[0]))
-
 def minimin_rec(instance,alpha,level,max_level,h_func):
     if level>=max_level:
         mm=h_func(instance)
@@ -159,10 +157,6 @@ def minimin(instance,max_level,h_func=min_manhattan_distance):
 #
 
 
-
-
-
-
 def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=0,search_lapse=0,plan_correction_level=1,reconstruct_accuracy=100.0,search_limit=float('inf')):
     if lapse_rate>0:
         astar=make_Astar(heur,calcF,is_stop,0,search_lapse,plan_correction_level,reconstruct_accuracy,search_limit)
@@ -173,33 +167,6 @@ def make_Astar(heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, lapse_rate=
             return Astar(start,heur,calcF,is_stop,search_lapse,plan_correction_level,reconstruct_accuracy,search_limit)
     tmp_f.__name__='A*h:{0}f:{1}istop:{2}lapse:{3}slapse:{4}reca:{5}'.format(heur.__name__,calcF.__name__,is_stop.__name__,lapse_rate,search_lapse,reconstruct_accuracy)
     return tmp_f
-
-def RTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False):
-    plan=[start]
-    physical_loc=start
-    previous_loc=None
-    potentials=[]
-    while not physical_loc.is_goal():
-        succs = expand(physical_loc)
-        [heappush(potentials,(heur(s),s)) for s in succs if s != previous_loc]
-        previous_loc=physical_loc
-        _,physical_loc=heappop(potentials)
-        draw(physical_loc)
-        next_best_val,_ = heappop(potentials)
-        potentials=[]
-        heappush(potentials,(next_best_val+1,previous_loc))
-        plan.append(physical_loc)
-    return plan_correction(plan,None)
-
-def get_heur(s,hcache,heur):
-    if s not in hcache:
-        hcache[s] = heur(s)
-    return hcache[s]
-
-def update_hcache(hcache,plan,heur):
-    for s in reversed(plan):
-        hcache[s]=min([get_heur(s1,hcache,heur) for s1 in expand(s)])+1
-
 def eval_theano(var):
     print 'var:{} {}'.format(var,type(var))
     r= var.eval()
@@ -217,40 +184,105 @@ def heappop_random(potentials):
         c.append((v,p))
     return choice(c)
 
+def select_pseudo_max(items,exp):
+    """
+    returns the index of item
+    """
+    hmx=max(items)
+    vals=[(hmx-x+1.0)**exp for x in items]
+    norm=float(sum(vals))
+    probs=[v/norm for v in vals]
+    distrib = rv_discrete(values=(range(len(items)),probs))
+    ind=distrib.rvs(size=1)
+    return ind[0]
+
 
 def heap_random(potentials,exp):
+    """
+    TODO: test me
+    """
+    return potentials[select_pseudo_max([p for (p,_) in potentials],exp)]
     hrs=[p for (p,_) in potentials]
     hmx=max(hrs)
     norm=float(sum([(hmx-x+1.0)**exp for x in hrs]))
     probs=[((hmx-x+1.0)**exp)/norm for x in hrs]
-    distrib = rv_discrete(values=(range(len(potentials)),probs))
+    distrib = rv_discrete(values=(range(len(hrs)),probs))
     ind=distrib.rvs(size=1)
     return potentials[ind[0]]
 
-def LRTA(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False,update_h=True,hcache={},iters=1,exp=5):
-    plan=[start]
-    physical_loc=start
-    previous_loc=None
-    potentials=[]
-    while not physical_loc.is_goal():
-        #print physical_loc
-        for s in expand(physical_loc,True):
-            if s != previous_loc:
-                potentials.append((get_heur(s,hcache,heur),s))
-        previous_loc=physical_loc
-        value_best,physical_loc=heap_random(potentials,exp)
+
+
+
+class RTA:
+    def __init__(self,heur=zeroh,exp=5):
+        logging.debug('Creating RTA instance')
+        self.heur=heur
+        self.exp=exp
+    def solve(self,start):
+        plan=[start]
+        physical_loc=start
+        previous_loc=None
         potentials=[]
-        hcache[previous_loc]=value_best+1
-        if update_h: update_hcache(hcache,plan,heur)
-        heappush(potentials,(value_best+1,previous_loc))
-        plan.append(physical_loc)
-    plan=plan_correction(plan,None)
-    if iters>1:
-        return LRTA(start,heur,calcF,is_stop,update_h,hcache,iters-1)
-    return plan,['hU='+str(get_heur(p,hcache,heur))+' h='+str(heur(p)) for p in plan]
+        while not physical_loc.is_goal():
+            potentials.extend([(self.heur(s),s) for s in expand(physical_loc) if s != previous_loc])
+            previous_loc=physical_loc
+            _,physical_loc=potentials[select_pseudo_max([hv for hv,_ in potentials],self.exp)]
+            #draw(physical_loc)
+            next_best_val = min([hv for hv,_ in potentials])
+            potentials=[(next_best_val+1,previous_loc)]
+            plan.append(physical_loc)
+        return plan_correction(plan,None)
+    def __repr__(self):
+        return 'RTA_h:{0}_exp={1}'.format(self.heur.__name__,self.exp)
 
 
+class LRTA:
+    def __init__(self,heur=zeroh,update_h=True,hcache={},iters=1,exp=5):
+        self.heur=heur
+        self.update_h = update_h
+        self.hcache=hcache
+        self.iters=iters
+        self.exp = exp
 
+    def solve(self,start):
+        for _ in range(self.iters):
+            self.solve_iter(start)
+        ret=self.solve_iter(start)
+        self.hcache={}
+        return ret
+
+    def solve_iter(self,start):
+        plan=[start]
+        physical_loc=start
+        previous_loc=None
+        potentials=[]
+        while not physical_loc.is_goal():
+            for s in expand(physical_loc,do_shuffle=True):
+                if s != previous_loc:
+                    potentials.append((self.get_heur(s),s))
+            previous_loc=physical_loc
+            value_best,physical_loc=heap_random(potentials,self.exp)
+            potentials=[]
+            self.hcache[previous_loc]=value_best+1
+            if self.update_h: self.update_hcache(plan)
+            heappush(potentials,(value_best+1,previous_loc))
+            plan.append(physical_loc)
+        plan=plan_correction(plan,None)
+        return plan
+        #return plan,['hU='+str(self.get_heur(p))+' h='+str(self.heur(p)) for p in plan]
+
+
+    def get_heur(self,s):
+        if s not in self.hcache:
+            self.hcache[s] = self.heur(s)
+        return self.hcache[s]
+
+    def update_hcache(self,plan):
+        for s in reversed(plan):
+            self.hcache[s]=min([self.get_heur(s1) for s1 in expand(s)])+1
+
+    def __repr__(self):
+        return 'LRTA_h:{0}_exp={1}_iters={2}'.format(self.heur.__name__,self.exp,self.iters)
 
 def perfecth(instance,from_noise=0,to_noise=0):
     add_noise_val=from_noise + random()* (to_noise-from_noise)
@@ -290,8 +322,8 @@ def Astar(start,heur=zeroh,calcF=make_fCalc(),is_stop=lambda x:False, search_lap
     heappush(openList,(heur(start),0,heur(start),start))
     while len(openList)>0:
         if stats['expanded']>2500000:
-	    print 'aborted. {}'.format(stats)
-	    return [],stats
+            print 'aborted. {}'.format(stats)
+            return [],stats
         if random() > search_lapse:
             f,g,h,n = heappop(openList)
         else:
