@@ -56,9 +56,10 @@ def logp(instances,h_epsilon,learning_iter,subject_ratio,exp_select):
             trials+=1
             if trials > max_trials:
                 break
-        print '{0},{1},{2},{3},{4}'.format(i.name,h_epsilon,learning_iter,exp_select,trials)
+        p_line='{0},{1},{2},{3},{4},{5}'.format(subject,i.name,h_epsilon,learning_iter,exp_select,trials)
+	print p_line
         with open('lrta_{0}_{1}'.format(subject,path_file.replace('.','_').replace('/','_')),'a') as f:
-            f.write('{0},{1},{2},{3}\n'.format(i.name,h_epsilon,learning_iter,trials))
+            f.write(p_line+'\n')
         sample_data[(i.name,str(h_epsilon),str(learning_iter))]=trials
         lp+=sum([(1./t) for t in range(1,trials+1)])
         trials=1
