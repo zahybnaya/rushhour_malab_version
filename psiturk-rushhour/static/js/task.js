@@ -39,28 +39,57 @@ var instructionPages = [ // add as a list as many pages as you like
 * need code to get those pages from the PsiTurk object and 
 * insert them into the document.
 *
-* TODO: report data-  
-* TODO: multiple instances
-* TODO: surrender/restart
-* TODO: Try on m.turk
-* TODO: Change the look
+* TODO: Get on m.turk sandbox (host)
+* TODO: Change the look/cosmetics
+* TODO: Instruction pages
+* TODO: Choose instances
 *
 ********************/
 var RushhourExperiment = function() {
-	document.body.innerHTML = '<h1>Rush Hour</h1><p id="status"></p><div id="content"><ul id="game-stats"><li>Perfect score: <span class="value">15</span></li><li id="timer"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div>';
-	var puzzleId, board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer;
+	document.body.innerHTML = '<h1>Rush Hour</h1></p><p id="status"></p><ul id="game-stats"><li id="timer"></li><li id="panel"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div> </svg>';
+
+	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout;
+	gameWon=false;
 	container = '#game';
+	timeout = 1000*6000;
 	colours = ['#ff7fff', '#7fff7f'];
 	svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
+	panelsvg = d3.select('#panel').append('svg').attr('width', '100%').attr('height', '100%');
 	board = 6;
 	scalar = 100;
 	tilePadding = 16;
 	carPadding = 6;
 	moves = 0;
 	startMoment = moment();
+	//puzzle_files = ['static/json/level0.json', 'static/json/level1.json','static/json/level2.json','static/json/level3.json'];
+	puzzle_files = ['static/json/level1.json', 'static/json/level1.json','static/json/level1.json','static/json/level1.json'];
+	puzzle_number=0;
+	puzzle_file = puzzle_files[puzzle_number++];
+	restartButton=panelsvg.append("rect").attr('class', 'click-rect').attr("x", 0).attr("y", 0).attr("width", 20).attr("height", 20).attr("fill", 'green');
+	surrenderButton=panelsvg.append("rect").attr('class', 'click-rect').attr("x", 30).attr("y", 0).attr("width", 20).attr("height", 20).attr("fill", 'red');
+	restartButton.on('click',function(){
+		message=' t:['+moment()+'] event:[restart] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
+		psiTurk.recordTrialData(message);
+		psiTurk.saveData();	
+		moves=0
+		svg.selectAll('rect.car').remove();
+		d3.json(puzzle_file,j_callback);
+	});
+	surrenderButton.on('click',function(){
+		message=' t:['+moment()+'] event:[surrender] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
+		psiTurk.recordTrialData(message);
+		psiTurk.saveData();	
+		puzzle_file = puzzle_files[puzzle_number++];
+		moves=0
+		svg.selectAll('rect.car').remove();
+		d3.json(puzzle_file,j_callback);
+	});
+
+
 	updateTimer = function() {
-		return d3.select('#timer').text(moment().subtract(startMoment).format('mm:ss'));
+		return d3.select('#timer').text(moment().diff(startMoment));
 	};
+
 	timer = setInterval(updateTimer, 1000);
 	intersection = function(a1, a2) {
 		return a1.filter(function(n) {
@@ -77,6 +106,9 @@ var RushhourExperiment = function() {
 		return startXY = d.orientation === 'horizontal' ? d.x : d.y;
 	};
 	dragMove = function(d) {
+		if (gameWon){
+			return ;
+		}
 		var axis, car, leftBound, relativeXY, rightBound, time, xy;
 		axis = d.orientation === 'horizontal' ? 'x' : 'y';
 		xy = d3.event[axis];
@@ -97,7 +129,9 @@ var RushhourExperiment = function() {
 					message=' t:['+moment()+'] event:[win] piece:['+d.id+'] move#:['+moves+'] move:['+d.position+'] instance:['+puzzle_id+']'
 					psiTurk.recordTrialData(message);
 					psiTurk.saveData();	
-					return d3.select('#status').text('You won! ' + time + ' and ' + (moves + 1) + ' moves');
+					svg.selectAll('rect.car').remove();
+					gameWon=true;
+					return  ;
 				}
 			}
 		}
@@ -117,9 +151,19 @@ var RushhourExperiment = function() {
 		if (Math.abs(distance) > 0) {
 			d3.select('#moves').text(++moves);
 		}
-		return d3.select(this).attr('data-position', d.position = newPosition).transition().attr('x', d.x = positionToX(d.position)).attr('y', d.y = positionToY(d.position));
+		ret=d3.select(this).attr('data-position', d.position = newPosition).transition().attr('x', d.x = positionToX(d.position)).attr('y', d.y = positionToY(d.position));
+		if (gameWon){
+			if ( moment().diff(startMoment) > timeout || puzzle_number>=puzzle_files.length ){
+				return finish();
+			}
+			moves=0;
+			puzzle_file = puzzle_files[puzzle_number++];
+			d3.json(puzzle_file,j_callback);
+			gameWon=false;
+		}
+		return ret;
+		//return d3.select(this).attr('data-position', d.position = newPosition).transition().attr('x', d.x = positionToX(d.position)).attr('y', d.y = positionToY(d.position));
 	};
-
 	drag = d3.behavior.drag().origin(function(d) {
 		return d;
 	}).on('dragstart', dragStart).on('drag', dragMove).on('dragend', dragEnd);
@@ -184,53 +228,57 @@ var RushhourExperiment = function() {
 		return scalar * Math.floor(position / board) + carPadding;
 	};
 
-	d3.json('static/js/level1.json', function(error, json) {
-		var car, carAttributes, cars, j, len, ref1, squareAttributes, squares;
-		puzzle_id = json.id;
-		if (error) {
-			console.warn(error);
-		}
-		squares = svg.append('g').attr('class', 'tiles').selectAll('rect.square').data(d3.range(Math.pow(board, 2))).enter().append('rect');
-		squareAttributes = squares.attr('x', function(i) {
-			return scalar * (i % board) + tilePadding;
-		}).attr('y', function(i) {
-			return scalar * Math.floor(i / board) + tilePadding;
-		}).attr('height', scalar - tilePadding * 2).attr('width', scalar - tilePadding * 2).attr('fill', '#f4f4f7');
-		ref1 = json.cars;
-		for (j = 0, len = ref1.length; j < len; j++) {
-			car = ref1[j];
-			car.x = positionToX(car.position);
-			car.y = positionToY(car.position);
-		}
-		cars = svg.append('g').attr('class', 'cars').selectAll('rect.car').data(json.cars).enter().append('rect');
-		message=' t:['+moment()+'] event:[start] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
-		psiTurk.recordTrialData(message);
-		psiTurk.saveData();	
-		return carAttributes = cars.attr('class', 'car').attr('data-position', function(d) {
-			return d.position;
-		}).attr('data-length', function(d) {
-			return d.length;
-		}).attr('data-orientation', function(d) {
-			return d.orientation;
-		}).attr('x', function(d) {
-			return d.x;
-		}).attr('y', function(d) {
-			return d.y;
-		}).attr('height', function(d) {
-			return (d.orientation === 'vertical' ? scalar * d.length : scalar) - carPadding * 2;
-		}).attr('width', function(d) {
-			return (d.orientation === 'horizontal' ? scalar * d.length : scalar) - carPadding * 2;
-		}).attr('fill', function(d) {
-			if (d.player) {
-				return colours[1];
-			} else {
-				return colours[0];
+	var finish = function(){
+	    currentview = new Questionnaire();
+	};
+
+	var j_callback = function(error, json) {
+			var car, carAttributes, cars, j, len, ref1, squareAttributes, squares;
+			puzzle_id = json.id;
+			if (error) {
+				console.warn(error);
 			}
-		}).call(drag);
-	});
-};
-//}.call(this);
-//};
+			squares = svg.append('g').attr('class', 'tiles').selectAll('rect.square').data(d3.range(Math.pow(board, 2))).enter().append('rect');
+			squareAttributes = squares.attr('x', function(i) {
+				return scalar * (i % board) + tilePadding;
+			}).attr('y', function(i) {
+				return scalar * Math.floor(i / board) + tilePadding;
+			}).attr('height', scalar - tilePadding * 2).attr('width', scalar - tilePadding * 2).attr('fill', '#f4f4f7');
+			ref1 = json.cars;
+			for (j = 0, len = ref1.length; j < len; j++) {
+				car = ref1[j];
+				car.x = positionToX(car.position);
+				car.y = positionToY(car.position);
+			}
+			cars = svg.append('g').attr('class', 'cars').selectAll('rect.car').data(json.cars).enter().append('rect');
+			message=' t:['+moment()+'] event:[start] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']';
+			psiTurk.recordTrialData(message);
+			psiTurk.saveData();	
+			return carAttributes = cars.attr('class', 'car').attr('data-position', function(d) {
+				return d.position;
+			}).attr('data-length', function(d) {
+				return d.length;
+			}).attr('data-orientation', function(d) {
+				return d.orientation;
+			}).attr('x', function(d) {
+				return d.x;
+			}).attr('y', function(d) {
+				return d.y;
+			}).attr('height', function(d) {
+				return (d.orientation === 'vertical' ? scalar * d.length : scalar) - carPadding * 2;
+			}).attr('width', function(d) {
+				return (d.orientation === 'horizontal' ? scalar * d.length : scalar) - carPadding * 2;
+			}).attr('fill', function(d) {
+				if (d.player) {
+					return colours[1];
+				} else {
+					return colours[0];
+				}
+			}).call(drag);
+		};
+	d3.json(puzzle_file,j_callback);
+
+};//RushhourExperiment
 
 /********************
 * STROOP TEST       *
