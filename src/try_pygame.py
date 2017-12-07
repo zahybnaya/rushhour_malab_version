@@ -22,7 +22,7 @@ TEAL	=(0,128,128)
 NAVY	=(0,0,128)
 
 
-colors={'w':WHITE, 'l':LIME, 'B':BLACK, 'c':CYAN, 'M':MAGENTA, 's':SILVER, 'G':GRAY, 'm':MAROON, 't':TEAL, 'n':NAVY,'r':RED, 'g':GREEN, 'b':BLUE, 'y':YELLOW, 'p':PURPLE, 'o':OLIVE}
+colors={'w':WHITE, 'l':LIME, 'B':BLACK, 'c':CYAN, 'M':MAGENTA, 's':SILVER, 'G':GRAY, 'm':MAROON, 't':TEAL, 'n':NAVY,'r':RED, 'g':GREEN, 'b':BLUE, 'y':YELLOW, 'p':PURPLE, 'o':OLIVE, '0':PURPLE,'1':WHITE, '2':LIME, '3':BLACK, '4':CYAN, '5':MAGENTA, '6':YELLOW, '7':NAVY, '8':MAROON, '9':TEAL }
 
 def get_car_by_pos(screen,instance,pos):
     height_top=40

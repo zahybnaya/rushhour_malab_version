@@ -4,6 +4,71 @@ library(gridExtra)
 library(Cairo)
 library(reshape2)
 
+
+
+######################################################## 
+# Selecting a subset of 70 puzzles. 
+# path lengths - 9:20, 11:20 14:20 16:10
+# v_size - ~2:20, 4:20, 7:20
+# mag_nodes - 4 9
+# mag_edges - 4, 16
+# #SCC = 0, 3
+# max_scc = 4, 6,8
+######################################################## 
+setwd('~/gdrivezb9/rushhour/results/instances')
+d=read.csv('instances.csv')
+d2=subset(d,path_length %in% c('9','11','14','16') )
+d3=subset(d2,v_size %in% c('2','4','7'))
+d4=subset(d3,max_scc_size %in% c('1','4','8'))
+d5=subset(d4,mag_edges %in% c('4','16'))
+d6=subset(d5,)
+table(d5$path_length)
+table(d5$mag_edges)
+
+##################################################
+# Convergence of lrta path_length 
+#################################################
+setwd('~/gdrivezb9/rushhour/results/')
+d=read.csv('lrta_path_length_exp5.csv', sep = ' ')
+ggplot(d, aes(x=d$iteration,y=d$path_length)) + stat_summary(fun.data  = mean_se)
+
+##################################################
+# Convergence of loglike 
+#################################################
+setwd('~/gdrivezb9/rushhour/results/')
+d=read.csv('logp_convergence.csv', sep = ' ')
+real_value=d[d$samples=='0','value']
+d=subset(d,d$samples!='0')
+ggplot(d, aes(x=d$samples)) + geom_line(aes(y=d$value,color=d$function.)) + geom_hline(aes(yintercept=real_value))
+
+
+######################################################## 
+# Summary stat analysis of the instances
+# Histograms. 
+######################################################## 
+setwd('~/gdrivezb9/rushhour/results/instances')
+d=read.csv('instances.csv')
+p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
+p2<-ggplot(d, aes(x = d$h_size)) + geom_histogram(binwidth = 1)+ xlab('#horizontal cars')
+p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
+p4<-ggplot(d, aes(x = d$path_length)) + geom_histogram(binwidth = 1)+ xlab('path length')
+p5<-ggplot(d, aes(x = d$mag_edges)) + geom_histogram(binwidth = 1)+ xlab('#edges in mag')
+p6<-ggplot(d, aes(x = d$num_sccs)) + geom_histogram(binwidth = 1)+ xlab('#SCC')
+p7<-ggplot(d, aes(x = d$max_scc_size)) + geom_histogram(binwidth = 1)+ xlab('max SCC size')
+
+grid.arrange(p4,p1,p2,p5,p3,p6,p7, ncol=2, top='Rushhour instances')
+
+
+######################################################## 
+# Summary stat analysis of the instances
+# Heatmap of spearman correlations.
+########################################################
+setwd('~/gdrivezb9/rushhour/results/instances')
+d=read.csv('instances.csv')
+res=round(cor(d[-1], method = 'spearman'),3)
+melted_cormat<- melt(res, na.rm = TRUE)
+ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
+  geom_tile() + geom_text(aes(label=melted_cormat$value))
 ######################################################## 
 # LRTA distributions 
 #######################################################

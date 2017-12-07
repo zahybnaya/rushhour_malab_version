@@ -1,0 +1,325 @@
+"""
+Generating rushhour instances.
+
+1) Generate a terminal state based on the car sizes
+2) reject trival cases
+3) Starting from the terminal state, perform quasi-random moves backwards.
+4) then solve optimally forward
+5) output to json
+
+"""
+
+#test code
+from  rushhour import read_instances,draw,mag2dot, json_to_ins
+#test code
+
+from time import time
+from itertools import product
+from json import dump,load
+from rushhour import RHInstance,ground_instance,do_move,rand_move, rhstring,h_unblocked,constuct_mag
+from astar import make_Astar
+from copy import deepcopy
+from sys import argv
+from os import listdir
+from os.path import join, isfile
+
+from random import randint,choice,sample
+
+
+def generate_instance(min_path_length,max_path_length,cars_2,cars_3):
+    ins = None
+    while ins is None:
+        ins=generate_terminal_instance(cars_2,cars_3)
+    play_back(ins,max_path_length)
+    candidate=deepcopy(ins)
+    plan=solve_forward(ins)
+    if len(plan)>min_path:
+        return candidate,plan
+
+def solve_forward(ins):
+    astar = make_Astar(heur=min_manhattan_distance)
+    plan,stat=astar(ins)
+    return plan
+
+def possible_locations(ins,orientation,size):
+    """
+    returns a list of possible locations  (l,c,s) based on orientation and size
+    """
+    b=ground_instance(ins) #[line][column]
+    ret=[]
+    for c,l in product(range(ins.length), range(ins.height)):
+        if orientation == 'h':
+            sqrs = [b[l][cc] for cc in range(c,min(c+size,ins.length)) if b[l][cc]==' ' ]
+        else:
+            sqrs = [b[cl][c] for cl in range(l,min(l+size,ins.height)) if b[cl][c]==' ' ]
+        if len(sqrs)==size:
+            ret.append((c,l,size))
+    return ret
+
+
+def add_cars(ins,cars_2,cars_3):
+    cars_to_place=[2]*cars_2+[3]*cars_3
+    car_id=0
+    while len(cars_to_place)>0:
+        size=cars_to_place.pop(randint(0,len(cars_to_place)-1))
+        orientation = choice(['h','v'])
+        pl=possible_locations(ins,orientation,size)
+        if len(pl)==0:
+            return None
+        cd=(ins.v,ins.h)[orientation=='h']
+        cd[str(car_id)]=choice(pl)
+        car_id+=1
+    return ins
+
+
+
+def generate_initial_instance(cars_2,cars_3):
+    loc=choice([(i,2,2) for i in range(3)])
+    ins = RHInstance({'r':loc},{},'i_id')
+    return add_cars(ins,cars_2,cars_3)
+
+
+def generate_terminal_instance(cars_2,cars_3):
+    ins = RHInstance({'r':(4,2,2)},{},'i_id')
+    return add_cars(ins,cars_2,cars_3)
+
+
+def play_back_goal(ins,num_moves):
+    ins.goal_loc=[choice([(i,2,2) for i in range(3)])]
+    astar=make_Astar(heur=h_unblocked)
+    print ins.goal_loc
+    path,stats=astar(ins)
+    print path
+    if len(path)==0:
+        return None
+    return path[-1]
+
+
+def play_back_rand(ins,num_moves):
+    for i in range(num_moves):
+        ins=rand_move(ins,False)
+    return ins
+
+
+
+def play_back_closed(ins,num_moves):
+    """TODO : dont repeat symmetric moves"""
+    closed_list= set([])
+    for i in range(num_moves):
+        while True:
+            ins=rand_move(ins,False)
+            if rhstring(ins) not in closed_list:
+                closed_list.add(rhstring(ins))
+                break
+        print len(closed_list)
+        print i
+    return ins
+
+
+"""
+{ "id": "problem1",
+  "cars": [
+    {
+      "id": "c1",
+      "orientation": "horizontal",
+      "position": 6,
+      "length": 2,
+      "player": false
+    },...
+    ]
+}
+"""
+
+
+def instance_to_json(ins,length):
+    filename = '_'.join([str(time()).replace('.','_'),ins.name , str(length),'.json'])
+    print 'outputing to '+filename
+    d={'id': ins.name}
+    cars = [{'id': cid, 'orientation':'vertical', 'position': 6*l+c , 'length': s ,'player': False} for cid,(c,l,s) in ins.v.iteritems()]
+    cars.extend([{'id': cid, 'orientation':'horizontal', 'position': 6*l+c , 'length': s ,'player': cid=='r' } for cid,(c,l,s) in ins.h.iteritems()])
+    d['cars']=cars
+    with open(filename,'w') as fp:
+        dump(d,fp)
+
+
+
+def create_instances(num_of_instances,min_path_length,max_path_length,cars_2,cars_3):
+    for i in range(num_of_instances):
+        init_ins=generate_initial_instance(cars_2,cars_3)
+        if init_ins is None:
+            continue
+        init_ins.name = 'prb'+str(i)
+        am=make_Astar(search_limit=max_path_length,heur=h_unblocked)
+        path,stat=am(init_ins)
+        length=len(path)
+        print length
+        if length > min_path_length:
+            instance_to_json(init_ins,length)
+
+def instance_stat(jsonfile):
+    ins = json_to_ins(jsonfile)
+    sz=[s for c,l,s in ins.h.values()+ins.v.values()]
+    car_2 = str(len([1 for s in sz if s==2]))
+    car_3 = str(len([1 for s in sz if s==3]))
+    v_size = str(len(ins.v))
+    h_size = str(len(ins.h))
+    mag,nodes=constuct_mag(ins)
+    sccs=tarjanSCC(mag)
+    mag_nodes=str(len(nodes))
+    mag_edges=str(sum([len(nd) for nd in mag.values()]))
+    num_sccs=str(len([1 for scc in sccs if len(scc)>=2]))
+    max_scc_size=str(max([len(scc) for scc in sccs]))
+    path_length = jsonfile.split('_')[3]
+    return ','.join([jsonfile,car_2,car_3,v_size,h_size,mag_nodes,mag_edges,path_length,num_sccs,max_scc_size])
+
+def tarjanSCC(mag):
+    sccs=[]
+    index=0
+    strong_connect('dummy',mag,[],[0],sccs,{})
+    return sccs
+
+
+def strong_connect(n,mag,s,index,sccs,indd):
+    s.append(n)
+    n_index=n_lowlink=index[0]
+    indd[n]=(n_index,n_lowlink)
+    #print '{0}{1}:({2},{3})'.format(' ',n,n_index,n_lowlink)
+    for k in mag[n]:
+        if k not in s:
+            index[0]+=1
+            k_index,k_lowlink=strong_connect(k,mag,s,index,sccs,indd)
+            n_lowlink=min(n_lowlink,k_lowlink)
+            indd[n]=(n_index,n_lowlink)
+        else:
+            n_lowlink=min(n_lowlink, indd[k][0])
+            indd[n]=(n_index,n_lowlink)
+    if n_index == n_lowlink:
+        scc=[]
+        while True:
+            scc.append(s.pop())
+            if scc[-1]==n:
+                sccs.append(scc)
+                break
+    #print '{0}{1}:({2},{3})'.format(' ',n,n_index,n_lowlink)
+    return n_index,n_lowlink
+
+
+
+
+
+#test_code
+#instance_set = read_instances()
+#mag,nodes=constuct_mag(instance_set[15])
+#mag2dot(mag,True)
+#tarjanSCC(mag)
+#exit()
+
+#term_ins=generate_terminal_instance(3,3)
+#draw(term_ins)
+#for i in range(100):
+#    ins=play_back_goal(term_ins,1000)
+#    if ins is None:
+#        print 'Unsolved instance:'
+#        draw(term_ins)
+#        exit()
+#    ast=make_Astar(heur=h_unblocked)
+#    path,stats=ast(ins)
+#    draw(ins)
+#    print 'path:'+str(len(path))
+#print possible_locations(instance_set[0],'v',2)
+
+
+#test_code
+
+def pick_sample(jsons_data,size):
+    path_length_dist={'9':20,'11':20,'14':20,'16':10}
+    s = []
+    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='9'],20))
+    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='11'],20))
+    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='14'],20))
+    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='16'],10))
+    #s = set(sample(range(len(jsons_data)),size))
+    #s = set(s)
+    while len(s)<size:
+        s.append(choice(range(len(jsons_data))))
+    return s
+
+def diff_counts(counters,s,jsons_data):
+    ret=0
+    for factor in counters:
+        for factor_value in counters[factor]:
+            ret+= abs(counters[factor][factor_value]-len([1 for l in s if jsons_data[l][factor]==factor_value]))
+    return ret
+#{'path_length':{'9':20,'11':20,'14':20,'16':10}}
+
+    pass
+
+def find_puzzle_set(ideal_distribution,jsons_data,iterations,size):
+    """
+    ideal_distribution is a dict of counters.
+    jsons_data is a list of strings
+    """
+    best_guess_scr = float('inf')
+    best_guess=None
+    for i in range(iterations):
+        s = pick_sample(jsons_data,size)
+        scr=diff_counts(ideal_distribution,s,jsons_data)
+        print scr
+        if scr < best_guess_scr:
+            best_guess_scr = scr
+            best_guess = s
+    print 'best:'+str(best_guess_scr)
+    return best_guess
+
+def instance_set_from_jsons(json_dir, how_many=10):
+    jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+    return [json_to_ins(f) for f in jsons[:how_many]]
+
+def read_json_data(json_dir):
+    jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+    fields=['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
+    data=[]
+    for f in jsons:
+        vals=instance_stat(f).split(',')
+        data.append(dict(zip(fields,vals)))
+    return data
+
+
+
+def create_stats(json_dir):
+    print ','.join(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size'])
+    jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+    for f in jsons:
+        try:
+            print instance_stat(f)
+        except Exception as e:
+            print 'error in file ' + f + str(e)
+
+def main():
+    try:
+        command=argv[1]
+        if command=='stat' or command=='find':
+            json_dir = argv[2]
+        elif command=='generate':
+            num_of_instances=int(argv[2])
+            min_path_length=int(argv[3])
+            max_path_length=int(argv[4])
+            cars_2=int(argv[5])
+            cars_3=int(argv[6])
+        else:
+            raise(Exception('unknown command'))
+    except:
+        print 'usage: [stat|generate|find] [<json_dir> | <num_of_instances> <min_path_length> <max_path_length> <cars_2> <car_3> | <json_dir>]'
+
+    if command=='stat':
+        create_stats(json_dir)
+    elif command=='generate':
+        create_instances(num_of_instances,min_path_length,max_path_length,cars_2,cars_3)
+    elif command=='find':
+        json_data=read_json_data(json_dir)
+        puzzle_indx=find_puzzle_set({'path_length':{'9':20,'11':20,'14':20,'16':10},'v_size':{'2':25,'4':25,'7':20},'max_scc_size':{'1':25,'4':25,'8':20},'mag_edges':{'4':35,'16':35},'mag_nodes':{'4':25,'6':25,'9':20}},json_data,9000000,70)
+        print [json_data[i]['jsonfile'] for i in puzzle_indx ]
+
+
+if __name__ == "__main__":
+    main()

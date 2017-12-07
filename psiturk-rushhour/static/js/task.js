@@ -13,9 +13,11 @@ var mycounterbalance = counterbalance;  // they tell you which condition you hav
 var pages = [
 	"instructions/instruct-1.html",
 	"instructions/instruct-2.html",
-	"instructions/instruct-3.html",
+	"instructions/instruct-4.html",
+	"instructions/instruct-5.html",
 	"instructions/instruct-ready.html",
 	"stage.html",
+	"thanks.html",
 	"postquestionnaire.html"
 ];
 
@@ -24,12 +26,34 @@ psiTurk.preloadPages(pages);
 var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-1.html",
 	"instructions/instruct-2.html",
-	"instructions/instruct-3.html",
+	"instructions/instruct-4.html",
+	"instructions/instruct-5.html",
 	"instructions/instruct-ready.html"
 ];
 
 
+var select_puzzles = function(howmany,max){
+	indexes = [];
+	while (indexes.length < howmany){
+		indexes[indexes.length]=Math.floor(Math.random()*max);
+	}
+	return indexes;
+}
 
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
 
 /********************
 * HTML manipulation
@@ -39,34 +63,39 @@ var instructionPages = [ // add as a list as many pages as you like
 * need code to get those pages from the PsiTurk object and 
 * insert them into the document.
 *
-* TODO: Get on m.turk sandbox (host)
+* TODO: Remove duplicates from puzzles
 * TODO: Change the look/cosmetics
-* TODO: Instruction pages
-* TODO: Choose instances
-*
+* 
 ********************/
 var RushhourExperiment = function() {
-	document.body.innerHTML = '<h1>Rush Hour</h1></p><p id="status"></p><ul id="game-stats"><li id="timer"></li><li id="panel"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div> </svg>';
-
+	//document.body.innerHTML = '<h1>Rush Hour</h1></p><p id="status"></p><ul id="game-stats"><li id="timer"></li><li id="panel"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div> </svg>';
+	document.body.innerHTML = '</p><p id="status"></p><ul id="game-stats"><li id="buttons"></li></ul><div id="game"><div class="exit"></div></div></div> </svg>';
 	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout;
 	gameWon=false;
 	container = '#game';
-	timeout = 1000*6000;
+	timeout = 10*60*1000;
 	colours = ['#ff7fff', '#7fff7f'];
 	svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
-	panelsvg = d3.select('#panel').append('svg').attr('width', '100%').attr('height', '100%');
+	panelsvg = d3.select('#buttons').append('svg').attr('width', '100%').attr('height', '100%');
 	board = 6;
 	scalar = 100;
 	tilePadding = 16;
 	carPadding = 6;
 	moves = 0;
 	startMoment = moment();
-	//puzzle_files = ['static/json/level0.json', 'static/json/level1.json','static/json/level2.json','static/json/level3.json'];
-	puzzle_files = ['static/json/level1.json', 'static/json/level1.json','static/json/level1.json','static/json/level1.json'];
+	//puzzle_files = ['static/json/1509419089_78_prb57_9_.json', 'static/json/1509419590_08_prb297_9_.json', 'static/json/1509419750_25_prb424_9_.json', 'static/json/1509419848_2_prb469_9_.json', 'static/json/1509420069_05_prb654_9_.json', 'static/json/1509420224_73_prb737_9_.json', 'static/json/1509420574_37_prb957_9_.json', 'static/json/1509420607_07_prb999_9_.json', 'static/json/1509420677_51_prb1040_9_.json', 'static/json/1509420940_67_prb1228_9_.json', 'static/json/1509420954_39_prb1243_9_.json', 'static/json/1509421216_66_prb1348_9_.json', 'static/json/1509421265_86_prb1358_9_.json', 'static/json/1509421269_47_prb1367_9_.json', 'static/json/1509421363_69_prb1439_9_.json', 'static/json/1509421564_19_prb1555_9_.json', 'static/json/1509421630_79_prb1585_9_.json', 'static/json/1509421688_15_prb1624_9_.json', 'static/json/1509422086_16_prb1827_9_.json', 'static/json/1509423003_9_prb2350_9_.json', 'static/json/1509423091_52_prb2396_9_.json', 'static/json/1509423131_07_prb2412_9_.json', 'static/json/1509423650_56_prb2696_9_.json', 'static/json/1509423667_24_prb2718_9_.json', 'static/json/1509424293_84_prb3092_9_.json', 'static/json/1509424896_66_prb3421_9_.json', 'static/json/1509425383_88_prb3638_9_.json', 'static/json/1509425753_43_prb3911_9_.json', 'static/json/1509427144_43_prb4031_9_.json', 'static/json/1509427204_75_prb4074_9_.json', 'static/json/1509427499_54_prb4226_9_.json', 'static/json/1509427975_73_prb4383_9_.json', 'static/json/1509428118_29_prb4441_9_.json', 'static/json/1509428386_16_prb4579_9_.json', 'static/json/1509428586_01_prb4704_9_.json', 'static/json/1509428861_76_prb4921_9_.json', 'static/json/1509429046_04_prb5097_9_.json', 'static/json/1509429049_47_prb5103_9_.json', 'static/json/1509429110_14_prb5142_9_.json', 'static/json/1509429147_05_prb5160_9_.json', 'static/json/1509440239_55_prb5317_9_.json', 'static/json/1509446998_68_prb5490_9_.json', 'static/json/1509447172_16_prb5624_9_.json', 'static/json/1509447785_97_prb6026_9_.json', 'static/json/1509455114_62_prb6145_9_.json', 'static/json/1509455127_87_prb6154_9_.json', 'static/json/1509455166_35_prb6169_9_.json', 'static/json/1509455564_0_prb6356_9_.json', 'static/json/1509455667_9_prb6421_9_.json', 'static/json/1509455740_55_prb6477_9_.json', 'static/json/1509457869_32_prb6674_9_.json', 'static/json/1509457992_66_prb6727_9_.json', 'static/json/1509458163_14_prb6846_9_.json', 'static/json/1509458297_45_prb6926_9_.json', 'static/json/1509458303_57_prb6950_9_.json', 'static/json/1509458515_73_prb7074_9_.json', 'static/json/1509458570_64_prb7117_9_.json', 'static/json/1509458719_63_prb7223_9_.json', 'static/json/1509458834_12_prb7322_9_.json', 'static/json/1509459035_54_prb7421_9_.json', 'static/json/1509459240_03_prb7535_9_.json', 'static/json/1509459443_4_prb7668_9_.json', 'static/json/1509459683_77_prb7825_9_.json', 'static/json/1509460985_67_prb8125_9_.json'];
+
+
+puzzle_files = ['static/json/1509723682_71_prb78717_9_.json', 'static/json/1509488743_04_prb21044_9_.json', 'static/json/1509682160_18_prb72425_9_.json', 'static/json/1509728576_32_prb81064_9_.json', 'static/json/1509470807_13_prb13482_9_.json', 'static/json/1509556552_63_prb34405_9_.json', 'static/json/1509721337_05_prb77447_9_.json', 'static/json/1509477339_66_prb17203_9_.json', 'static/json/1509429110_14_prb5142_9_.json', 'static/json/1509566838_88_prb38511_9_.json', 'static/json/1509573002_21_prb41543_9_.json', 'static/json/1509503827_46_prb25973_9_.json', 'static/json/1509463627_74_prb9799_9_.json', 'static/json/1509649678_15_prb63683_9_.json', 'static/json/1509503135_71_prb25705_9_.json', 'static/json/1509420940_67_prb1228_9_.json', 'static/json/1509555412_17_prb33699_9_.json', 'static/json/1509643218_25_prb61959_9_.json', 'static/json/1509574359_43_prb42331_9_.json', 'static/json/1509477123_34_prb17035_9_.json', 'static/json/1509411897_18_prb717_11_.json', 'static/json/1509459257_76_prb7549_11_.json', 'static/json/1509720742_48_prb77111_11_.json', 'static/json/1509576724_28_prb43652_11_.json', 'static/json/1509555428_47_prb33717_11_.json', 'static/json/1509599054_93_prb52317_11_.json', 'static/json/1509491386_49_prb22491_11_.json', 'static/json/1509652414_89_prb65072_11_.json', 'static/json/1509473974_89_prb15412_11_.json', 'static/json/1509557042_37_prb34602_11_.json', 'static/json/1509490191_26_prb21669_11_.json', 'static/json/1509556026_72_prb34092_11_.json', 'static/json/1509429305_0_prb5252_11_.json', 'static/json/1509559246_47_prb35826_11_.json', 'static/json/1509571615_2_prb40909_11_.json', 'static/json/1509423295_78_prb2510_11_.json', 'static/json/1509556433_37_prb34290_11_.json', 'static/json/1509724613_21_prb79216_11_.json', 'static/json/1509422263_59_prb1969_11_.json', 'static/json/1509587855_12_prb48202_11_.json', 'static/json/1509673998_59_prb68514_14_.json', 'static/json/1509488403_92_prb20888_14_.json', 'static/json/1509455375_45_prb6294_14_.json', 'static/json/1509567550_91_prb38725_14_.json', 'static/json/1509419191_31_prb129_14_.json', 'static/json/1509653121_81_prb65535_14_.json', 'static/json/1509463186_98_prb9596_14_.json', 'static/json/1509656597_95_prb66793_14_.json', 'static/json/1509481208_68_prb19356_14_.json', 'static/json/1509502366_25_prb25255_14_.json', 'static/json/1509554623_5_prb33117_14_.json', 'static/json/1509546655_55_prb28956_14_.json', 'static/json/1509479376_37_prb18275_14_.json', 'static/json/1509457858_6_prb6671_14_.json', 'static/json/1509720366_41_prb76929_14_.json', 'static/json/1509468630_51_prb12360_14_.json', 'static/json/1509464540_58_prb10195_14_.json', 'static/json/1509545962_33_prb28697_14_.json', 'static/json/1509472355_7_prb14485_14_.json', 'static/json/1509503629_34_prb25871_14_.json', 'static/json/1509629349_75_prb57223_16_.json', 'static/json/1509565548_04_prb37893_16_.json', 'static/json/1509577648_29_prb44171_16_.json', 'static/json/1509420356_65_prb813_16_.json', 'static/json/1509474295_6_prb15595_16_.json', 'static/json/1509546793_06_prb29027_16_.json', 'static/json/1509508781_01_prb28189_16_.json', 'static/json/1509623373_2_prb55905_16_.json', 'static/json/1509722874_99_prb78361_16_.json', 'static/json/1509556503_33_prb34360_16_.json']; 
+
+	puzzle_files=shuffle(puzzle_files)
 	puzzle_number=0;
+	howmany_puzzles=70;
+	//puzzle_indexes=select_puzzles(howmany_puzzles,puzzle_files.length)
+	//puzzle_file = puzzle_files[puzzle_indexes[puzzle_number++]];
 	puzzle_file = puzzle_files[puzzle_number++];
-	restartButton=panelsvg.append("rect").attr('class', 'click-rect').attr("x", 0).attr("y", 0).attr("width", 20).attr("height", 20).attr("fill", 'green');
-	surrenderButton=panelsvg.append("rect").attr('class', 'click-rect').attr("x", 30).attr("y", 0).attr("width", 20).attr("height", 20).attr("fill", 'red');
+	restartButton=panelsvg.append("image").attr("xlink:href", "static/images/restart.png").attr("x","0").attr("y","0").attr("width","55").attr("height", "55");
+	surrenderButton=panelsvg.append("image").attr("xlink:href", "static/images/surrender.svg").attr("x","120").attr("y","0").attr("width","70").attr("height", "70");
 	restartButton.on('click',function(){
 		message=' t:['+moment()+'] event:[restart] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
 		psiTurk.recordTrialData(message);
@@ -79,16 +108,18 @@ var RushhourExperiment = function() {
 		message=' t:['+moment()+'] event:[surrender] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
 		psiTurk.recordTrialData(message);
 		psiTurk.saveData();	
+		if (moment().diff(startMoment) > timeout || puzzle_number>puzzle_file.length){
+				return finish();
+		}
 		puzzle_file = puzzle_files[puzzle_number++];
 		moves=0
 		svg.selectAll('rect.car').remove();
 		d3.json(puzzle_file,j_callback);
 	});
 
-
-	updateTimer = function() {
-		return d3.select('#timer').text(moment().diff(startMoment));
-	};
+//	updateTimer = function() {
+//		return d3.select('#timer').text(moment().diff(startMoment));
+//	};
 
 	timer = setInterval(updateTimer, 1000);
 	intersection = function(a1, a2) {
@@ -124,7 +155,7 @@ var RushhourExperiment = function() {
 			} else {
 				car.attr(axis, d[axis] = startXY + carFreedom[1] * scalar);
 				if (!rightBound && d.player && boardPositions(board - 1, 'vertical').indexOf(d.position + d.length - 1 + carFreedom[1]) > -1) {
-					time = d3.select('#timer').text();
+					//time = d3.select('#timer').text();
 					clearInterval(timer);
 					message=' t:['+moment()+'] event:[win] piece:['+d.id+'] move#:['+moves+'] move:['+d.position+'] instance:['+puzzle_id+']'
 					psiTurk.recordTrialData(message);
@@ -143,7 +174,7 @@ var RushhourExperiment = function() {
 		distance = Math.round((xy - startXY) / scalar);
 		positions = boardPositions(d.position, d.orientation);
 		newPosition = positions[positions.indexOf(d.position) + distance];
-		time = d3.select('#timer').text();
+		//time = d3.select('#timer').text();
 		message=' t:['+moment()+'] event:[drag_end] piece:['+d.id+'] move#:['+moves+'] move:['+newPosition+'] instance:['+puzzle_id+']';
 		psiTurk.recordTrialData(message);
 		psiTurk.saveData();	
@@ -153,10 +184,11 @@ var RushhourExperiment = function() {
 		}
 		ret=d3.select(this).attr('data-position', d.position = newPosition).transition().attr('x', d.x = positionToX(d.position)).attr('y', d.y = positionToY(d.position));
 		if (gameWon){
-			if ( moment().diff(startMoment) > timeout || puzzle_number>=puzzle_files.length ){
+			if ( moment().diff(startMoment) > timeout || puzzle_number>=howmany_puzzles){
 				return finish();
 			}
 			moves=0;
+			//puzzle_file = puzzle_files[puzzle_number++];
 			puzzle_file = puzzle_files[puzzle_number++];
 			d3.json(puzzle_file,j_callback);
 			gameWon=false;
@@ -243,7 +275,7 @@ var RushhourExperiment = function() {
 				return scalar * (i % board) + tilePadding;
 			}).attr('y', function(i) {
 				return scalar * Math.floor(i / board) + tilePadding;
-			}).attr('height', scalar - tilePadding * 2).attr('width', scalar - tilePadding * 2).attr('fill', '#f4f4f7');
+			}).attr('height', scalar - tilePadding * 2).attr('width', scalar - tilePadding * 2).attr('fill', '#f4f4f2');
 			ref1 = json.cars;
 			for (j = 0, len = ref1.length; j < len; j++) {
 				car = ref1[j];
@@ -438,9 +470,10 @@ var Questionnaire = function() {
 	    record_responses();
 	    psiTurk.saveData({
             success: function(){
-                psiTurk.computeBonus('compute_bonus', function() { 
-                	psiTurk.completeHIT(); // when finished saving compute bonus, the quit
-                }); 
+		    psiTurk.showPage('thanks.html');
+               // psiTurk.computeBonus('compute_bonus', function() { 
+               // 	psiTurk.completeHIT(); // when finished saving compute bonus, the quit
+               // }); 
             }, 
             error: prompt_resubmit});
 	});

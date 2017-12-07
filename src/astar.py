@@ -186,7 +186,8 @@ def heappop_random(potentials):
 
 def select_pseudo_max(items,exp):
     """
-    returns the index of item
+    items is a list of arbitrary values
+    returns the index of item who is "smallest"
     """
     hmx=max(items)
     vals=[(hmx-x+1.0)**exp for x in items]
@@ -198,32 +199,20 @@ def select_pseudo_max(items,exp):
 
 
 def heap_random(potentials,exp):
-    """
-    TODO: test me
-    """
     return potentials[select_pseudo_max([p for (p,_) in potentials],exp)]
-    hrs=[p for (p,_) in potentials]
-    hmx=max(hrs)
-    norm=float(sum([(hmx-x+1.0)**exp for x in hrs]))
-    probs=[((hmx-x+1.0)**exp)/norm for x in hrs]
-    distrib = rv_discrete(values=(range(len(hrs)),probs))
-    ind=distrib.rvs(size=1)
-    return potentials[ind[0]]
-
-
-
 
 class RTA:
-    def __init__(self,heur=zeroh,exp=5):
+    def __init__(self,heur=zeroh,exp=5,cant_solve_limit=70):
         logging.debug('Creating RTA instance')
         self.heur=heur
         self.exp=exp
+        self.cant_solve_limit = cant_solve_limit
     def solve(self,start):
         plan=[start]
         physical_loc=start
         previous_loc=None
         potentials=[]
-        while not physical_loc.is_goal():
+        while not physical_loc.is_goal() and len(plan)<self.cant_solve_limit:
             potentials.extend([(self.heur(s),s) for s in expand(physical_loc) if s != previous_loc])
             previous_loc=physical_loc
             _,physical_loc=potentials[select_pseudo_max([hv for hv,_ in potentials],self.exp)]
@@ -237,16 +226,20 @@ class RTA:
 
 
 class LRTA:
-    def __init__(self,heur=zeroh,update_h=True,hcache={},iters=1,exp=5):
+    def __init__(self,heur=zeroh,update_h=False,hcache={},iters=1,exp=5,cant_solve_limit=200):
         self.heur=heur
         self.update_h = update_h
         self.hcache=hcache
         self.iters=iters
         self.exp = exp
+        self.cant_solve_limit = cant_solve_limit
+        self.current_iter=0
 
     def solve(self,start):
         for _ in range(self.iters):
-            self.solve_iter(start)
+            path=self.solve_iter(start)
+            print 'instance {2} iteration {0} path_length {1} '.format(self.current_iter,len(path),start.name) +str(sorted([self.get_heur(s) for s in expand(start)]))
+            self.current_iter+=1
         ret=self.solve_iter(start)
         self.hcache={}
         return ret
@@ -257,30 +250,40 @@ class LRTA:
         previous_loc=None
         potentials=[]
         while not physical_loc.is_goal():
+            if len(plan)>self.cant_solve_limit:
+                break
             for s in expand(physical_loc,do_shuffle=True):
                 if s != previous_loc:
                     potentials.append((self.get_heur(s),s))
+            #if len(plan)==1: print rhstring(physical_loc)+' ' +  str(self.current_iter)+' '+str(sorted([x for x,y in potentials]))
             previous_loc=physical_loc
             value_best,physical_loc=heap_random(potentials,self.exp)
             potentials=[]
-            self.hcache[previous_loc]=value_best+1
+            old_val=self.hcache.get(rhstring(previous_loc),0)
+            self.hcache[rhstring(previous_loc)]=value_best+1
+            #if self.hcache[rhstring(previous_loc)] != old_val:
+                #print 'INSTANCE:{6} Updating instance {0} from {1} to {2} since it is {3}+1 of instance {4} iteration:{5}'.format(rhstring(previous_loc),old_val, self.hcache[rhstring(previous_loc)],value_best, rhstring(physical_loc),self.current_iter,start.name)
             if self.update_h: self.update_hcache(plan)
             heappush(potentials,(value_best+1,previous_loc))
             plan.append(physical_loc)
+            #print len(plan)
         plan=plan_correction(plan,None)
         return plan
         #return plan,['hU='+str(self.get_heur(p))+' h='+str(self.heur(p)) for p in plan]
 
 
     def get_heur(self,s):
-        if s not in self.hcache:
-            self.hcache[s] = self.heur(s)
-        return self.hcache[s]
+        rhs=rhstring(s)
+        if rhs not in self.hcache:
+            self.hcache[rhs] = self.heur(s)
+        return self.hcache[rhs]
 
     def update_hcache(self,plan):
         for s in reversed(plan):
-            self.hcache[s]=min([self.get_heur(s1) for s1 in expand(s)])+1
-
+            old_val=self.hcache.get(rhstring(s),0)
+            self.hcache[rhstring(s)]=max(min([self.get_heur(s1) for s1 in expand(s)])+1,old_val)
+           # if self.hcache[rhstring(s)] != old_val:
+           #     print 'INSTANCE:{4} Updating instance {0} from {1} to {2}. iteration:{3}'.format(rhstring(s),old_val, self.hcache[rhstring(s)],self.current_iter,plan[0].name)
     def __repr__(self):
         return 'LRTA_h:{0}_exp={1}_iters={2}'.format(self.heur.__name__,self.exp,self.iters)
 

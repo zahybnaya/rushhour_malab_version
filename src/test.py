@@ -1,7 +1,7 @@
 from rushhour import *
 from math import log
 from astar import *
-from try_pygame import *
+#from try_pygame import *
 from random import random,seed
 from itertools import product
 from time import time
@@ -10,6 +10,7 @@ from collections import deque
 from numpy import var
 from collections import deque
 from fitting import *
+from instance_generator import instance_set_from_jsons
 import csv as csv
 
 
@@ -584,7 +585,6 @@ def test_fitting(data_file):
 
 
     #fit 
-
     print try_f(instances,model_creator,r_square_function, params,bounds, data)
     #print fit(instances,model_creator,r_square_function, params,bounds, data)
 
@@ -596,6 +596,42 @@ def lrta_marginalization():
     seed(0)
     for i in range(500):
         print str(len(LRTA(ins,heur=lambda x: (1+h_epsilon)*min_manhattan_distance(x),update_h=True,iters=learning_iter,exp=exp_select)[0]))
+
+
+def test_models_on_jsons():
+    instance_set_jsons = instance_set_from_jsons('.')
+    am=make_Astar(heur=h_unblocked)
+    for i in instance_set_jsons:
+        path,stat=am(i)
+        print 'optimal path:'+str(len(path))
+        #show(path, aux=None ,texts=['Astar'])
+        lrta=LRTA(heur=min_manhattan_distance_calc,update_h=True,iters=1500,exp=5)
+        lrta_path=lrta.solve(i)
+        print 'lrta path:'+str(len(lrta_path))
+        #show(lrta.solve(i),aux=None ,texts=['lrta'])
+
+def test_models_on_instances():
+    instance_set_jsons = instance_set
+    am=make_Astar(heur=h_unblocked)
+    for i in instance_set_jsons:
+        path,stat=am(i)
+        print 'optimal path:'+str(len(path))
+        #show(path, aux=None ,texts=['Astar'])
+        lrta=LRTA(heur=min_manhattan_distance_calc,update_h=True,iters=15,exp=50)
+        #show(lrta.solve(i),aux=None ,texts=['lrta'])
+        lrta_path=lrta.solve(i)
+        print 'lrta path:'+str(len(lrta_path))
+
+def test_peduo_max():
+    items = [3,4,5,6,7,8,9,10]
+    exp = 50
+    for i in range(1000):
+        print items[select_pseudo_max(items,exp)]
+#test_peduo_max()
+#test_models_on_instances()
+
+#test_models_on_jsons()
+
 
 #lrta_marginalization()
 

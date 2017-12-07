@@ -1,4 +1,5 @@
 import re
+from sys import argv
 from test import magsize,magsize_admissible
 from collections import namedtuple,defaultdict
 from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance, rhstring
@@ -10,6 +11,19 @@ from random import random
 Rec=namedtuple('Rec','t event piece move_nu move instance')
 Rec.__new__.__defaults__ = (None,) * len(Rec._fields)
 
+PsiturkRec=namedtuple('PsiturkRec','worker ord t event piece move_nu move instance')
+PsiturkRec.__new__.__defaults__ = (None,) * len(PsiturkRec._fields)
+
+#debugPv12P:debugP70lV,6,1512669772746,""" t:[1512669772746] event:[start] piece:[NA] move#:[0] move:[NA] instance:[prb42331]"""
+
+def read_psiturk_data(filename):
+    recs=[]
+    with open(filename,'r') as log:
+        for l in log:
+            v=l.split(',')[:2]
+            v+=[s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',l)]
+            recs.append(PsiturkRec(*v))
+    return recs
 
 
 def read_log(filename):
@@ -84,21 +98,21 @@ def calc_real_dist(filename,dist_filename):
             for i in range(len(path)):
                 state=path[i]
                 rec = rs_path[i]
-		if rec in rd:
-		    print 'skipped '+str(rec)  
-		    continue
-                a=make_Astar(heur=min_manhattan_distance,search_limit=search_limit)
-                the_path,stat=a(state)
-                real_dist=len(the_path)
-		if real_dist==0:
-		     search_limit=opt_solution_instances[ins]+2
-		else:
-		     search_limit=real_dist+2 # one for the step and one for error 
-                line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
-		subject=filename.split('/')[-1]
-		outf='../output/'+subject+'_md_dist.csv'
-		with open(outf, 'a') as f:
-			f.write(line)
+        if rec in rd:
+            print 'skipped ' +str(rec)
+            continue
+        a=make_Astar(heur=min_manhattan_distance,search_limit=search_limit)
+        the_path,stat=a(state)
+        real_dist=len(the_path)
+        if real_dist==0:
+            search_limit=opt_solution_instances[ins]+2
+        else:
+            search_limit=real_dist+2 # one for the step and one for error 
+            line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
+        subject=filename.split('/')[-1]
+        outf='../output/'+subject+'_md_dist.csv'
+        with open(outf, 'a') as f:
+            f.write(line)
 
 
 
@@ -190,6 +204,25 @@ def moves(filename,dist_filename):
             if r.event =='win':
                 trial_number=0
 
+def psiturk_paths(filename):
+    print 'subject, instance, optimal_length, human_length, complete, rt,nodes_expanded, skipped, trial_number'
+    recs=read_psiturk_data(filename)
+    instances=set([r.instance for r in recs])
+    subject = recs[0].worker
+    for ins in instances:
+        opt_solution=999
+        nodes_expanded=999
+        paths,rs_paths=recs_to_paths(recs,ins)
+        trial_number=0
+        for p,rs_p in zip(paths,rs_paths):
+            solved= p[-1].is_goal()
+            skipped= (trial_number==(len(paths)-1) and not solved)
+            assert(rs_p[0].event=='start')
+            ttl_time = float(rs_p[-1].t)-float(rs_p[0].t)
+            fields=[subject, ins, opt_solution, len(p), solved, ttl_time, nodes_expanded, skipped, trial_number]
+            print ','.join(['{}']*len(fields)).format(*fields)
+            trial_number+=1
+
 def paths(filename):
     expanded_nodes_unblocked={}
     for jam in range(1,39):
@@ -212,6 +245,9 @@ def paths(filename):
             print ','.join(['{}']*len(fields)).format(*fields)
             trial_number+=1
 #TODO:
+
+#example from psiurk:
+#debugPv12P:debugP70lV,6,1512669772746,""" t:[1512669772746] event:[start] piece:[NA] move#:[0] move:[NA] instance:[prb42331]"""
 """
 Look at nested-anova or factor analysis. in order to account for the subject as a random variable.  
 Change log_likelihood function to use IBS
@@ -252,3 +288,5 @@ Better admissble heuristic. (Something with the MAG)
 """
 
 
+#for k in psiturk_paths(argv[1]):
+#    print k

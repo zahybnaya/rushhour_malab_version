@@ -1,5 +1,5 @@
 from collections import defaultdict
-#from graphviz import Digraph
+from graphviz import Digraph
 from operator import itemgetter
 from copy import deepcopy
 #from try_pygame import *
@@ -7,6 +7,9 @@ from random import choice,shuffle
 from os import path
 from itertools import product
 from terminal_states import terms_by_ins
+from os import listdir
+from os.path import join, isfile
+from json import dump,load
 
 def rhstring(instance):
     """
@@ -192,9 +195,15 @@ def check_instance(h,v):
 def h_unblocked(instance,level=1):
     return len(find_constraints(instance.goal_car,instance,instance.goal_loc[0]))
 
+def min_manhattan_distance_calc(instance):
+    if instance.name not in terms_by_ins:
+        terms_by_ins[instance.name]=[(t.h,t.v) for t in find_terminal_states(instance)]
+    return min_manhattan_distance(instance)
 
-def min_manhattan_distance(instance):
-    return min([manhattan_distance(instance,i)+h_unblocked(instance) for i in terms_by_ins[instance.name]])
+def min_manhattan_distance(instance,terms=None):
+    if terms is None:
+        terms = terms_by_ins[instance.name]
+    return min([manhattan_distance(instance,i) for i in terms])
 
 
 def manhattan_distance(instance1, instance_pair):
@@ -270,6 +279,9 @@ def expand(instance,do_shuffle=True):
 
 
 def ground_instance(instance):
+    """
+    returns a list of strings representing the instance
+    """
     b=[[' ']*instance.length for _ in range(instance.height)]
     for piece,vals in instance.h.iteritems():
         h_char,h_line,h_size = vals
@@ -690,8 +702,28 @@ def read_instances(filename='../princeton_AI/code/jams.txt'):
             ins_begin=i+1
     return instance_set
 
+def json_to_ins(filename):
+    with open(filename,'r') as data_file:
+        data = load(data_file)
+        h={}
+        v={}
+        ins=RHInstance(h,v,name=data['id'])
+        for c  in data['cars']:
+            cars=(h,v)[c['orientation']=='vertical']
+            cars[c['id']]=((int(c['position'])%6),(int(c['position'])/6),c['length'])
+    return ins
+
+
+def read_instances_json(json_dir='../psiturk-rushhour/static/json'):
+    instance_set=[]
+    jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+    for f in jsons:
+        instance_set.append(json_to_ins(f))
+    return instance_set
+
+
 def instance_dict():
-    return dict((x.name, x) for x in read_instances())
+    return dict((x.name, x) for x in read_instances_json())
 
 opt_solution_instances_mag={ 0:9, 1:10, 2:15, 3:10, 4:10, 5:11, 6:14, 7:14, 8:13, 9:21, 10:27, 11:19, 12:24, 13:18, 14:24, 15:28, 16:28, 17:27, 18:23, 19:13, 20:22, 21:29, 22:30, 23:29, 24:41, 25:32, 26:34, 27:33, 28:34, 29:38, 30:39, 31:39, 32:49, 33:45, 34:48, 35:46, 36:49, 37:50, 38:58, 39:58}
 
