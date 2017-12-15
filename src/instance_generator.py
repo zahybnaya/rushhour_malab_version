@@ -156,6 +156,7 @@ def create_instances(num_of_instances,min_path_length,max_path_length,cars_2,car
         if length > min_path_length:
             instance_to_json(init_ins,length)
 
+
 def instance_stat(jsonfile):
     ins = json_to_ins(jsonfile)
     sz=[s for c,l,s in ins.h.values()+ins.v.values()]

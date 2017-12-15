@@ -5,15 +5,31 @@ library(Cairo)
 library(reshape2)
 
 
+#####################################
+# response: distribution of errors across steps in the plan 
+#           #consecutive errors
+#           distribution of negative/positive/neutral
+#           surrenders/restarts (when)    
+#           RT
+#           Backtracks (of size)
+#          
+# stimuli: 
+#         v_size
+#         num_sccs
+#         max_scc_size
+#         mag nodes
+#
+# CCN:   1) RT per move
+#        2) real-distance on surrender/restart
+#        3) Burst behavior
+# Others: 
+#        1) Model for error(rate) in relation to v_size,num_sccs,max_scc_size,mag_nodes,mag_edges
+#        2) number of unsafe-moves made, and/or. 
+#     
+#####################################
 
 ######################################################## 
 # Selecting a subset of 70 puzzles. 
-# path lengths - 9:20, 11:20 14:20 16:10
-# v_size - ~2:20, 4:20, 7:20
-# mag_nodes - 4 9
-# mag_edges - 4, 16
-# #SCC = 0, 3
-# max_scc = 4, 6,8
 ######################################################## 
 setwd('~/gdrivezb9/rushhour/results/instances')
 d=read.csv('instances.csv')

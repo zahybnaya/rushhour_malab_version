@@ -71,6 +71,9 @@ def recs_to_paths(recs,ins):
                 _ins_=deepcopy(p[-1])
                 if mv_ins_rec[i].event!='restart':
                     move=mv_ins_rec[i].piece,eval(mv_ins_rec[i].move)
+                    if len(move)==1: #In case it reads from psiturk format
+                        (c,l,s),o = find_piece(instance,piece)
+                        move=(int(move)%6,int(move)/6,s)
                     do_move_from_fixed(_ins_,move)
                 p.append(_ins_)
                 r.append(mv_ins_rec[i])
@@ -288,5 +291,5 @@ Better admissble heuristic. (Something with the MAG)
 """
 
 
-#for k in psiturk_paths(argv[1]):
-#    print k
+for k in psiturk_paths(argv[1]):
+    print k

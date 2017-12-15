@@ -1,13 +1,13 @@
 [HIT Configuration]
-title = Rushhour task
-description = play Rushhour
+title = Planning game
+description = play a game of planning puzzles
 amt_keywords =  Psychology
 lifetime = 24
 us_only = true
 approve_requirement = 95
 contact_email_on_error = zb9@nyu.com
-ad_group = Default psiTurk Rushhour  Example
-psiturk_keywords = Rushhour
+ad_group = Planning game
+psiturk_keywords = Planning game
 organization_name = New York University
 browser_exclude_rule = MSIE, mobile, tablet
 
@@ -20,7 +20,7 @@ host = localhost
 port = 22362
 cutoff_time = 30
 logfile = server.log
-loglevel = 2
+loglevel = 4
 debug = true
 login_username = examplename
 login_pw = examplepassword

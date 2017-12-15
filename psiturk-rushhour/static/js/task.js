@@ -13,8 +13,9 @@ var mycounterbalance = counterbalance;  // they tell you which condition you hav
 var pages = [
 	"instructions/instruct-1.html",
 	"instructions/instruct-2.html",
+	"instructions/instruct-2_2.html",
+	"instructions/instruct-3.html",
 	"instructions/instruct-4.html",
-	"instructions/instruct-5.html",
 	"instructions/instruct-ready.html",
 	"stage.html",
 	"thanks.html",
@@ -26,6 +27,8 @@ psiTurk.preloadPages(pages);
 var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-1.html",
 	"instructions/instruct-2.html",
+	"instructions/instruct-2_2.html",
+	"instructions/instruct-3.html",
 	"instructions/instruct-4.html",
 	"instructions/instruct-5.html",
 	"instructions/instruct-ready.html"
@@ -42,12 +45,9 @@ var select_puzzles = function(howmany,max){
 
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
-  // While there remain elements to shuffle...
   while (0 !== currentIndex) {
-    // Pick a remaining element...
     randomIndex = Math.floor(Math.random() * currentIndex);
     currentIndex -= 1;
-    // And swap it with the current element.
     temporaryValue = array[currentIndex];
     array[currentIndex] = array[randomIndex];
     array[randomIndex] = temporaryValue;
@@ -72,8 +72,7 @@ var RushhourExperiment = function() {
 	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout;
 	gameWon=false;
 	container = '#game';
-	timeout = 1*60*1000;
-	//colours = ['#ff7fff', '#7fff7f'];
+	timeout = 0.5*60*1000;
 	colours = ['#009933','#cc0099'];
 	svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
 	panelsvg = d3.select('#buttons').append('svg').attr('width', '100%').attr('height', '100%');
@@ -83,6 +82,7 @@ var RushhourExperiment = function() {
 	carPadding = 6;
 	moves = 0;
 	startMoment = moment();
+	//puzzle_files = ['static/json/empty_v.json']; 
 	puzzle_files = ['static/json/1509723682_71_prb78717_9_.json', 'static/json/1509488743_04_prb21044_9_.json', 'static/json/1509682160_18_prb72425_9_.json', 'static/json/1509728576_32_prb81064_9_.json', 'static/json/1509470807_13_prb13482_9_.json', 'static/json/1509556552_63_prb34405_9_.json', 'static/json/1509721337_05_prb77447_9_.json', 'static/json/1509477339_66_prb17203_9_.json', 'static/json/1509429110_14_prb5142_9_.json', 'static/json/1509566838_88_prb38511_9_.json', 'static/json/1509573002_21_prb41543_9_.json', 'static/json/1509503827_46_prb25973_9_.json', 'static/json/1509463627_74_prb9799_9_.json', 'static/json/1509649678_15_prb63683_9_.json', 'static/json/1509503135_71_prb25705_9_.json', 'static/json/1509420940_67_prb1228_9_.json', 'static/json/1509555412_17_prb33699_9_.json', 'static/json/1509643218_25_prb61959_9_.json', 'static/json/1509574359_43_prb42331_9_.json', 'static/json/1509477123_34_prb17035_9_.json', 'static/json/1509411897_18_prb717_11_.json', 'static/json/1509459257_76_prb7549_11_.json', 'static/json/1509720742_48_prb77111_11_.json', 'static/json/1509576724_28_prb43652_11_.json', 'static/json/1509555428_47_prb33717_11_.json', 'static/json/1509599054_93_prb52317_11_.json', 'static/json/1509491386_49_prb22491_11_.json', 'static/json/1509652414_89_prb65072_11_.json', 'static/json/1509473974_89_prb15412_11_.json', 'static/json/1509557042_37_prb34602_11_.json', 'static/json/1509490191_26_prb21669_11_.json', 'static/json/1509556026_72_prb34092_11_.json', 'static/json/1509429305_0_prb5252_11_.json', 'static/json/1509559246_47_prb35826_11_.json', 'static/json/1509571615_2_prb40909_11_.json', 'static/json/1509423295_78_prb2510_11_.json', 'static/json/1509556433_37_prb34290_11_.json', 'static/json/1509724613_21_prb79216_11_.json', 'static/json/1509422263_59_prb1969_11_.json', 'static/json/1509587855_12_prb48202_11_.json', 'static/json/1509673998_59_prb68514_14_.json', 'static/json/1509488403_92_prb20888_14_.json', 'static/json/1509455375_45_prb6294_14_.json', 'static/json/1509567550_91_prb38725_14_.json', 'static/json/1509419191_31_prb129_14_.json', 'static/json/1509653121_81_prb65535_14_.json', 'static/json/1509463186_98_prb9596_14_.json', 'static/json/1509656597_95_prb66793_14_.json', 'static/json/1509481208_68_prb19356_14_.json', 'static/json/1509502366_25_prb25255_14_.json', 'static/json/1509554623_5_prb33117_14_.json', 'static/json/1509546655_55_prb28956_14_.json', 'static/json/1509479376_37_prb18275_14_.json', 'static/json/1509457858_6_prb6671_14_.json', 'static/json/1509720366_41_prb76929_14_.json', 'static/json/1509468630_51_prb12360_14_.json', 'static/json/1509464540_58_prb10195_14_.json', 'static/json/1509545962_33_prb28697_14_.json', 'static/json/1509472355_7_prb14485_14_.json', 'static/json/1509503629_34_prb25871_14_.json', 'static/json/1509629349_75_prb57223_16_.json', 'static/json/1509565548_04_prb37893_16_.json', 'static/json/1509577648_29_prb44171_16_.json', 'static/json/1509420356_65_prb813_16_.json', 'static/json/1509474295_6_prb15595_16_.json', 'static/json/1509546793_06_prb29027_16_.json', 'static/json/1509508781_01_prb28189_16_.json', 'static/json/1509623373_2_prb55905_16_.json', 'static/json/1509722874_99_prb78361_16_.json', 'static/json/1509556503_33_prb34360_16_.json']; 
 	puzzle_files=shuffle(puzzle_files)
 	puzzle_number=0;
@@ -105,10 +105,7 @@ var RushhourExperiment = function() {
 		if (moment().diff(startMoment) > timeout || puzzle_number>puzzle_file.length){
 				return finish();
 		}
-		puzzle_file = puzzle_files[puzzle_number++];
-		moves=0
-		svg.selectAll('rect.car').remove();
-		d3.json(puzzle_file,j_callback);
+		
 	});
 
 //	updateTimer = function() {
@@ -181,10 +178,17 @@ var RushhourExperiment = function() {
 			if ( moment().diff(startMoment) > timeout || puzzle_number>=howmany_puzzles){
 				return finish();
 			}
-			moves=0;
-			puzzle_file = puzzle_files[puzzle_number++];
-			d3.json(puzzle_file,j_callback);
-			gameWon=false;
+			pause = moment();
+			great=svg.append("image").attr("id", "great").attr("xlink:href", "static/images/great.gif").attr("x","0").attr("y","0").attr("width","570").attr("height", "670");
+			great.on('click',function(){
+				timeout=timeout+moment().diff(pause);
+				//svg.selectAll('rect.car').remove();
+				moves=0;
+				puzzle_file = puzzle_files[puzzle_number++];
+				d3.json(puzzle_file,j_callback);
+				gameWon=false;
+				svg.selectAll('#great').remove();
+			});
 		}
 		return ret;
 		//return d3.select(this).attr('data-position', d.position = newPosition).transition().attr('x', d.x = positionToX(d.position)).attr('y', d.y = positionToY(d.position));
