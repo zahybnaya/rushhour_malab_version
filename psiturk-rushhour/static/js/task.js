@@ -72,7 +72,7 @@ var RushhourExperiment = function() {
 	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout;
 	gameWon=false;
 	container = '#game';
-	timeout = 0.5*60*1000;
+	timeout = 45*60*1000;
 	colours = ['#009933','#cc0099'];
 	svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
 	panelsvg = d3.select('#buttons').append('svg').attr('width', '100%').attr('height', '100%');
