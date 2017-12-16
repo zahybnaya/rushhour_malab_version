@@ -105,6 +105,12 @@ var RushhourExperiment = function() {
 		if (moment().diff(startMoment) > timeout || puzzle_number>puzzle_file.length){
 				return finish();
 		}
+		svg.selectAll('rect.car').remove();
+		moves=0;
+		puzzle_file = puzzle_files[puzzle_number++];
+		d3.json(puzzle_file,j_callback);
+		//gameWon=false;
+		svg.selectAll('#great').remove();
 		
 	});
 
