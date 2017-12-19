@@ -12,7 +12,6 @@ library(reshape2)
 #           surrenders/restarts (when)    
 #           RT
 #           Backtracks (of size)
-#          
 # stimuli: 
 #         v_size
 #         num_sccs

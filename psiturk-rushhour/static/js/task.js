@@ -30,7 +30,6 @@ var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-2_2.html",
 	"instructions/instruct-3.html",
 	"instructions/instruct-4.html",
-	"instructions/instruct-5.html",
 	"instructions/instruct-ready.html"
 ];
 
@@ -62,9 +61,6 @@ function shuffle(array) {
 * from the server when the PsiTurk object is created above. We
 * need code to get those pages from the PsiTurk object and 
 * insert them into the document.
-*
-* TODO: Change the look/cosmetics
-* 
 ********************/
 var RushhourExperiment = function() {
 	//document.body.innerHTML = '<h1>Rush Hour</h1></p><p id="status"></p><ul id="game-stats"><li id="timer"></li><li id="panel"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div> </svg>';
@@ -72,8 +68,9 @@ var RushhourExperiment = function() {
 	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout;
 	gameWon=false;
 	container = '#game';
-	timeout = 0.5*60*1000;
-	colours = ['#009933','#cc0099'];
+	timeout = 45*60*1000;
+	//colours = ['#009933','#cc0099'];
+	colours = ['#3366ff','#ff0000'];
 	svg = d3.select(container).append('svg').attr('width', '100%').attr('height', '100%');
 	panelsvg = d3.select('#buttons').append('svg').attr('width', '100%').attr('height', '100%');
 	board = 6;
@@ -88,8 +85,11 @@ var RushhourExperiment = function() {
 	puzzle_number=0;
 	howmany_puzzles=70;
 	puzzle_file = puzzle_files[puzzle_number++];
-	restartButton=panelsvg.append("image").attr("xlink:href", "static/images/restart.png").attr("x","0").attr("y","0").attr("width","55").attr("height", "55");
-	surrenderButton=panelsvg.append("image").attr("xlink:href", "static/images/surrender.svg").attr("x","120").attr("y","0").attr("width","70").attr("height", "70");
+	restartButton=panelsvg.append("image").attr("xlink:href", "static/images/restart.png").attr("x","0").attr("y","0").attr("width","55").attr("height", "55")
+	panelsvg.append("text").attr("x","0").attr("y","60").text('Restart').attr("font-size","16px").style("font-weight","bold");
+	surrenderButton=panelsvg.append("image").attr("xlink:href", "static/images/surrender.svg").attr("x","120").attr("y","00").attr("width","70").attr("height", "70");
+
+	panelsvg.append("text").attr("x","120").attr("y","60").text('Surrender').attr("font-size","16px").style("font-weight","bold");
 	restartButton.on('click',function(){
 		message=' t:['+moment()+'] event:[restart] piece:[NA] move#:['+moves+'] move:[NA] instance:['+puzzle_id+']'
 		psiTurk.recordTrialData(message);
@@ -186,6 +186,8 @@ var RushhourExperiment = function() {
 			}
 			pause = moment();
 			great=svg.append("image").attr("id", "great").attr("xlink:href", "static/images/great.gif").attr("x","0").attr("y","0").attr("width","570").attr("height", "670");
+			press_any_key=svg.append("text").attr("id", "pak").attr("x","30").attr("y","160").text('Click anywhere to continue').attr("font-size","32px").style("font-weight","bold");
+
 			great.on('click',function(){
 				timeout=timeout+moment().diff(pause);
 				//svg.selectAll('rect.car').remove();
@@ -194,6 +196,7 @@ var RushhourExperiment = function() {
 				d3.json(puzzle_file,j_callback);
 				gameWon=false;
 				svg.selectAll('#great').remove();
+				svg.selectAll('#pak').remove();
 			});
 		}
 		return ret;
