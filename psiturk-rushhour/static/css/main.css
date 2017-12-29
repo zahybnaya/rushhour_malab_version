@@ -45,6 +45,8 @@ h3{
 	cursor:pointer;
 }
 #game .exit{
+	background-color: silver;
+	font-size: 20px;
 	position:absolute;
 	right:-42px;
 	font-weight:bold;
@@ -66,13 +68,13 @@ h3{
 	margin:0px;
 	list-style:none;
 	display:inline-block;
-	width:196px;
+	width:300px;
 }
 #game-stats li:first-child{
-	text-align:left;
+	text-align:center;
 }
 #game-stats li:last-child{
-	text-align:right;
+	text-align:center;
 }
 #game-stats li .value{
 	font-weight:bold;
