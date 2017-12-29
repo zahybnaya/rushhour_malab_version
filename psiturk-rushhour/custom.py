@@ -77,15 +77,36 @@ def list_my_data():
 	except TemplateNotFound:
 		abort(404)
 
+def add_bonus_data(uniqueId,user,won_puzzles,bonus_puzzles):
+
+    print 'adding bonus data'
+    """
+    {"uniqueid":"debugghwGv:debugadFQP","current_trial":43,"dateTime":1514486521463,"trialdata":" t:[1514486521463] event:[win] piece:[NA] move#:[10] move:[NA] instance:[prb12564]"}
+    """
+
+    user_data = loads(user.datastring)
+    print user_data['data'][-1]
+    max_trial= int(user_data['data'][-1]['current_trial'])
+    print 'max_trial:' + str(max_trial)
+    for puzzle in bonus_puzzles:
+        max_trial+=1
+
+        print 'Adding rec with current_trial:' + str(max_trial)
+        rec = {"uniqueid":uniqueId,"current_trial":max_trial,"dateTime":time(),"trialdata":'t:['+str(time())+'] event:['+('BONUS_FAIL','BONUS_SUCCESS')[puzzle in won_puzzles]+'] piece:[NA] move#:[NA] move:[NA] instance:['+puzzle+']'}
+        print 'adding rec:' + str(rec)
+        user_data['data'].append(rec)
+        user.datastring = dumps(user_data)
+
+
+
 @custom_code.route('/show_bonus', methods=['GET'])
 def show_bonus():
-    print 'show_bonus triggered!'
+    #print 'show_bonus triggered!'
     if not request.args.has_key('uniqueId'):
         raise ExperimentError('improper_inputs')
     uniqueId = request.args['uniqueId']
     try:
-        # lookup user in database
-        print ' lookup user with uniqueId:' +str(uniqueId)
+        #print ' lookup user with uniqueId:' +str(uniqueId)
         user = Participant.query.\
                filter(Participant.uniqueid == uniqueId).\
                one()
@@ -96,19 +117,23 @@ def show_bonus():
             if isinstance(trial, basestring):
                 if 'win' in trial:
                     won_puzzles.add([s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',trial)][5])
-        print won_puzzles
-        bonus_puzzles=sample(puzzle_files,num_of_bonus_puzzles);
-        print ' selected bonus puzzles:'+str(bonus_puzzles)
-        user.bonus = bonus_by_completion(won_puzzles,bonus_puzzles);
-        print ' calculated bonus:'+str(user.bonus)
+        #print won_puzzles
+        bonus_puzzles=sample(puzzle_files,num_of_bonus_puzzles)
+        #print ' selected bonus puzzles:'+str(bonus_puzzles)
+        user.bonus = bonus_by_completion(won_puzzles,bonus_puzzles)
+        add_bonus_data(uniqueId,user,won_puzzles,bonus_puzzles)
+        #print ' calculated bonus:'+str(user.bonus)
         db_session.add(user)
         db_session.commit()
-        print ' rendering template:'+str(time())
-        s=[(x,x in won_puzzles,('0.00',total_bonus/num_of_bonus_puzzles)[x in won_puzzles]) for x in bonus_puzzles]
-        print s
+        #print ' rendering template:'+str(time())
+        s=[(x,x in won_puzzles,('0.0',total_bonus/num_of_bonus_puzzles)[x in won_puzzles]) for x in bonus_puzzles]
+        #print s
         return render_template('show_bonus.html', success=s, bonus=user.bonus,time=time())
     except TemplateNotFound:
         abort(404)
+    except Exception as e:
+        current_app.logger.error(e)  # Print message to server.log for debugging 
+        print e
 
 
 

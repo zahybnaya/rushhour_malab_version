@@ -17,16 +17,17 @@ var pages = [
 	"instructions/instruct-3.html",
 	"instructions/instruct-4.html",
 	"instructions/instruct-5.html",
+	"instructions/instruct-6.html",
 	"instructions/instruct-ready.html",
 	"stage.html",
 	"thanks.html",
 	//"list.html",
-    "show_bonus.html",
+    //"show_bonus.html",
     "postquestionnaire.html"
 ];
 
 psiTurk.preloadPages(pages);
-var debug=true;
+var debug=false;
 
 var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-1.html",
@@ -35,6 +36,7 @@ var instructionPages = [ // add as a list as many pages as you like
 	"instructions/instruct-3.html",
 	"instructions/instruct-4.html",
 	"instructions/instruct-5.html",
+	"instructions/instruct-6.html",
 	"instructions/instruct-ready.html"
 ];
 if (debug){
@@ -87,11 +89,15 @@ function msToTime(duration) {
 ********************/
 var RushhourExperiment = function() {
 	//document.body.innerHTML = '<h1>Rush Hour</h1></p><p id="status"></p><ul id="game-stats"><li id="timer"></li><li id="panel"></li><li>Moves: <span id="moves" class="value">0</span></li></ul><div id="game"><div class="exit"></div></div><p>Click and drag the cars to guide the green car to the exit.</p></div> </svg>';
-	document.body.innerHTML = '</p><p id="status"></p><ul id="game-stats"><li id="buttons"></li><li>Solved: <span id="solved_counter" class="value">0</span> Surrendered: <span id="surrendered_counter" class="value">0</span> Remaining: <span id="remain_counter" class="value">-</span> Time left: <span id="timer" class="value">45:00</span> </li> </ul><div id="game"><div class="exit"></div></div></div> </svg>';
-	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout,solved_counter,surrendered_counter, enable_surrender;
+	document.body.innerHTML = '</p><p id="status"></p><ul id="game-stats"><li id="buttons"></li><li>Solved: <span id="solved_counter" class="value">--</span> Surrendered: <span id="surrendered_counter" class="value">0</span> Remaining: <span id="remain_counter" class="value">-</span> Time left: <span id="timer" class="value">45:00</span> </li> </ul><div id="game"><div class="exit"></div></div></div> </svg>';
+	var  board, boardPositions, carFreedom, carPadding, carPositions, colours, container, detectFreedom, drag, dragEnd, dragMove, dragStart, intersection, moves, occupiedPositions, positionToX, positionToY, ref, scalar, startMoment, startXY, svg, tilePadding, timer, updateTimer, gameWon, isTimeout, timeout,solved_counter,min_solved_puzzles,surrendered_counter, enable_surrender;
+	//minimum moves before subjects can surrender
 	enable_surrender=4;
+	//indicators on panel
 	surrendered_counter=0;
 	solved_counter=0;
+	// number of puzzles required to 
+	min_solved_puzzles=8
 	gameWon=false;
 	container = '#game';
 	timeout = 0.1*60*1000;
@@ -148,10 +154,12 @@ puzzle_files=['static/json/1513806334_18_prb166_7_.json', 'static/json/151380634
 		svg.selectAll('#great').remove();
 	});
 
+	if (solved_counter<min_solved_puzzles){
+		d3.select('#solved_counter').text(solved_counter+' (minimum '+min_solved_puzzles+')').style("fill","red");
+	}
 	updateTimer = function() {
 		return d3.select('#timer').text(msToTime(timeout-moment().diff(startMoment)));
 	};
-
 	timer = setInterval(updateTimer, 1000);
 	intersection = function(a1, a2) {
 		return a1.filter(function(n) {
@@ -228,7 +236,7 @@ puzzle_files=['static/json/1513806334_18_prb166_7_.json', 'static/json/151380634
 			pause = moment();
 			great=svg.append("image").attr("id", "great").attr("xlink:href", "static/images/great.gif").attr("x","0").attr("y","0").attr("width","570").attr("height", "670");
 			press_any_key=svg.append("text").attr("id", "pak").attr("x","30").attr("y","160").text('Click anywhere to continue').attr("font-size","32px").style("font-weight","bold");
-			d3.select('#solved_counter').text(++solved_counter);
+			d3.select('#solved_counter').text(++solved_counter+'(minimum '+min_solved_puzzles+')');
 			d3.select('#remain_counter').text(puzzle_files.length-solved_counter-surrendered_counter);
 			great.on('click',function(){
 				timeout=timeout+moment().diff(pause);
@@ -366,20 +374,12 @@ puzzle_files=['static/json/1513806334_18_prb166_7_.json', 'static/json/151380634
 * Bonus calculation
 *********************/
 var BonusCalculation = function() {
-
     url=window.location.href
     var arr = url.split("/");
-    //URL=arr[0] + "//" + arr[2] TODO
     host_name=arr[2].split("/")[0];
-    tmpURL=arr[0] + "//" + host_name +'show_bonus?uniqueId='+uniqueId; 
-    console.log(tmpURL)
-    URL='http://localhost:22362/show_bonus?uniqueId='+uniqueId;
-    //window.location.href = url;
-    window.open(URL, '_blank', 'location=no,height=460,width=850,directories=no,titlebar=no,toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no');
+    URL=arr[0] + "//" + host_name +'/show_bonus?uniqueId='+uniqueId; 
+    window.open(URL, '_blank', 'location=0,height=500,width=650,directories=0,titlebar=0,toolbar=0,status=0,menubar=no,scrollbars=0,resizable=0');
     psiTurk.completeHIT(); // when finished saving compute bonus, the quit
-	$("#next").click(function(){
-                        psiTurk.completeHIT(); // when finished saving compute bonus, the quit
-                });
 };
 
 
