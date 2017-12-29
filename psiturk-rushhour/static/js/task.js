@@ -236,7 +236,7 @@ puzzle_files=['static/json/1513806334_18_prb166_7_.json', 'static/json/151380634
 			pause = moment();
 			great=svg.append("image").attr("id", "great").attr("xlink:href", "static/images/great.gif").attr("x","0").attr("y","0").attr("width","570").attr("height", "670");
 			press_any_key=svg.append("text").attr("id", "pak").attr("x","30").attr("y","160").text('Click anywhere to continue').attr("font-size","32px").style("font-weight","bold");
-			d3.select('#solved_counter').text(++solved_counter+'(minimum '+min_solved_puzzles+')');
+			d3.select('#solved_counter').text(++solved_counter+' (minimum '+min_solved_puzzles+')');
 			d3.select('#remain_counter').text(puzzle_files.length-solved_counter-surrendered_counter);
 			great.on('click',function(){
 				timeout=timeout+moment().diff(pause);
