@@ -231,18 +231,25 @@ def strong_connect(n,mag,s,index,sccs,indd):
 
 
 #test_code
-
-def pick_sample(jsons_data,size):
-    path_length_dist={'9':20,'11':20,'14':20,'16':10}
-    s = []
-    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='9'],20))
-    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='11'],20))
-    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='14'],20))
-    s.extend(sample([x for x in range(len(jsons_data)) if jsons_data[x]['path_length']=='16'],10))
-    #s = set(sample(range(len(jsons_data)),size))
-    #s = set(s)
+def pick_sample(jsons_data,size,ideal_distribution,factor_key):
+    path_length_dist=ideal_distribution[factor_key]
+    s = set([])
+    for path_length,count in path_length_dist.items():
+        s |= set(sample([x for x in range(len(jsons_data)) if jsons_data[x][factor_key]==path_length],count))
     while len(s)<size:
-        s.append(choice(range(len(jsons_data))))
+        c=choice(range(len(jsons_data)))
+        if c not in s:
+            s.append(c)
+    return s
+
+def extend_sample(jsons_data,size,ideal_distribution,factor_key,s):
+    """
+    """
+    path_length_dist=ideal_distribution[factor_key]
+    for path_length,count in path_length_dist.items():
+        extra=count-len([1 for l in s if jsons_data[l][factor_key]==path_length])
+        if extra>0:
+            s |= set(sample([x for x in range(len(jsons_data)) if jsons_data[x][factor_key]==path_length],extra))
     return s
 
 def diff_counts(counters,s,jsons_data):
@@ -251,9 +258,47 @@ def diff_counts(counters,s,jsons_data):
         for factor_value in counters[factor]:
             ret+= abs(counters[factor][factor_value]-len([1 for l in s if jsons_data[l][factor]==factor_value]))
     return ret
-#{'path_length':{'9':20,'11':20,'14':20,'16':10}}
 
-    pass
+def drop_extras(counters,s,jsons_data,k=.25):
+    """
+    look for peaks and drop it
+    """
+    X={}
+    print 'sample_size:'+str(sample_size)
+    for factor in counters:
+        for factor_value in counters[factor]:
+            extra = len([1 for l in s if jsons_data[l][factor]==factor_value])-counters[factor][factor_value]
+            #print '({3}={4}): {0}-{1}={2}'.format(len([1 for l in s if jsons_data[l][factor]==factor_value]),counters[factor][factor_value],extra,factor,factor_value)
+            if extra>0:
+                s = s-set(sample([x for x in s if jsons_data[x][factor]==factor_value],extra))
+        mismatched=[l for l in s if jsons_data[l][factor] not in counters[factor].keys()]
+        print 'len of mismatched:'+str(len(mismatched))
+        s = s-set(sample(mismatched,int(len(mismatched)*k)))
+    return s
+
+def find_puzzle_set_ext(ideal_distribution,jsons_data,iterations,size):
+    """
+    ideal_distribution is a dict of counters.
+    jsons_data is a list of strings
+    """
+    best_guess_scr = float('inf')
+    best_guess=None
+    s = pick_sample(jsons_data,size,ideal_distribution,'path_length')
+    print 'Initial size: {0}'.format(len(s))
+    for i in range(iterations):
+        s = drop_extras(ideal_distribution,s,jsons_data)
+        print 'After dropping : {0}'.format(len(s))
+        s = extend_sample(jsons_data,size,ideal_distribution,'path_length',s)
+        print 'After extension : {0}'.format(len(s))
+        scr = diff_counts(ideal_distribution,s,jsons_data)
+        print scr
+        if scr < best_guess_scr:
+            best_guess_scr = scr
+            best_guess = s
+    print 'best:'+str(best_guess_scr)
+    return best_guess
+
+
 
 def find_puzzle_set(ideal_distribution,jsons_data,iterations,size):
     """
@@ -263,9 +308,8 @@ def find_puzzle_set(ideal_distribution,jsons_data,iterations,size):
     best_guess_scr = float('inf')
     best_guess=None
     for i in range(iterations):
-        s = pick_sample(jsons_data,size)
-        scr=diff_counts(ideal_distribution,s,jsons_data)
-        print scr
+        s = pick_sample(jsons_data,size,ideal_distribution,'path_length')
+        scr = diff_counts(ideal_distribution,s,jsons_data)
         if scr < best_guess_scr:
             best_guess_scr = scr
             best_guess = s
@@ -281,8 +325,12 @@ def read_json_data(json_dir):
     fields=['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
     data=[]
     for f in jsons:
-        vals=instance_stat(f).split(',')
-        data.append(dict(zip(fields,vals)))
+        try:
+            vals=instance_stat(f).split(',')
+            data.append(dict(zip(fields,vals)))
+        except Exception as e:
+            print 'Problem reading '+ f
+            raise e
     return data
 
 
@@ -296,11 +344,24 @@ def create_stats(json_dir):
         except Exception as e:
             print 'error in file ' + f + str(e)
 
+def print_stats(jsons_data,puzzle_indx):
+    fields=['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
+    print ','.join(fields)
+    for i in puzzle_indx:
+        j=jsons_data[i]
+        print ','.join([j[f] for f in fields])
+
 def main():
     try:
         command=argv[1]
-        if command=='stat' or command=='find':
+        if command=='stat':
             json_dir = argv[2]
+        elif command == 'find':
+            json_dir = argv[2]
+            iters = int(argv[3])
+            for_stat = False
+            if len(argv)>=4:
+                for_stat = argv[4]=='for_stat'
         elif command=='generate':
             num_of_instances=int(argv[2])
             min_path_length=int(argv[3])
@@ -310,16 +371,23 @@ def main():
         else:
             raise(Exception('unknown command'))
     except:
-        print 'usage: [stat|generate|find] [<json_dir> | <num_of_instances> <min_path_length> <max_path_length> <cars_2> <car_3> | <json_dir>]'
+        print 'usage: [stat|generate|find] [<json_dir> | <num_of_instances> <min_path_length> <max_path_length> <cars_2> <car_3> | <json_dir> <iterations> [for_stat]]'
 
     if command=='stat':
         create_stats(json_dir)
     elif command=='generate':
         create_instances(num_of_instances,min_path_length,max_path_length,cars_2,cars_3)
     elif command=='find':
-        json_data=read_json_data(json_dir)
-        puzzle_indx=find_puzzle_set({'path_length':{'9':20,'11':20,'14':20,'16':10},'v_size':{'2':25,'4':25,'7':20},'max_scc_size':{'1':25,'4':25,'8':20},'mag_edges':{'4':35,'16':35},'mag_nodes':{'4':25,'6':25,'9':20}},json_data,9000000,70)
-        print [json_data[i]['jsonfile'] for i in puzzle_indx ]
+        jsons_data=read_json_data(json_dir)
+        puzzle_indx=find_puzzle_set_ext({
+            'path_length':{'7':18,'11':18,'14':17,'16':17},
+            'v_size':{'2':23,'4':23,'7':24},
+            'max_scc_size':{'1':24,'4':23,'8':23},
+            'mag_edges':{'4':35,'16':35},
+            'mag_nodes':{'4':23,'6':23,'9':24}},jsons_data,iters,70)
+        print_stats(jsons_data,puzzle_indx)
+        if not for_stat:
+            print [jsons_data[i]['jsonfile'] for i in puzzle_indx ]
 
 
 if __name__ == "__main__":

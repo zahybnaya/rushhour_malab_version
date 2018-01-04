@@ -31,7 +31,8 @@ library(reshape2)
 # Selecting a subset of 70 puzzles. 
 ######################################################## 
 setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances.csv')
+#d=read.csv('instances.csv')
+d=read.csv('instances_selected_set.csv')
 d2=subset(d,path_length %in% c('9','11','14','16') )
 d3=subset(d2,v_size %in% c('2','4','7'))
 d4=subset(d3,max_scc_size %in% c('1','4','8'))
