@@ -1,3 +1,28 @@
+<style>
+#customers {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+}
+
+#customers td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: center;
+    background-color: #4CAF50;
+    color: white;
+}
+</style>
+
 <div id="container-instructions">
 
     <h1>Instructions - Computing your bonus</h1>
@@ -12,23 +37,55 @@
     We then calculate your bonus based on how many of these selected three puzzles you <B>completed</B> successfully. 
     </P>
     <p>
-    <B>Note:</B> We are going to treat puzzles you surrendered and puzzles you did not get to do for lack of time in the same manner.  
+    <B>Note:</B> We are going to treat in the same manner puzzles you surrendered and puzzles you did not get to do for lack of time. So try to complete as many puzzles as you can to increase the chances of a high bonus. 
     </p>
-    <p>Here is an example of a bonus screen you might see after you complete the task</p>
-	<img src="static/images/bonus_screen.png" height="350" width="500" style="border: 1px solid" alt="bonus screen" border="50">
- 
+     <table id="customers" align="center">
+        <thead>
+            <tr>
+                <th class="text-center">Number of puzzles completed</th>
+                <th class="text-left">Bonus</th>
+                <th class="text-left">Total</th>
+            </tr>
+        </thead>
+        <tbody >
+            <tr>
+                <td class="text-center">0</td>
+                <td class="text-center">$0.00<font color="red"></font></td>
+                <td class="text-center">$1.00</td>
+            </tr>
+            <tr>
+                <td class="text-center">1</td>
+                <td class="text-center">$3.00<font color="red"></font></td>
+                <td class="text-center">$4.00</td>
+            </tr>
+            <tr>
+                <td class="text-center">2</td>
+                <td class="text-center">$6.00<font color="red"></font></td>
+                <td class="text-center">$7.00</td>
+            </tr>
+             <tr>
+                <td class="text-center">3</td>
+                <td class="text-center">$9.00<font color="red"></font></td>
+                <td class="text-center">$10.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+
         <script type="text/javascript">
         //console.log(psiTurk.getInstructionIndicator())
         </script>
 
 
 
+    <hr />
+    </div>
     <div class="alert alert-warning">
-        <P><B>Make sure you understand the minimum requirements and how your bonus will be calculated!</B> </P><P>Click "I UNDERSTAND" when you are ready.</P>
+        <P><B>Make sure you COMPLETELY understand the requirements and how your bonus will be calculated!</B> </P><P>Click "I UNDERSTAND" when you are ready.</P>
     </div>
     <hr />
 
-    </div>
+
     <div class="instructionsnav">
         <div class="row">
             <div class="col-xs-2">
@@ -40,7 +97,7 @@
             </div>
             <div class="col-xs-2">
                 <button type="button" id="next" value="next" class="btn btn-primary btn-lg continue">
-                I UNDERSTAND <span class="glyphicon glyphicon-arrow-right"></span>
+                I UNDERSTAND 
                 </button>
             </div>
         </div>
