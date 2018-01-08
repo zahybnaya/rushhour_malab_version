@@ -36,11 +36,11 @@ The current time is {{ time }}.
             <tr>
                 <td class="text-left">{{ p[0] }}</td>
 		<td class="text-center">{%- if p[1] -%}Complete{% else %}<font color="red">Failed!</font>{% endif %}</td>
-                <td class="text-center">{{ p[2] }}</td>
+                <td class="text-center">${{ p[2] }}</td>
             </tr>
             {% endfor %}
             <tr>
-                <td class="text-center">Total Bonus: {{ bonus }}</td>
+                <td class="text-center">Total Bonus: ${{ bonus }}</td>
             </tr>
         </tbody>
     </table>
