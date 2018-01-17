@@ -2,7 +2,7 @@ import re
 from sys import argv
 from test import magsize,magsize_admissible
 from collections import namedtuple,defaultdict
-from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance, rhstring
+from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance, rhstring, find_piece, draw
 from copy import deepcopy
 #from try_pygame import show
 from astar import make_Astar, h_unblocked
@@ -49,15 +49,19 @@ def read_dist_log(filename):
 
 def recs_to_paths(recs,ins):
     """
-    Returns matching paths and records - state i in the path is the one after perfoming record i
+    Returns corresponding state-paths and records for a given instance
+    state i in the path is the one after perfoming record i
     """
     #TODO add the time to restart
-    paths=[]
-    recs_ret=[]
-    ins_rec= [r for r in recs  if r.instance == ins]
-    mv_ins_rec= [r for r in ins_rec  if r.event == 'commit_move' or r.event== 'win' or r.event== 'restart']
-    starts= [r for r in ins_rec  if r.event == 'start']
-    instance = instance_dict()[ins]
+    paths      = []
+    recs_ret   = []
+    ins_rec    = [r for r in recs  if r.instance == ins]
+    mv_ins_rec = [r for r in ins_rec  if r.event == 'commit_move' or r.event == 'drag_end' or r.event== 'win' or r.event== 'restart']
+    starts     = [r for r in ins_rec  if r.event == 'start']
+    try:
+        instance = instance_dict()[ins]
+    except:
+        return [],[]
     i=0
     for rs in range(len(starts)):
         p=[instance]
@@ -66,20 +70,28 @@ def recs_to_paths(recs,ins):
             next_rs=float(starts[rs+1].t)
         except:
             next_rs=float('inf')
-        while i<len(mv_ins_rec) and float(mv_ins_rec[i].t) < next_rs  :
-            if not p[-1].is_goal():
-                _ins_=deepcopy(p[-1])
-                if mv_ins_rec[i].event!='restart':
-                    move=mv_ins_rec[i].piece,eval(mv_ins_rec[i].move)
-                    if len(move)==1: #In case it reads from psiturk format
-                        (c,l,s),o = find_piece(instance,piece)
-                        move=(int(move)%6,int(move)/6,s)
-                    do_move_from_fixed(_ins_,move)
-                p.append(_ins_)
-                r.append(mv_ins_rec[i])
-            i+=1
-        paths.append(p)
-        recs_ret.append(r)
+        try:
+            while i<len(mv_ins_rec) and float(mv_ins_rec[i].t) < next_rs  :
+                if not p[-1].is_goal():
+                    _ins_=deepcopy(p[-1])
+                    if mv_ins_rec[i].event not in ('restart','win'):
+                        move_to=mv_ins_rec[i].move
+                        (c,l,s),o = find_piece(_ins_,mv_ins_rec[i].piece)
+                        if move_to.find(',')==-1:#In case it reads from psiturk format
+                            move_to=(int(move_to)%6,int(move_to)/6,s)
+                        else:
+                            move_to=eval(move_to)
+                        if move_to!=(c,l,s):
+                            move=mv_ins_rec[i].piece,move_to
+                            do_move_from_fixed(_ins_,move)
+                            p.append(_ins_)
+                            r.append(mv_ins_rec[i])
+                i+=1
+            paths.append(p)
+            recs_ret.append(r)
+        except Exception as e :
+            print "problem processing:" + str(mv_ins_rec[i])
+            raise e
     return paths,recs_ret
 
 
@@ -211,13 +223,14 @@ def psiturk_paths(filename):
     print 'subject, instance, optimal_length, human_length, complete, rt,nodes_expanded, skipped, trial_number'
     recs=read_psiturk_data(filename)
     instances=set([r.instance for r in recs])
-    subject = recs[0].worker
+    instances.remove(None)
     for ins in instances:
         opt_solution=999
         nodes_expanded=999
         paths,rs_paths=recs_to_paths(recs,ins)
         trial_number=0
         for p,rs_p in zip(paths,rs_paths):
+            subject = rs_p[0].worker
             solved= p[-1].is_goal()
             skipped= (trial_number==(len(paths)-1) and not solved)
             assert(rs_p[0].event=='start')
@@ -225,6 +238,11 @@ def psiturk_paths(filename):
             fields=[subject, ins, opt_solution, len(p), solved, ttl_time, nodes_expanded, skipped, trial_number]
             print ','.join(['{}']*len(fields)).format(*fields)
             trial_number+=1
+            assert(len(p)==len(rs_p))
+            for m in range(len(p)):
+                print 'ind number:{0} move#:{1}, piece:{3} to move:{2} '.format(m,rs_p[m].move_nu,rs_p[m].move,rs_p[m].piece)
+                draw(p[m])
+
 
 def paths(filename):
     expanded_nodes_unblocked={}
@@ -247,10 +265,21 @@ def paths(filename):
             fields=[subject, ins, opt_solution, len(p), solved, ttl_time, nodes_expanded, skipped, trial_number]
             print ','.join(['{}']*len(fields)).format(*fields)
             trial_number+=1
-#TODO:
 
-#example from psiurk:
-#debugPv12P:debugP70lV,6,1512669772746,""" t:[1512669772746] event:[start] piece:[NA] move#:[0] move:[NA] instance:[prb42331]"""
+#def psiturk_paths(filename):
+#    recs=read_psiturk_data(filename)
+#    instances=set([r.instance for r in recs])
+#    instances.remove(None)
+#    for ins in instances:
+#        print 'instance:'+ins
+#        print 'calling recs_to_paths'
+#        paths,rs_paths=recs_to_paths(recs,ins)
+#        for p,rs_p in zip(paths,rs_paths):
+#            print 'worker:'+rs_p[0].worker
+#            for m in p:
+#                print m
+#
+#
 """
 Look at nested-anova or factor analysis. in order to account for the subject as a random variable.  
 Change log_likelihood function to use IBS
@@ -290,6 +319,3 @@ Better admissble heuristic. (Something with the MAG)
 . Surrenders vs restarts  median + CI (show variability across subjects)???
 """
 
-
-for k in psiturk_paths(argv[1]):
-    print k
