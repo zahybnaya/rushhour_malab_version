@@ -10,7 +10,7 @@ Generating rushhour instances.
 """
 
 #test code
-from  rushhour import read_instances,draw,mag2dot, json_to_ins
+from  rushhour import read_instances,draw,mag2dot, json_to_ins,opt_solution_instances
 #test code
 
 from time import time
@@ -156,6 +156,22 @@ def create_instances(num_of_instances,min_path_length,max_path_length,cars_2,car
         if length > min_path_length:
             instance_to_json(init_ins,length)
 
+def instance_stat_raw(ins):
+    sz=[s for c,l,s in ins.h.values()+ins.v.values()]
+    car_2 = str(len([1 for s in sz if s==2]))
+    car_3 = str(len([1 for s in sz if s==3]))
+    v_size = str(len(ins.v))
+    h_size = str(len(ins.h))
+    mag,nodes=constuct_mag(ins)
+    sccs=tarjanSCC(mag)
+    mag_nodes=str(len(nodes))
+    mag_edges=str(sum([len(nd) for nd in mag.values()]))
+    num_sccs=str(len([1 for scc in sccs if len(scc)>=2]))
+    max_scc_size=str(max([len(scc) for scc in sccs]))
+    path_length = str(opt_solution_instances[ins.name])
+    return ','.join([ins.name,car_2,car_3,v_size,h_size,mag_nodes,mag_edges,path_length,num_sccs,max_scc_size])
+
+
 
 def instance_stat(jsonfile):
     ins = json_to_ins(jsonfile)
@@ -246,10 +262,11 @@ def extend_sample(jsons_data,size,ideal_distribution,factor_key,s):
     """
     """
     path_length_dist=ideal_distribution[factor_key]
-    for path_length,count in path_length_dist.items():
-        extra=count-len([1 for l in s if jsons_data[l][factor_key]==path_length])
-        if extra>0:
-            s |= set(sample([x for x in range(len(jsons_data)) if jsons_data[x][factor_key]==path_length],extra))
+    while len(s)<size:
+        for path_length,count in path_length_dist.items():
+            extra=count-len([1 for l in s if jsons_data[l][factor_key]==path_length])
+            if extra>0:
+                s |= set(sample([x for x in range(len(jsons_data)) if jsons_data[x][factor_key]==path_length],extra))
     return s
 
 def diff_counts(counters,s,jsons_data):
@@ -264,7 +281,6 @@ def drop_extras(counters,s,jsons_data,k=.25):
     look for peaks and drop it
     """
     X={}
-    print 'sample_size:'+str(sample_size)
     for factor in counters:
         for factor_value in counters[factor]:
             extra = len([1 for l in s if jsons_data[l][factor]==factor_value])-counters[factor][factor_value]
@@ -272,7 +288,7 @@ def drop_extras(counters,s,jsons_data,k=.25):
             if extra>0:
                 s = s-set(sample([x for x in s if jsons_data[x][factor]==factor_value],extra))
         mismatched=[l for l in s if jsons_data[l][factor] not in counters[factor].keys()]
-        print 'len of mismatched:'+str(len(mismatched))
+        #print 'len of mismatched:'+str(len(mismatched))
         s = s-set(sample(mismatched,int(len(mismatched)*k)))
     return s
 
@@ -337,12 +353,21 @@ def read_json_data(json_dir):
 
 def create_stats(json_dir):
     print ','.join(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size'])
-    jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
-    for f in jsons:
-        try:
-            print instance_stat(f)
-        except Exception as e:
-            print 'error in file ' + f + str(e)
+    if json_dir == 'raw':
+        inss=read_instances()
+        for f in inss:
+            try:
+                print instance_stat_raw(f)
+            except Exception as e:
+                print 'error in instance ' + f.name + str(e)
+                raise e
+    else:
+        inss=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+        for f in inss:
+            try:
+                print instance_stat(f)
+            except Exception as e:
+                print 'error in file ' + f + str(e)
 
 def print_stats(jsons_data,puzzle_indx):
     fields=['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
