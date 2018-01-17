@@ -152,7 +152,7 @@ ggplot(d, aes(y=d$rt, x=d$mag_nodes)) + geom_point() + scale_x_continuous(breaks
 # stats of a subset of 70 puzzles. 
 ######################################################## 
 setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances_selected_set3.csv')
+d=read.csv('instances_selected_set4.csv')
 p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
 #p2<-ggplot(d, aes(x = d$h_size)) + geom_histogram(binwidth = 1)+ xlab('#horizontal cars')
 p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
