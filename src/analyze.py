@@ -219,29 +219,39 @@ def moves(filename,dist_filename):
             if r.event =='win':
                 trial_number=0
 
+def uniq_order(alist):
+    l_u=[]
+    for w in alist:
+        if w not in l_u:
+            l_u.append(w)
+    return l_u
+
 def psiturk_paths(filename):
-    print 'subject, instance, optimal_length, human_length, complete, rt,nodes_expanded, skipped, trial_number'
+    print 'subject, instance, optimal_length, human_length, complete, start_time, end_time, rt,nodes_expanded, skipped, trial_number'
     recs=read_psiturk_data(filename)
-    instances=set([r.instance for r in recs])
-    instances.remove(None)
-    for ins in instances:
-        opt_solution=999
-        nodes_expanded=999
-        paths,rs_paths=recs_to_paths(recs,ins)
-        trial_number=0
-        for p,rs_p in zip(paths,rs_paths):
-            subject = rs_p[0].worker
-            solved= p[-1].is_goal()
-            skipped= (trial_number==(len(paths)-1) and not solved)
-            assert(rs_p[0].event=='start')
-            ttl_time = float(rs_p[-1].t)-float(rs_p[0].t)
-            fields=[subject, ins, opt_solution, len(p), solved, ttl_time, nodes_expanded, skipped, trial_number]
-            print ','.join(['{}']*len(fields)).format(*fields)
-            trial_number+=1
-            assert(len(p)==len(rs_p))
-            for m in range(len(p)):
-                print 'ind number:{0} move#:{1}, piece:{3} to move:{2} '.format(m,rs_p[m].move_nu,rs_p[m].move,rs_p[m].piece)
-                draw(p[m])
+    for w in uniq_order([r.worker for r in recs]):
+        recs_w = [r for r in recs if r.worker == w]
+        instances=uniq_order([r.instance for r in recs_w if r.instance is not None])
+        for ins in instances:
+            opt_solution=999
+            nodes_expanded=999
+            paths,rs_paths=recs_to_paths(recs_w,ins)
+            trial_number=0
+            for p,rs_p in zip(paths,rs_paths):
+                subject = rs_p[0].worker
+                solved= p[-1].is_goal()
+                skipped= (trial_number==(len(paths)-1) and not solved)
+                assert(rs_p[0].event=='start')
+                start_time = float(rs_p[0].t)
+                end_time = float(rs_p[-1].t)
+                ttl_time = end_time - start_time
+                fields=[subject, ins, opt_solution, len(p), solved, start_time, end_time,ttl_time, nodes_expanded, skipped, trial_number]
+                print ','.join(['{}']*len(fields)).format(*fields)
+                trial_number+=1
+                assert(len(p)==len(rs_p))
+                #for m in range(len(p)):
+                #    print 'ind number:{0} move#:{1}, piece:{3} to move:{2} '.format(m,rs_p[m].move_nu,rs_p[m].move,rs_p[m].piece)
+                #    draw(p[m])
 
 
 def paths(filename):

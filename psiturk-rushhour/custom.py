@@ -37,7 +37,7 @@ puzzle_files = ['static/json/1509723682_71_prb78717_9_.json', 'static/json/15094
 
 puzzle_files=[ j.split('_')[-3] for j in puzzle_files]
 num_of_bonus_puzzles=3
-total_bonus=6.0
+total_bonus=9.0
 ###########################################################
 #  serving warm, fresh, & sweet custom, user-provided routes
 #  add them here

@@ -27,23 +27,59 @@ library(reshape2)
 #     
 #####################################
 
-######################################################## 
-# Selecting a subset of 70 puzzles. 
-######################################################## 
-setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances.csv')
-d2=subset(d,path_length %in% c('9','11','14','16') )
-d3=subset(d2,v_size %in% c('2','4','7'))
-d4=subset(d3,max_scc_size %in% c('1','4','8'))
-d5=subset(d4,mag_edges %in% c('4','16'))
-d6=subset(d5,)
-table(d5$path_length)
-table(d5$mag_edges)
 
 
-######################################################## 
-# Stats for pilot instances. 
-########################################################
+
+####################################
+# Eligibality for approve turkers
+#######################################
+setwd('~/gdrivezb9/rushhour/results/stage0/')
+d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
+d=subset(d, d$event != 'drag_start')
+
+w = 'A289D98Z4GAZ28:3ZV9H2YQQEFR2R3JK2IXZUJPXAF3WW' 
+w = 'A39GADIK8RLMVC:36AHBNMV1SKT9O0GSS6XX0QHZV3YDN'
+make_plot <- function (d,w){ 
+  d=subset(d, subject == w)
+  start_time = d[1,c('time')]
+  one_hour = start_time + 60*60*1000
+  two_hour = start_time + 120*60*1000
+  ggplot(d, aes(x=d$time, y=d$event)) + geom_point() + geom_vline(xintercept = one_hour,linetype=2) +
+    geom_vline(xintercept = two_hour, linetype=1) +
+    annotate("text", x = one_hour, y = 3.5, label = "60m") +
+    annotate("rect", xmin = one_hour-50, xmax = one_hour+50, ymin = 3.2, ymax = 3.8,alpha = .9) +
+    annotate("text", x = two_hour, y = 3.5, label = "120m") 
+}
+
+####################################
+# Eligibality for approve turkers
+#######################################
+setwd('~/gdrivezb9/rushhour/results/stage0/')
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
+                     ,levels = rev(c('Solved','Restart','Surrender')))
+#skipped => surrender
+#!skipped & !complete => NA
+w = 'A289D98Z4GAZ28:3ZV9H2YQQEFR2R3JK2IXZUJPXAF3WW' 
+w = 'A39GADIK8RLMVC:36AHBNMV1SKT9O0GSS6XX0QHZV3YDN'
+
+paths=subset(paths, subject == w)
+start_exp=paths[1,c('start_time')]
+end_exp = start_exp + 120*60*1000
+ggplot(paths, aes(x=paths$end_time, y=paths$status)) + geom_point() + xlim(start_exp, end_exp)
+
+
+for (w in levels(p$subject)){
+  
+  
+  
+}
+
+
+
+######################################################################
+# P40: Multiple histograms for instance stats for selection  
+#####################################################################
 setwd('~/gdrivezb9/rushhour/results/pilot/')
 i=read.csv('instance_stats.csv')
 p=read.csv('paths.csv')
@@ -51,7 +87,6 @@ p=subset(p, complete=='True')
 names(i)[names(i) == 'jsonfile'] <- 'instance'
 d=merge(p,i, by = 'instance', all=FALSE)
 p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
-#p2<-ggplot(d, aes(x = d$h_size)) + geom_histogram(binwidth = 1)+ xlab('#horizontal cars')
 p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
 p4<-ggplot(d, aes(x = d$path_length)) + geom_histogram(binwidth = 1)+ xlab('path length')
 p5<-ggplot(d, aes(x = d$mag_edges)) + geom_histogram(binwidth = 1)+ xlab('#edges in mag')
@@ -61,9 +96,9 @@ grid.arrange(p4,p1,p5,p3,p6,p7, ncol=2, top='Pilot instances')
 
 
 
-######################################################## 
-# Correlation
-########################################################
+##########################################################################
+# P41: Heatmap of correlation of difficulty and instance charecteristics
+#########################################################################
 setwd('~/gdrivezb9/rushhour/results/pilot/')
 p=read.csv('paths.csv')
 i=read.csv('instance_stats.csv')
@@ -78,178 +113,6 @@ melted_cormat <- melt(cormat)
 ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
   geom_tile() + geom_text(aes(label = melted_cormat$value))
 
-
-ggplotRegression <- function (fit) {
-  require(ggplot2)
-  ggplot(fit$model, aes_string(x = names(fit$model)[2], y = names(fit$model)[1])) + 
-    geom_point() +
-    stat_smooth(method = "lm", col = "red", se=FALSE) +
-    labs(title = paste("Adj R2 = ",signif(summary(fit)$adj.r.squared, 5),
-                       "Intercept =",signif(fit$coef[[1]],5 ),
-                       " Slope =",signif(fit$coef[[2]], 5),
-                       " P =",signif(summary(fit)$coef[2,4], 5)))
-}
-
-
-######################################################## 
-# lm
-########################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-p=read.csv('paths.csv')
-i=read.csv('instance_stats.csv')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance')
-dn=d[,c(3,4,6,11,12,13,14,15,17,18)]
-dn$err_norm <- (dn$human_length-dn$optimal_length)/dn$optimal_length
-dn$err <- (dn$human_length-dn$optimal_length)
-ggplotRegression(lm(dn$err ~ dn$v_size))
-
-
-
-######################################################## 
-# err ~ nodes
-########################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-p=read.csv('paths.csv')
-i=read.csv('instance_stats.csv')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance')
-d$err <- (d$human_length-d$optimal_length)/d$optimal_length
-ggplot(d, aes(y=d$err, x=d$mag_nodes)) + geom_point() + scale_x_continuous(breaks=sort(unique(d$mag_nodes)), labels=sort(unique(d$mag_nodes)))+
- stat_summary(fun.data  = mean_sem, color='blue') +   geom_smooth(method='lm',formula=y~x, se=FALSE) +
-  annotate("text", x=12, y=4, label = round(summary(lm(d$err ~ d$mag_nodes))$coefficients[2,1],3)) 
-
-######################################################## 
-# err ~ path_length
-########################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-p=read.csv('paths.csv')
-i=read.csv('instance_stats.csv')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance')
-d$err <- (d$human_length-d$optimal_length)/d$optimal_length
-ggplot(d, aes(y=d$err, x=d$path_length)) + geom_point() + scale_x_continuous(breaks=sort(unique(d$path_length)), labels=sort(unique(d$path_length)))+
-  stat_summary(fun.data  = mean_sem, color='blue') +   geom_smooth(method='lm',formula=y~x, se=FALSE) +
-  annotate("text", x=12, y=4, label = round(summary(lm(d$err ~ d$path_length))$coefficients[2,1],3)) 
-
-  
-######################################################## 
-# rt ~ nodes
-########################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-p=read.csv('paths.csv')
-i=read.csv('instance_stats.csv')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance')
-d$err <- (d$human_length-d$optimal_length)/d$optimal_length
-ggplot(d, aes(y=d$rt, x=d$mag_nodes)) + geom_point() + scale_x_continuous(breaks=sort(unique(d$mag_nodes)), labels=sort(unique(d$mag_nodes)))+
-  stat_summary(fun.data  = mean_sem, color='blue') +   geom_smooth(method='lm',formula=y~x, se=FALSE) +
-  annotate("text", x=12, y=500, label = round(summary(lm(d$rt ~ d$mag_nodes))$coefficients[2,1],3)) 
-
-
-
-######################################################## 
-# stats of a subset of 70 puzzles. 
-######################################################## 
-setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances_selected_set4.csv')
-p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
-#p2<-ggplot(d, aes(x = d$h_size)) + geom_histogram(binwidth = 1)+ xlab('#horizontal cars')
-p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
-p4<-ggplot(d, aes(x = d$path_length)) + geom_histogram(binwidth = 1)+ xlab('path length')
-p5<-ggplot(d, aes(x = d$mag_edges)) + geom_histogram(binwidth = 1)+ xlab('#edges in mag')
-p6<-ggplot(d, aes(x = d$num_sccs)) + geom_histogram(binwidth = 1)+ xlab('#SCC')
-p7<-ggplot(d, aes(x = d$max_scc_size)) + geom_histogram(binwidth = 1)+ xlab('max SCC size')
-
-grid.arrange(p4,p1,p5,p3,p6,p7, ncol=2, top='Rushhour instances')
-
-##################################################
-# Convergence of lrta path_length 
-#################################################
-setwd('~/gdrivezb9/rushhour/results/')
-d=read.csv('lrta_path_length_exp5.csv', sep = ' ')
-ggplot(d, aes(x=d$iteration,y=d$path_length)) + stat_summary(fun.data  = mean_se)
-
-##################################################
-# Convergence of loglike 
-#################################################
-setwd('~/gdrivezb9/rushhour/results/')
-d=read.csv('logp_convergence.csv', sep = ' ')
-real_value=d[d$samples=='0','value']
-d=subset(d,d$samples!='0')
-ggplot(d, aes(x=d$samples)) + geom_line(aes(y=d$value,color=d$function.)) + geom_hline(aes(yintercept=real_value))
-
-
-######################################################## 
-# Summary stat analysis of the instances
-# Histograms. 
-######################################################## 
-setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances.csv')
-p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
-p2<-ggplot(d, aes(x = d$h_size)) + geom_histogram(binwidth = 1)+ xlab('#horizontal cars')
-p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
-p4<-ggplot(d, aes(x = d$path_length)) + geom_histogram(binwidth = 1)+ xlab('path length')
-p5<-ggplot(d, aes(x = d$mag_edges)) + geom_histogram(binwidth = 1)+ xlab('#edges in mag')
-p6<-ggplot(d, aes(x = d$num_sccs)) + geom_histogram(binwidth = 1)+ xlab('#SCC')
-p7<-ggplot(d, aes(x = d$max_scc_size)) + geom_histogram(binwidth = 1)+ xlab('max SCC size')
-
-grid.arrange(p4,p1,p2,p5,p3,p6,p7, ncol=2, top='Rushhour instances')
-
-
-######################################################## 
-# Summary stat analysis of the instances
-# Heatmap of spearman correlations.
-########################################################
-setwd('~/gdrivezb9/rushhour/results/instances')
-d=read.csv('instances.csv')
-res=round(cor(d[-1], method = 'spearman'),3)
-melted_cormat<- melt(res, na.rm = TRUE)
-ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
-  geom_tile() + geom_text(aes(label=melted_cormat$value))
-######################################################## 
-# LRTA distributions 
-#######################################################
-
-setwd("~/gdrivezb9/rushhour/results/pilot/lrta")
-d=read.csv('lrta_fitting_exp.csv', header = T, sep = ',')
-
-######################################################## 
-# LRTA distributions 
-#######################################################
-
-setwd("~/gdrivezb9/rushhour/results/pilot/lrta")
-no_exp=read.csv('dist_lrta_best', header= FALSE, sep = ',')
-exp3=read.csv('dist_lrta_exp3', header= FALSE, sep = ',')
-exp5=read.csv('dist_lrta_exp5', header= F, sep = ',')
-exp50=read.csv('dist_lrta_exp50', header= F, sep = ',')
-p1<-ggplot(no_exp, aes(x=V1)) + geom_histogram(binwidth = 1) + ggtitle('max node')
-p2<-ggplot(exp3, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=3')
-p3<-ggplot(exp5, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=5')
-p4<-ggplot(exp50, aes(x=V1)) + geom_histogram(binwidth = 1)+ ggtitle('k=50')
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(paths, paths$complete=='True' & paths$instance=='Jam-1')
-p5<-ggplot(d, aes(x=d$human_length))+ geom_histogram(binwidth = 1)+ ggtitle('Subject Data')
-grid.arrange(p5,p1,p4,p3,p2, ncol=3, top='Random Selection of nodes')
-
-
-######################################################## 
-# LRTA fitting MCMC
-#######################################################
-
-setwd("~/gdrivezb9/rushhour/results/pilot/lrta/")
-d=read.csv('lrta_fitting_exp.csv', header= TRUE, sep = ',')
-d=read.csv('lrta_subs.csv', header= TRUE, sep = ',')
-
-#Percentage of 21 trials for data_point,subject
-ratio=ddply(d, .(subject, h_epsilon, exp,learning_iter), function(x){return(length(which(x$trials=='21'))/nrow(x))})
-ggplot(ratio, aes(x=ratio$V1)) + geom_histogram(binwidth = 0.05)
-ggplot(d, aes(x=trials)) + geom_histogram(binwidth=1)
-
-#s=split(d, list(d$subject,d$h_epsilon,d$learning_iter))
-#x=s$andra.log.0.000686180040586.1
-#ggplot(x, aes(x=trials)) + geom_histogram(binwidth=1)
 
 ######################################################## 
 # Pilot Data analysis
@@ -274,24 +137,6 @@ mean_sem_ <- function(x) {
   sem=sd(x)/sqrt(length(x))
   return(data.frame("mean"=meanx, "sem"=sem/2))
 }
-
-
-######################################################## 
-# Plot  Error ratio of models.
-#######################################################
-setwd("~/gdrivezb9/rushhour/results/lrta")
-lrta=read.csv('lrta_phs.csv', header = TRUE)
-alg_lvls=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','A*h:min_manhattan_distancef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0','A*h:min_manhattan_distancef:0*(g+1)+1.5histop:<lambda>lapse:0slapse:0reca:100.0','A*h:magsizef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0')
-alg_lbl=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','manhat','1.5manhat','magsize')
-lrta$instance <- factor(lrta$instance, levels = lvls_e, labels = 1:length(lvls_e))
-lrta$alg <- factor(lrta$alg, levels = alg_lvls , labels = alg_lvls)
-
-lrta=subset(lrta, step==1)
-lrta$error_ratio = lrta$alg_path/lrta$optimal_path
-lrta$learning_iters = lrta$learning_iters*lrta$h_weight
-lrta$learning_iters = factor(lrta$learning_iters)
-ggplot(lrta, aes(x=instance, y=error_ratio)) + geom_bar(stat = 'identity',position = 'dodge',aes(fill=alg),size=2) +
-  ggtitle('Effect of learning on errors') 
 
 
 
