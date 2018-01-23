@@ -78,57 +78,75 @@ def list_my_data():
 		abort(404)
 
 def add_bonus_data(uniqueId,user,won_puzzles,bonus_puzzles):
-
-    print 'adding bonus data'
-    """
-    {"uniqueid":"debugghwGv:debugadFQP","current_trial":43,"dateTime":1514486521463,"trialdata":" t:[1514486521463] event:[win] piece:[NA] move#:[10] move:[NA] instance:[prb12564]"}
-    """
-
     user_data = loads(user.datastring)
-    print user_data['data'][-1]
     max_trial= int(user_data['data'][-1]['current_trial'])
-    print 'max_trial:' + str(max_trial)
     for puzzle in bonus_puzzles:
         max_trial+=1
-
-        print 'Adding rec with current_trial:' + str(max_trial)
         rec = {"uniqueid":uniqueId,"current_trial":max_trial,"dateTime":time(),"trialdata":'t:['+str(time())+'] event:['+('BONUS_FAIL','BONUS_SUCCESS')[puzzle in won_puzzles]+'] piece:[NA] move#:[NA] move:[NA] instance:['+puzzle+']'}
-        print 'adding rec:' + str(rec)
         user_data['data'].append(rec)
         user.datastring = dumps(user_data)
 
 
 
-@custom_code.route('/show_bonus', methods=['GET'])
-def show_bonus():
-    #print 'show_bonus triggered!'
+@custom_code.route('/compute_bonus', methods=['GET'])
+def compute_bonus():
+    played_puzzles=0;
     if not request.args.has_key('uniqueId'):
         raise ExperimentError('improper_inputs')
     uniqueId = request.args['uniqueId']
     try:
-        #print ' lookup user with uniqueId:' +str(uniqueId)
         user = Participant.query.\
                filter(Participant.uniqueid == uniqueId).\
                one()
         user_data = loads(user.datastring) # load datastring from JSON
         won_puzzles=set()
+        won_puzzles_numbers=[]
         for record in user_data['data']: # for line in data file
             trial = record['trialdata']
             if isinstance(trial, basestring):
                 if 'win' in trial:
                     won_puzzles.add([s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',trial)][5])
-        #print won_puzzles
         bonus_puzzles=sample(puzzle_files,num_of_bonus_puzzles)
-        #print ' selected bonus puzzles:'+str(bonus_puzzles)
         user.bonus = bonus_by_completion(won_puzzles,bonus_puzzles)
         add_bonus_data(uniqueId,user,won_puzzles,bonus_puzzles)
-        #print ' calculated bonus:'+str(user.bonus)
         db_session.add(user)
         db_session.commit()
-        #print ' rendering template:'+str(time())
-        s=[(x,x in won_puzzles,('0.0',total_bonus/num_of_bonus_puzzles)[x in won_puzzles]) for x in bonus_puzzles]
-        #print s
-        return render_template('show_bonus.html', success=s, bonus=user.bonus,time=time())
+        resp = {"bonusComputed": "success"}
+        return jsonify(**resp)
+    except TemplateNotFound:
+        abort(404)
+    except Exception as e:
+        print 'compute_bonus ERROR:'
+        current_app.logger.error(e)  # Print message to server.log for debugging 
+        print e
+
+
+
+@custom_code.route('/show_bonus', methods=['GET'])
+def show_bonus():
+    if not request.args.has_key('uniqueId'):
+        raise ExperimentError('improper_inputs')
+    uniqueId = request.args['uniqueId']
+    try:
+        user = Participant.query.\
+               filter(Participant.uniqueid == uniqueId).\
+               one()
+        user_data = loads(user.datastring) # load datastring from JSON
+        won_puzzles=set()
+        succs=[]
+        for record in user_data['data']: # for line in data file
+            trial = record['trialdata']
+            if isinstance(trial, basestring):
+                if 'BONUS' in trial:
+                    puzzle=[s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',trial)][5]
+                    if 'BONUS_SUCCESS' in trial:
+                        is_bonus=True
+                        amount=total_bonus/num_of_bonus_puzzles
+                    elif 'BONUS_FAIL' in trial:
+                        is_bonus=False
+                        amount=0
+                    succs.append((puzzle,is_bonus,amount))
+        return render_template('show_bonus.html', success=succs, bonus=user.bonus,time=time())
     except TemplateNotFound:
         abort(404)
     except Exception as e:
@@ -136,46 +154,7 @@ def show_bonus():
         print e
 
 
-
 def bonus_by_completion(won_puzzles,bonus_puzzles):
     per_puzzle=total_bonus/num_of_bonus_puzzles
     return len(set(won_puzzles) & set(bonus_puzzles))*per_puzzle
-
-
-@custom_code.route('/compute_bonus', methods=['GET'])
-def compute_bonus():
-    print 'compute_bonus triggered!'
-    # check that user provided the correct keys
-    # errors will not be that gracefull here if being
-    # accessed by the Javascrip client
-    if not request.args.has_key('uniqueId'):
-        raise ExperimentError('improper_inputs')  # i don't like returning HTML to JSON requests...  maybe should change this
-    uniqueId = request.args['uniqueId']
-    try:
-        # lookup user in database
-        print 'lookup user'
-        user = Participant.query.\
-               filter(Participant.uniqueid == uniqueId).\
-               one()
-        user_data = loads(user.datastring) # load datastring from JSON
-        won_puzzles=set()
-        print 'going over records'
-        for record in user_data['data']: # for line in data file
-            trial = record['trialdata']
-            if isinstance(trial, basestring):
-                if 'win' in trial:
-                    won_puzzles.add([s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',trial)][5])
-        print won_puzzles
-        bonus_puzzles=sample(puzzle_files,num_of_bonus_puzzles);
-        print 'selected bonus puzzles:'+str(bonus_puzzles)
-        user.bonus = bonus_by_completion(won_puzzles,bonus_puzzles);
-        print 'calculated bonus:'+str(user.bonus)
-        db_session.add(user)
-        db_session.commit()
-        resp = {"bonusComputed": "success"}
-        return jsonify(**resp)
-    except Exception as e:
-        print e
-        current_app.logger.info(e)  # Print message to server.log for debugging 
-        abort(404)  # again, bad to display HTML, but...
 

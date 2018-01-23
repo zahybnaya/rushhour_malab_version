@@ -384,7 +384,7 @@ var BonusCalculation = function() {
     host_name=arr[2].split("/")[0];
     URL=arr[0] + "//" + host_name +'/show_bonus?uniqueId='+uniqueId; 
     window.open(URL, '_blank', 'location=0,height=500,width=650,directories=0,titlebar=0,toolbar=0,status=0,menubar=no,scrollbars=0,resizable=0');
-    psiTurk.completeHIT(); // when finished saving compute bonus, the quit
+    //psiTurk.completeHIT(); // when finished saving compute bonus, the quit
 };
 
 
@@ -421,7 +421,7 @@ var Questionnaire = function() {
 		psiTurk.saveData({
 			success: function() {
 			    clearInterval(reprompt); 
-                psiTurk.computeBonus('compute_bonus', function(){finish()}); 
+				psiTurk.computeBonus('compute_bonus', function(){finish()}); 
 			}, 
 			error: prompt_resubmit
 		});
@@ -435,8 +435,11 @@ var Questionnaire = function() {
 	    record_responses();
 	    psiTurk.saveData({
             success: function(){
-                currentview = new BonusCalculation();
-		    }, 
+		    psiTurk.computeBonus('compute_bonus', function() {
+                BonusCalculation();
+			    psiTurk.completeHIT();
+		    });
+	    }, 
 		    error: prompt_resubmit});
     });
 
