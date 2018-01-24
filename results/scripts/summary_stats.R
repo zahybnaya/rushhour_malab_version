@@ -28,28 +28,44 @@ library(reshape2)
 #####################################
 
 
+plot6<-function(moves){
+  title=strsplit(moves$instance[[2]],'-')[[1]][2]
+  g<-ggplot(moves,aes(x=moves$move_number)) + geom_line(aes(color=paste(moves$subject, moves$trial_number),y=moves$distance_to_goal), size=0.5) +
+    ggtitle(paste('puzzle ',title)) +xlab('move number') + ylab('distance from goal') +
+    guides(color=guide_legend(title="path"))+theme(legend.position="none", axis.title.x=element_blank(),axis.title.y=element_blank())
+  return(g)
+}
+moves_ins = split(moves, moves$instance)
+slplots=lapply(moves_ins, plot6)
+#slplots<-slplots[order(nchar(names(slplots)),names(slplots))]
+slplots<-slplots[order(match(names(slplots),lvls_sl), names(slplots))]
+#do.call('grid.arrange',c(slplots, ncol = 4, top = "Solution Progress"))
+do.call('grid.arrange',c(slplots, ncol = 4))
 
 
 ####################################
 # Eligibality for approve turkers
 #######################################
-setwd('~/gdrivezb9/rushhour/results/stage0/')
+setwd('~/gdrivezb9/rushhour/results/stage2/')
 d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(d, d$event != 'drag_start')
-
-w = 'A289D98Z4GAZ28:3ZV9H2YQQEFR2R3JK2IXZUJPXAF3WW' 
-w = 'A39GADIK8RLMVC:36AHBNMV1SKT9O0GSS6XX0QHZV3YDN'
-make_plot <- function (d,w){ 
-  d=subset(d, subject == w)
+make_plot <- function (d){ 
   start_time = d[1,c('time')]
   one_hour = start_time + 60*60*1000
   two_hour = start_time + 120*60*1000
-  ggplot(d, aes(x=d$time, y=d$event)) + geom_point() + geom_vline(xintercept = one_hour,linetype=2) +
+  g<-ggplot(d, aes(x=d$time, y=d$event)) + geom_point() + geom_vline(xintercept = one_hour,linetype=2) +
+    ggtitle(d[1,c('subject')])+
     geom_vline(xintercept = two_hour, linetype=1) +
     annotate("text", x = one_hour, y = 3.5, label = "60m") +
     annotate("rect", xmin = one_hour-50, xmax = one_hour+50, ymin = 3.2, ymax = 3.8,alpha = .9) +
-    annotate("text", x = two_hour, y = 3.5, label = "120m") 
+    annotate("text", x = two_hour, y = 3.5, label = "120m") + xlab('Time') +
+    theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())
+  return(g)
 }
+d_worker = split(d, d$subject)
+slplots=lapply(d_worker, make_plot)
+do.call('grid.arrange',c(slplots, ncol = 2))
+
 
 ####################################
 # Eligibality for approve turkers
