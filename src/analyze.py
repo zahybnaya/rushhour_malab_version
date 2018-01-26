@@ -2,11 +2,12 @@ import re
 from sys import argv
 from test import magsize,magsize_admissible
 from collections import namedtuple,defaultdict
-from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance, rhstring, find_piece, draw
+from rushhour import instance_dict,do_move_from_fixed,opt_solution_instances, min_manhattan_distance_calc, rhstring, find_piece, draw
 from copy import deepcopy
 #from try_pygame import show
 from astar import make_Astar, h_unblocked
 from random import random
+from os import listdir
 
 Rec=namedtuple('Rec','t event piece move_nu move instance')
 Rec.__new__.__defaults__ = (None,) * len(Rec._fields)
@@ -102,32 +103,31 @@ def show_paths(filename,instance_name):
     for p in paths:
         show(p)
 
-def calc_real_dist(filename,dist_filename):
-    rd=read_dist_log(dist_filename)
-    recs=read_log(filename)
-    instances=set([r.instance for r in recs])
-    for ins in instances:
-        paths,rs_paths=recs_to_paths(recs,ins)
-        for path,rs_path in zip(paths,rs_paths):
-            search_limit=opt_solution_instances[ins]+2
-            for i in range(len(path)):
-                state=path[i]
-                rec = rs_path[i]
-        if rec in rd:
-            print 'skipped ' +str(rec)
-            continue
-        a=make_Astar(heur=min_manhattan_distance,search_limit=search_limit)
-        the_path,stat=a(state)
-        real_dist=len(the_path)
-        if real_dist==0:
-            search_limit=opt_solution_instances[ins]+2
-        else:
-            search_limit=real_dist+2 # one for the step and one for error 
-            line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
-        subject=filename.split('/')[-1]
-        outf='../output/'+subject+'_md_dist.csv'
-        with open(outf, 'a') as f:
-            f.write(line)
+def calc_real_dist(filename):
+    json_dir = '../psiturk-rushhour/static/json'
+    jsons=listdir(json_dir)
+    jsons=[j for j in jsons if j.endswith('.json')]
+    jsons=dict([(j.split('_')[2],j.split('_')[3]) for j in jsons])
+    recs=read_psiturk_data(filename)
+    for w in uniq_order([r.worker for r in recs]):
+        recs_w = [r for r in recs if r.worker == w]
+        for ins in uniq_order([r.instance for r in recs_w if r.instance is not None]):
+            paths,rs_paths=recs_to_paths(recs,ins)
+            for path,rs_path in zip(paths,rs_paths):
+                search_limit=int(jsons[ins])+2
+                for i in range(len(path)):
+                    state=path[i]
+                    rec = rs_path[i]
+                    a=make_Astar(heur=min_manhattan_distance_calc,search_limit=search_limit)
+                    the_path,stat=a(state)
+                    real_dist=len(the_path)
+                    if real_dist!=0:
+                        search_limit=real_dist+2 # one for the step and one for error 
+                    line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
+                    print line
+                    #outf='../output/'+w+'_md_dist.csv'
+                    #with open(outf, 'a') as f:
+                     #   f.write(line)
 
 
 
@@ -162,6 +162,69 @@ def calc_real_dist(filename,dist_filename):
 #
 #
 # TODO: Add surrender,restart events to all logs
+def moves_psiturk(filename,dist_filename):
+    print 'subject, instance, optimal_length, move_number, move, pre_actions,meta_move, rt, trial_number, progress, distance_to_goal'
+    try:
+        real_dists=read_dist_log(dist_filename)
+    except:
+        real_dists=defaultdict(lambda:'NA')
+    recs=read_psiturk_data(filename)
+    pre_actions_counter=0
+    trial_number=0
+    json_dir = '../psiturk-rushhour/static/json'
+    jsons=listdir(json_dir)
+    jsons=[j for j in jsons if j.endswith('.json')]
+    jsons=dict([(j.split('_')[2],j.split('_')[3]) for j in jsons])
+
+    for r in recs:
+        ins=r.instance
+        try:
+            opt_solution=jsons[r.instance]
+        except:
+            opt_solution=999
+        move_nu=r.move_nu
+        pre_actions=pre_actions_counter
+        pre_actions_counter+=1
+        if r.event == 'start':
+            trial_number+=1
+            is_last_win=False
+            initial_time=r.t
+            pre_actions_counter=0
+            prev_dist=opt_solution
+        if r.event == 'drag_end' or r.event == 'win' :
+            move='{0}@{1}'.format(r.piece,r.move).replace(',','.').replace(' ','')
+            meta_move=r.event
+            if r.event =='win':
+                if is_last_win:
+                    continue
+                distance_to_goal=1
+                is_last_win=True
+            else:
+                distance_to_goal=real_dists[r]
+            try:
+                progress= prev_dist - distance_to_goal
+            except:
+                progress='NA'
+            try:
+                assert(progress in set([0,1,-1,'NA']))
+            except:
+                print 'prev_dist:{} distance_to_goal:{} opt_solution:{}'.format(prev_dist,distance_to_goal,opt_solution)
+                print 'progress:{}'.format(progress)
+                print r
+                progress='NA'
+
+            prev_dist=distance_to_goal
+            rt=float(r.t)-float(initial_time)
+            initial_time=r.t
+            pre_actions_counter=0
+            nodes_expanded='NA'
+            nodes_generated='NA'
+            fields=[r.worker, ins, opt_solution, move_nu, move, pre_actions, meta_move, rt, trial_number, progress, distance_to_goal]
+            print ','.join(['{}']*len(fields)).format(*fields)
+            if r.event =='win':
+                trial_number=0
+
+
 
 
 def moves(filename,dist_filename):
@@ -218,6 +281,7 @@ def moves(filename,dist_filename):
             print ','.join(['{}']*len(fields)).format(*fields)
             if r.event =='win':
                 trial_number=0
+
 
 def uniq_order(alist):
     l_u=[]

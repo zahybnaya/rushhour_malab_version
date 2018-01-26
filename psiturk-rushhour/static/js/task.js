@@ -436,7 +436,7 @@ var Questionnaire = function() {
 	    psiTurk.saveData({
             success: function(){
 		    psiTurk.computeBonus('compute_bonus', function() {
-                BonusCalculation();
+			    BonusCalculation();
 			    psiTurk.completeHIT();
 		    });
 	    }, 
