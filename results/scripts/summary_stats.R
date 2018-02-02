@@ -9,7 +9,7 @@ library(reshape2)
 # response: distribution of errors across steps in the plan 
 #           #consecutive errors
 #           distribution of negative/positive/neutral
-#           surrenders/restarts (when)    
+#           surrenders/restarts (when)
 #           RT
 #           Backtracks (of size)
 # stimuli: 
@@ -23,119 +23,16 @@ library(reshape2)
 #        3) Burst behavior
 # Others: 
 #        1) Model for error(rate) in relation to v_size,num_sccs,max_scc_size,mag_nodes,mag_edges
-#        2) number of unsafe-moves made, and/or. 
-#     
+#        2) number of unsafe-moves made, and/or.
 #####################################
 
 
-plot6<-function(moves){
-  title=strsplit(moves$instance[[2]],'-')[[1]][2]
-  g<-ggplot(moves,aes(x=moves$move_number)) + geom_line(aes(color=paste(moves$subject, moves$trial_number),y=moves$distance_to_goal), size=0.5) +
-    ggtitle(paste('puzzle ',title)) +xlab('move number') + ylab('distance from goal') +
-    guides(color=guide_legend(title="path"))+theme(legend.position="none", axis.title.x=element_blank(),axis.title.y=element_blank())
-  return(g)
-}
-moves_ins = split(moves, moves$instance)
-slplots=lapply(moves_ins, plot6)
-#slplots<-slplots[order(nchar(names(slplots)),names(slplots))]
-slplots<-slplots[order(match(names(slplots),lvls_sl), names(slplots))]
-#do.call('grid.arrange',c(slplots, ncol = 4, top = "Solution Progress"))
-do.call('grid.arrange',c(slplots, ncol = 4))
-
-
-####################################
-# Eligibality for approve turkers
-#######################################
-setwd('~/gdrivezb9/rushhour/results/stage2/')
-d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(d, d$event != 'drag_start')
-make_plot <- function (d){ 
-  start_time = d[1,c('time')]
-  one_hour = start_time + 60*60*1000
-  two_hour = start_time + 120*60*1000
-  g<-ggplot(d, aes(x=d$time, y=d$event)) + geom_point() + geom_vline(xintercept = one_hour,linetype=2) +
-    ggtitle(d[1,c('subject')])+
-    geom_vline(xintercept = two_hour, linetype=1) +
-    annotate("text", x = one_hour, y = 3.5, label = "60m") +
-    annotate("rect", xmin = one_hour-50, xmax = one_hour+50, ymin = 3.2, ymax = 3.8,alpha = .9) +
-    annotate("text", x = two_hour, y = 3.5, label = "120m") + xlab('Time') +
-    theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())
-  return(g)
-}
-d_worker = split(d, d$subject)
-slplots=lapply(d_worker, make_plot)
-do.call('grid.arrange',c(slplots, ncol = 2))
-
-
-####################################
-# Eligibality for approve turkers
-#######################################
-setwd('~/gdrivezb9/rushhour/results/stage0/')
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
-                     ,levels = rev(c('Solved','Restart','Surrender')))
-#skipped => surrender
-#!skipped & !complete => NA
-w = 'A289D98Z4GAZ28:3ZV9H2YQQEFR2R3JK2IXZUJPXAF3WW' 
-w = 'A39GADIK8RLMVC:36AHBNMV1SKT9O0GSS6XX0QHZV3YDN'
-
-paths=subset(paths, subject == w)
-start_exp=paths[1,c('start_time')]
-end_exp = start_exp + 120*60*1000
-ggplot(paths, aes(x=paths$end_time, y=paths$status)) + geom_point() + xlim(start_exp, end_exp)
-
-
-for (w in levels(p$subject)){
-  
-  
-  
-}
-
-
-
-######################################################################
-# P40: Multiple histograms for instance stats for selection  
-#####################################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-i=read.csv('instance_stats.csv')
-p=read.csv('paths.csv')
-p=subset(p, complete=='True')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance', all=FALSE)
-p1<-ggplot(d, aes(x = d$v_size)) + geom_histogram(binwidth = 1) + xlab('#vertical cars') 
-p3<-ggplot(d, aes(x = d$mag_nodes)) + geom_histogram(binwidth = 1)+ xlab('#nodes in mag')
-p4<-ggplot(d, aes(x = d$path_length)) + geom_histogram(binwidth = 1)+ xlab('path length')
-p5<-ggplot(d, aes(x = d$mag_edges)) + geom_histogram(binwidth = 1)+ xlab('#edges in mag')
-p6<-ggplot(d, aes(x = d$num_sccs)) + geom_histogram(binwidth = 1)+ xlab('#SCC')
-p7<-ggplot(d, aes(x = d$max_scc_size)) + geom_histogram(binwidth = 1)+ xlab('max SCC size')
-grid.arrange(p4,p1,p5,p3,p6,p7, ncol=2, top='Pilot instances')
-
-
-
-##########################################################################
-# P41: Heatmap of correlation of difficulty and instance charecteristics
-#########################################################################
-setwd('~/gdrivezb9/rushhour/results/pilot/')
-p=read.csv('paths.csv')
-i=read.csv('instance_stats.csv')
-names(i)[names(i) == 'jsonfile'] <- 'instance'
-d=merge(p,i, by = 'instance')
-dn=d[,c(3,4,6,11,12,13,14,15,17,18)]
-dn$err_norm <- (dn$human_length-dn$optimal_length)/dn$optimal_length
-dn$err <- (dn$human_length-dn$optimal_length)
-cormat<-round(cor(dn, method = 'spearman'),2)
-library(reshape2)
-melted_cormat <- melt(cormat)
-ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) + 
-  geom_tile() + geom_text(aes(label = melted_cormat$value))
-
 
 ######################################################## 
-# Pilot Data analysis
+# Data analysis
 #######################################################
-
-setwd("~/gdrivezb9/rushhour/results/pilot")
-figpath<-'../../docs/ccn/figures'
+setwd("~/gdrivezb9/rushhour/results/all_stages/")
+figpath<-'../../docs/figures'
 
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 #sort by experiment design
@@ -155,295 +52,22 @@ mean_sem_ <- function(x) {
 }
 
 
-
-######################################################## 
-# Plot 33:   Error ratio of models.
-#######################################################
-setwd("~/gdrivezb9/rushhour/results/lrta")
-lrta=read.csv('lrta_phs.csv', header = TRUE)
-alg_lvls=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','A*h:min_manhattan_distancef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0','A*h:min_manhattan_distancef:0*(g+1)+1.5histop:<lambda>lapse:0slapse:0reca:100.0','A*h:magsizef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0')
-alg_lbl=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','manhat','1.5manhat','magsize')
-lrta$instance <- factor(lrta$instance, levels = lvls_e, labels = 1:length(lvls_e))
-lrta$alg <- factor(lrta$alg, levels = alg_lvls , labels = alg_lvls)
-
-lrta=subset(lrta, step==1)
-lrta$error_ratio = lrta$alg_path/lrta$optimal_path
-lrta$learning_iters = lrta$learning_iters*lrta$h_weight
-lrta$learning_iters = factor(lrta$learning_iters)
-ggplot(lrta, aes(x=instance, y=error_ratio)) + geom_bar(stat = 'identity',position = 'dodge',aes(fill=learning_iters),size=2) +
-  scale_fill_grey(start = .8, end = .0) + theme_bw() + 
-  ggtitle('Effect of learning on errors') 
-
-
-########################################################### 
-# Plot 34:   Scatter plot of average errors and algorithms
-###########################################################
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True')
-paths$human_error_ratio = paths$human_length/paths$optimal_length
-t1=aggregate(paths, by = list('instance'=paths$instance), FUN='sd')$human_error_ratio
-t2=aggregate(paths, by = list('instance'=paths$instance), FUN='length')$human_error_ratio
-sem=t1/sqrt(t2)
-paths_ag=aggregate(paths, by = list('instance'=paths$instance), FUN='mean')
-paths_ag=paths_ag[,c('instance','human_error_ratio')]
-paths_ag$sem=sem
-setwd("~/gdrivezb9/rushhour/results/lrta")
-lrta=read.csv('lrta_phs.csv', header = TRUE)
-alg_lvls=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','A*h:min_manhattan_distancef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0','A*h:min_manhattan_distancef:0*(g+1)+1.5histop:<lambda>lapse:0slapse:0reca:100.0','A*h:magsizef:0*(g+1)+1histop:<lambda>lapse:0slapse:0reca:100.0')
-alg_lbl=c('lrta0','lrta1','lrta2','lrta3','lrta4','lrta5','manhat','1.5manhat','magsize')
-lrta$instance <- factor(lrta$instance, levels = lvls_e, labels = 1:length(lvls_e))
-lrta$alg <- factor(lrta$alg, levels = alg_lvls , labels = alg_lbl)
-lrta=subset(lrta, step==1)
-lrta$alg_error_ratio = lrta$alg_path/lrta$optimal_path
-lrta$learning_iters = lrta$learning_iters*lrta$h_weight
-lrta$learning_iters = factor(lrta$learning_iters)
-d=merge(lrta,paths_ag, by = 'instance')
-ggplot(d, aes(x=human_error_ratio, y=alg_error_ratio)) + geom_point(aes(color=alg),size=2) + 
-  + geom_text(cor(d$human_error_ratio,d$alg_error_ratio, method = 'spearman'))+
-  facet_grid(. ~ alg) + geom_abline(slope = 1) + scale_fill_grey(start = .8, end = .0) + 
-  geom_errorbar(aes(ymin=alg_error_ratio-sem, ymax=alg_error_ratio+sem))+
-  theme_bw() + ggtitle('Error ratio of alg/humans') + ylim(1,5)
-
-
-########################################################### 
-# Plot 34.1:   Scatter plot of average errors and algorithms (LRTA5)
-###########################################################
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True')
-paths$human_error_ratio = paths$human_length/paths$optimal_length
-paths_ag=aggregate(paths, by = list('instance'=paths$instance), FUN='mean')
-paths_ag=paths_ag[,c('instance','human_error_ratio')]
-setwd("~/gdrivezb9/rushhour/results/lrta")
-lrta=read.csv('lrta.csv', header = TRUE)
-lrta$instance <- factor(lrta$instance, levels = lvls_e, labels = 1:length(lvls_e))
-lrta=subset(lrta, step==1)
-lrta=subset(lrta, lrta$alg=='lrta5')
-lrta$alg_error_ratio = lrta$alg_path/lrta$optimal_path
-lrta$learning_iters = lrta$learning_iters*lrta$h_weight
-lrta$learning_iters = factor(lrta$learning_iters)
-d=merge(lrta,paths_ag, by = 'instance')
-
-ggplot(d, aes(x=human_error_ratio, y=alg_error_ratio)) + geom_point(aes(color=learning_iters),size=2) +
-  geom_abline(slope = 1) + scale_fill_grey(start = .8, end = .0) + theme_bw() + 
-  ggtitle('Error ratio of alg/humans') 
-
-
-
-####
-#  Plot 29: Bar plot of which model explains difficulty better? (Pure H, manhattan, 0 heuristics.) 
-#### 
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True' & !(paths$instance %in% c('22','23','24')))
-
-p1<-ggplot(paths, aes(x=paths$instance, y=paths$human_length)) + stat_summary(geom='bar',fun.y = 'mean') +
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2) +
-  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')
-p3<-ggplot(paths, aes(x=paths$instance, y=paths$rt)) + stat_summary(geom='bar',fun.y = 'mean') +
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-
-d=read.csv('rid.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d$instance=factor(d$puzzle, levels = lvls_e, labels = 1:length(lvls_e))
-
-p2<-ggplot(d, aes(x=instance)) + stat_summary(aes(y=expanded), geom='bar', fun.y = 'mean') + 
-  facet_grid(alg ~ . ,scales = 'free')+
-  stat_summary(aes(y=expanded), geom='errorbar', fun.data = mean_sem, width=0.2) 
-grid.arrange(p1,p2,ncol = 1)
-
-########
-## P30 : Scatter plots of Spearman corellations between expanded nodes and error_ratios
-##########
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True' & !(paths$instance %in% c('22','23','24')))
-paths$optimal_length<-paths$optimal_length+1
-rid=read.csv('rid.csv', header = TRUE, sep=',',stringsAsFactors=F)
-rid$instance=factor(rid$puzzle, levels = lvls_e, labels = 1:length(lvls_e))
-d=ddply(rid, .(instance,alg), function(x){return(mean(x$expanded))})
-names(d)<-c('instance','alg','expanded')
-d1=merge(d,paths,by = c('instance'))
-d1$error_ratio=d1$human_length/d1$optimal_length
-d1$error_n=d1$human_length-d1$optimal_length
-s<-ddply(d1, .(subject, alg), function(x){return(cor(x$expanded, x$error_ratio, method = 'spearman'))} )
-names(s)<-c('subject','alg','spearman')
-dc<-dcast(s, subject ~ alg)
-names(dc)<-c('subject', 'H','H+G','G')
-p1<-ggplot(dc, aes(x=dc$H, y=dc$`H+G`)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ 
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' heuristics + distance')
-p2<-ggplot(dc, aes(x=dc$H, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
- geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' distance only')
-p3<-ggplot(dc, aes(x=dc$`H+G`, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics + distance') + ylab(' distance only')
-Cairo(file=paste(figpath,"/p30.png",sep=''), 
-      type="png",
-      units="px", 
-      width=1124, 
-      height=320,
-      pointsize=12, 
-      dpi=72*2)
-grid.arrange(p1,p2,p3, ncol=3, top='Spearman coefficients of #expaned and error ratio')
-dev.off()
-
-
-########
-## P31 : Scatter plots of Spearman corellations between expanded nodes and RT
-##########
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True' & !(paths$instance %in% c('22','23','24')))
-paths$optimal_length<-paths$optimal_length+1
-rid=read.csv('rid.csv', header = TRUE, sep=',',stringsAsFactors=F)
-rid$instance=factor(rid$puzzle, levels = lvls_e, labels = 1:length(lvls_e))
-d=ddply(rid, .(instance,alg), function(x){return(mean(x$expanded))})
-names(d)<-c('instance','alg','expanded')
-d1=merge(d,paths,by = c('instance'))
-d1$error_ratio=d1$human_length/d1$optimal_length
-d1$error_n=d1$human_length-d1$optimal_length
-s<-ddply(d1, .(subject, alg), function(x){return(cor(x$expanded, x$rt, method = 'spearman'))} )
-names(s)<-c('subject','alg','spearman')
-dc<-dcast(s, subject ~ alg)
-names(dc)<-c('subject', 'H','H+G','G')
-p1<-ggplot(dc, aes(x=dc$H, y=dc$`H+G`)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ 
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' heuristics + distance')
-p2<-ggplot(dc, aes(x=dc$H, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' distance only')
-p3<-ggplot(dc, aes(x=dc$`H+G`, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics + distance') + ylab(' distance only')
-Cairo(file=paste(figpath,"/p31.png",sep=''), 
-      type="png",
-      units="px", 
-      width=1124, 
-      height=320,
-      pointsize=12, 
-      dpi=72*2)
-grid.arrange(p1,p2,p3, ncol=3, top='Spearman coefficients of #expaned and Response times')
-dev.off()
-
-
-
-########
-## P32 : Scatter plots of Spearman corellations between Solution lengths
-##########
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-paths=subset(paths,paths$complete=='True' & !(paths$instance %in% c('22','23','24')))
-paths$optimal_length<-paths$optimal_length+1
-rid=read.csv('rid.csv', header = TRUE, sep=',',stringsAsFactors=F)
-rid$instance=factor(rid$puzzle, levels = lvls_e, labels = 1:length(lvls_e))
-d=ddply(rid, .(instance,alg), function(x){return(mean(x$path))})
-names(d)<-c('instance','alg','path_length')
-d1=merge(d,paths,by = c('instance'))
-d1$error_ratio=d1$human_length/d1$optimal_length
-d1$error_n=d1$human_length-d1$optimal_length
-s<-ddply(d1, .(subject, alg), function(x){return(cor(x$path_length, x$human_length, method = 'spearman'))} )
-names(s)<-c('subject','alg','spearman')
-dc<-dcast(s, subject ~ alg)
-names(dc)<-c('subject', 'H','H+G','G')
-p1<-ggplot(dc, aes(x=dc$H, y=dc$`H+G`)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ 
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' heuristics + distance')
-p2<-ggplot(dc, aes(x=dc$H, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics only') + ylab(' distance only')
-p3<-ggplot(dc, aes(x=dc$`H+G`, y=dc$G)) + geom_point() + xlim(-1,1) + ylim(-1,1)+ geom_abline(slope = 1, intercept = 0)+
-  geom_abline(slope = 1, intercept = 0) + xlab('heuristics + distance') + ylab(' distance only')
-Cairo(file=paste(figpath,"/p31.png",sep=''), 
-      type="png",
-      units="px", 
-      width=1124, 
-      height=320,
-      pointsize=12, 
-      dpi=72*2)
-grid.arrange(p1,p2,p3, ncol=3, top='Spearman coefficients of Solution lengths')
-dev.off()
-
-
-
-####
-# Plot 26.X: bar plot of expaned nodes 
-#####
-setwd("~/gdrivezb9/rushhour/src/")
-d=read.csv('data_456', header = TRUE, sep=',',stringsAsFactors=F)
-ggplot(d, aes(x=puzzle, y=expanded)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=generated)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=close)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=open)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-
-########
-## Plot 27.X: bar plot of expaned nodes (pure heuristics) 
-###########
-d=read.csv('data_456_pureh', header = TRUE, sep=',',stringsAsFactors=F)
-ggplot(d, aes(x=puzzle, y=expanded)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=generated)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=close)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=open)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-#solution length
-ggplot(d, aes(x=puzzle, y=length)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-
-
-###########
-## No heuristics. 
-########
-## Plot 28.X: bar plot of expaned nodes (no heuristics) 
-###########
-
-###########
-d=read.csv('data_456_0', header = TRUE, sep=',',stringsAsFactors=F)
-ggplot(d, aes(x=puzzle, y=expanded)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=generated)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=close)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-ggplot(d, aes(x=puzzle, y=open)) + stat_summary(geom='bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2)
-
-
-
-
-########
-# TMP plot
-#########
-setwd("~/gdrivezb9/rushhour/results/pilot")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, complete=='True' & paths$instance %in% c('Jam-4','Jam-5','Jam-6'))
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-g<-ggplot(paths, aes(x = paths$instance)) + 
-  stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
-  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
-  stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
-  xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
-g
-
-
-###
+##################################################################################################
 # Plot 1: Scatter plot of Human solution length, vs Optimal solution length, shape/color by instance.
-###
-setwd("~/gdrivezb9/rushhour/results/pilot")
+###################################################################################################
+setwd("~/gdrivezb9/rushhour/results/all_stages")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(paths, paths$complete=='True')
 d$instance=factor(d$instance, levels = lvls_sl)
 ggplot(d, aes(x=d$optimal_length))+ geom_point(stroke=2,aes(y=d$human_length, shape=d$subject))+
-  scale_shape_manual(values = 1:11, guide=FALSE)+
+  scale_shape_manual(values = 1:25, guide=FALSE)+
    xlab('Optimal solution') + ylab('Human solution')
 
 ########
 ## Plot 2: Bar Plot of instances optimal lengths.
 #######
-paths=read.csv('paths.fake.nodes.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=aggregate(paths, by = list(instance=paths$instance), FUN=mean)[,c('instance', 'optimal_length','nodes_expanded')]
 d$instance=factor(d$instance, levels = lvls_e, labels = 1:length(lvls_e))
 g<-ggplot(d, aes(x = d$instance)) +geom_bar(stat="identity",aes(y = d$optimal_length)) + xlab('puzzle') + ylab('Optimal length') +
@@ -459,18 +83,10 @@ g
 dev.off()
 
 
-
-######
-## Plot 2.1: Bar Plot of instances expanded nodes.
-#######
-paths=read.csv('paths.fake.nodes.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=aggregate(paths, by = list(instance=paths$instance), FUN=mean)[,c('instance', 'optimal_length','nodes_expanded')]
-d$instance=factor(d$instance, levels = lvls_e)
-
-
 ######
 ## Plot 2.2: Bar Plot of instances human length.
 #######
+setwd("~/gdrivezb9/rushhour/results/all_stages")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths=subset(paths, complete=='True')
 paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
@@ -489,21 +105,21 @@ Cairo(file=paste(figpath,"/p2_2c.png",sep=''),
 g
 dev.off()
 
-###
+####################
 # Plot 3: scatter plot of response-time as move number, by subject
 # per path
-###
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+####################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subject)) +
-  scale_color_manual(values=1:11, guide=FALSE)+
+  scale_color_manual(values=1:34, guide=FALSE)+
   ggtitle("Response Times") + xlab('move number') + ylab('Seconds') + ylim(0,90)
 
 
 
-###
+###################
 # Plot 3.1: scatter plot of response-time as move number, by subject
-###
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+###################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 g<-ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt)) +
    xlab('move number') + ylab('seconds') + ylim(0,90) +
   theme(text = element_text(size=18))
@@ -518,10 +134,11 @@ g
 dev.off()
 
 
-#######
-#  Plot 3.2: Spearman correlations of RT
-#########
+####################
+#  Plot 3.2: Spearman correlations of RT and move#
+####################
 require(plyr)
+
 cor_move_rt <- function(xx)
 {
   return(data.frame(COR = cor(xx$move_number, xx$rt, method = "spearman")))
@@ -530,7 +147,7 @@ cor_dist_rt <- function(xx)
 {
   return(data.frame(COR = cor(xx$distance_to_goal, xx$rt, method = "spearman")))
 }
-
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=ddply(moves, .(subject), cor_dist_rt)
 d$type='distance to goal'
 d1=ddply(moves, .(subject), cor_move_rt)
@@ -540,7 +157,6 @@ cors=ddply(d2,.(type), function(x){return(mean_sem(x$COR))})
 cors$sem=(cors$ymax-cors$ymin)/2
 ggplot(d2, aes(x=type, y=COR)) + stat_summary(geom = 'bar', fun.data = mean_sem) +
   stat_summary(geom = "errorbar", fun.data = mean_sem, width=0.22) 
-
 
 
 ###
@@ -568,14 +184,11 @@ do_plot<-function(moves) {
 }
 k<-burst_analysis(function(x){return(mean(x))},spearman_corr,1000)
 hbursts=head(k[order(k$diff,decreasing = T),c('path')], 100)
-
 moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 #moves=subset(moves, moves$path in hbursts)
-
 moves_sp=split(moves, moves$path)
 moves_sp=tail(moves_sp, n = 100)
-
 slplots<-lapply(moves_sp,do_plot)
 do.call('grid.arrange',c(slplots, ncol = 5))
 
@@ -592,7 +205,7 @@ dev.off()
 ###
 # Plot 4: Bar plot of how many moves on each move number
 ###
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=moves$move_number, fill=instance)) + geom_bar() + ggtitle("occurences per move_number")
 
 
@@ -600,7 +213,7 @@ ggplot(moves, aes(x=moves$move_number, fill=instance)) + geom_bar() + ggtitle("o
 # Plot 5: Bar plot of number of (good, neutral, wrong) moves
 # scale_fill_manual(values = c('darkred','darkorange','darkgreen'))
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
 moves<-subset(moves, category!='NA')
 g<-ggplot(moves,aes(x=moves$category)) + geom_bar(aes(fill=moves$category)) + xlab('move')  +guides(fill=FALSE)
@@ -619,7 +232,7 @@ dev.off()
 ####
 # Plot 6: Line plot of progress of every solution path
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 plot6<-function(moves){
   title=strsplit(moves$instance[[2]],'-')[[1]][2]
   g<-ggplot(moves,aes(x=moves$move_number)) + geom_line(aes(color=paste(moves$subject, moves$trial_number),y=moves$distance_to_goal), size=0.5) +
@@ -713,7 +326,7 @@ plot6(moves)
 
 
 
-####
+#####
 # Plot 7: Bar plot of restrats/skipped/solved instance Status
 #####
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
