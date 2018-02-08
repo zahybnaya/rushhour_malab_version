@@ -12,7 +12,7 @@ from os import listdir
 Rec=namedtuple('Rec','t event piece move_nu move instance')
 Rec.__new__.__defaults__ = (None,) * len(Rec._fields)
 
-PsiturkRec=namedtuple('PsiturkRec','worker ord t event piece move_nu move instance')
+PsiturkRec=namedtuple('PsiturkRec','worker assignment ord t event piece move_nu move instance')
 PsiturkRec.__new__.__defaults__ = (None,) * len(PsiturkRec._fields)
 
 #debugPv12P:debugP70lV,6,1512669772746,""" t:[1512669772746] event:[start] piece:[NA] move#:[0] move:[NA] instance:[prb42331]"""
@@ -21,7 +21,10 @@ def read_psiturk_data(filename):
     recs=[]
     with open(filename,'r') as log:
         for l in log:
-            v=l.split(',')[:2]
+            if 'event' not in l:
+                continue
+            v=l.split(',')[0].split(':')
+            v.append(l.split(',')[1])
             v+=[s.replace('[','').replace(']','') for s in re.findall('\[.*?\]',l)]
             recs.append(PsiturkRec(*v))
     return recs
@@ -291,25 +294,29 @@ def uniq_order(alist):
     return l_u
 
 def psiturk_paths(filename):
-    print 'subject, instance, optimal_length, human_length, complete, start_time, end_time, rt,nodes_expanded, skipped, trial_number'
+    print 'subject,assignment, instance, optimal_length, human_length, complete, start_time, end_time, rt,nodes_expanded, skipped, trial_number'
     recs=read_psiturk_data(filename)
+    json_dir = '../psiturk-rushhour/static/json'
+    jsons=listdir(json_dir)
+    jsons=[j for j in jsons if j.endswith('.json')]
+    jsons=dict([(j.split('_')[2],j.split('_')[3]) for j in jsons])
     for w in uniq_order([r.worker for r in recs]):
         recs_w = [r for r in recs if r.worker == w]
-        instances=uniq_order([r.instance for r in recs_w if r.instance is not None])
-        for ins in instances:
-            opt_solution=999
+        for ins in uniq_order([r.instance for r in recs_w if r.instance is not None]):
+            opt_solution=jsons[ins]
             nodes_expanded=999
             paths,rs_paths=recs_to_paths(recs_w,ins)
             trial_number=0
             for p,rs_p in zip(paths,rs_paths):
                 subject = rs_p[0].worker
+                assignment = rs_p[0].assignment
                 solved= p[-1].is_goal()
                 skipped= (trial_number==(len(paths)-1) and not solved)
                 assert(rs_p[0].event=='start')
                 start_time = float(rs_p[0].t)
                 end_time = float(rs_p[-1].t)
                 ttl_time = end_time - start_time
-                fields=[subject, ins, opt_solution, len(p), solved, start_time, end_time,ttl_time, nodes_expanded, skipped, trial_number]
+                fields=[subject, assignment, ins, opt_solution, len(p), solved, start_time, end_time,ttl_time, nodes_expanded, skipped, trial_number]
                 print ','.join(['{}']*len(fields)).format(*fields)
                 trial_number+=1
                 assert(len(p)==len(rs_p))

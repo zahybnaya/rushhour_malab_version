@@ -137,7 +137,7 @@ puzzle_files=[ 'static/json/1509606178_29_prb54081_11_.json','static/json/151386
 		moves=0
 		surrenderButton.attr("xlink:href", "static/images/surrender_disabled.png");
 		svg.selectAll('rect.car').remove();
-		d3.json(puzzle_file,j_callback);
+		return d3.json(puzzle_file,j_callback);
 	});
 	surrenderButton.on('click',function(){
 		if (moves<enable_surrender){
@@ -155,7 +155,7 @@ puzzle_files=[ 'static/json/1509606178_29_prb54081_11_.json','static/json/151386
 		moves=0;
 		surrenderButton.attr("xlink:href", "static/images/surrender_disabled.png");
 		puzzle_file = puzzle_files[puzzle_number++];
-		d3.json(puzzle_file,j_callback);
+		return d3.json(puzzle_file,j_callback);
 		svg.selectAll('#great').remove();
 	});
 
@@ -220,7 +220,6 @@ puzzle_files=[ 'static/json/1509606178_29_prb54081_11_.json','static/json/151386
 		message=' t:['+moment()+'] event:[drag_end] piece:['+d.id+'] move#:['+moves+'] move:['+newPosition+'] instance:['+puzzle_id+']';
 		psiTurk.recordTrialData(message);
 		psiTurk.saveData();	
-		console.log(message)
 		if (Math.abs(distance) > 0) {
 			d3.select('#moves').text(++moves);
 			if (moves>enable_surrender){
@@ -249,11 +248,13 @@ puzzle_files=[ 'static/json/1509606178_29_prb54081_11_.json','static/json/151386
 				moves=0;
 				surrenderButton.attr("xlink:href", "static/images/surrender_disabled.png");
 				puzzle_file = puzzle_files[puzzle_number++];
-				d3.json(puzzle_file,j_callback);
+				//d3.json(puzzle_file,j_callback);
 				gameWon=false;
 				svg.selectAll('#great').remove();
 				svg.selectAll('#pak').remove();
 				timer = setInterval(updateTimer, 1000);
+
+				return d3.json(puzzle_file,j_callback);
 			});
 		}
 		return ret;
@@ -371,7 +372,7 @@ puzzle_files=[ 'static/json/1509606178_29_prb54081_11_.json','static/json/151386
 				}
 			}).call(drag);
 		};
-	d3.json(puzzle_file,j_callback);
+	return d3.json(puzzle_file,j_callback);
 
 };//RushhourExperiment
 

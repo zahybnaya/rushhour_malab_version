@@ -30,10 +30,10 @@ library(reshape2)
 
 ######################################################## 
 # Data analysis
+# - General
 #######################################################
 setwd("~/gdrivezb9/rushhour/results/all_stages/")
-figpath<-'../../docs/figures'
-
+figpath<-'../../paper/figures'
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 #sort by experiment design
 lvls_e  = unique(paths[order(nchar(paths$instance),paths$instance),c('instance')])
@@ -63,9 +63,9 @@ ggplot(d, aes(x=d$optimal_length))+ geom_point(stroke=2,aes(y=d$human_length, sh
   scale_shape_manual(values = 1:25, guide=FALSE)+
    xlab('Optimal solution') + ylab('Human solution')
 
-########
+##############################
 ## Plot 2: Bar Plot of instances optimal lengths.
-#######
+##############################
 setwd("~/gdrivezb9/rushhour/results/all_stages")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=aggregate(paths, by = list(instance=paths$instance), FUN=mean)[,c('instance', 'optimal_length','nodes_expanded')]
@@ -82,6 +82,97 @@ Cairo(file=paste(figpath,"/p2.png",sep=''),
 g
 dev.off()
 
+###################################################
+##  Checking the linear relationship
+################################################# 
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err <- (d$human_length-d$optimal_length)
+d$err_norm <- (d$err)/d$optimal_length
+d$err_ratio <- (d$human_length/d$optimal_length)
+
+f<-function(d,name){
+  g1<-ggplot(d, aes_string(x=name, y=d$err)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem) + ggtitle('err') + ylab('')
+  g2<-ggplot(d, aes_string(x=name, y=d$err_norm)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_norm')+ ylab('')
+  g3<-ggplot(d, aes_string(x=name, y=d$err_ratio)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_ratio')+ ylab('')
+  g4<-ggplot(d, aes_string(x=name, y=d$rt)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('rt')+ ylab('')
+  grid.arrange(g1,g2,g3,g4)
+}
+
+sl=split(d,as.factor(d$optimal_length))
+f(sl$`7`,'avg_bf')
+f(sl$`11`,'avg_bf')
+f(sl$`14`,'avg_bf')
+f(sl$`16`,'avg_bf')
+
+f(sl$`7`,'mag_nodes')
+f(sl$`11`,'mag_nodes')
+f(sl$`14`,'mag_nodes')
+f(sl$`16`,'mag_nodes')
+
+
+f(sl$`7`,'mag_edges')
+f(sl$`11`,'mag_edges')
+f(sl$`14`,'mag_edges')
+f(sl$`16`,'mag_edges')
+
+f(sl$`7`,'avg_location_size')
+f(sl$`11`,'avg_location_size')
+f(sl$`14`,'avg_location_size')
+f(sl$`16`,'avg_location_size')
+
+f(sl$`7`,'max_scc_size')
+f(sl$`11`,'max_scc_size')
+f(sl$`14`,'max_scc_size')
+f(sl$`16`,'max_scc_size')
+
+f(sl$`7`,'num_sccs')
+f(sl$`11`,'num_sccs')
+f(sl$`14`,'num_sccs')
+f(sl$`16`,'num_sccs')
+
+
+#######################################
+##  Plot 4: Correlation matrix. Show relationship between instances and perofrmance.
+###################################### 
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
+d$err <- (d$human_length-d$optimal_length)
+d=d[,c('optimal_length','human_length','rt','err','err_norm','v_size', 'mag_nodes',
+       'mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_location_size')]
+cormat=round(cor(d,method = "spearman"),3)
+library('reshape2')
+melted=melt(cormat)
+melted=subset(melted, melted$Var2 %in% c('err','err_norm','rt'))
+ggplot(melted, aes(x=melted$Var1, y=melted$Var2, fill=melted$value)) + geom_tile()+ geom_text(label = melted$value)
+
+
+##############################################
+##  stat 5: p.values and corelation coefficients.
+##############################################
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
+d$err <- (d$human_length-d$optimal_length)
+factors<-c('v_size', 'mag_nodes','mag_edges','num_sccs','max_scc_size','avg_bf','avg_location_size')
+responses<-c('optimal_length','human_length','rt','err','err_norm')
+k=expand.grid(factors,responses)
+k$pval=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$p.value})
+k$estimate=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$estimate})
+
+
+
+
 
 ######
 ## Plot 2.2: Bar Plot of instances human length.
@@ -89,12 +180,14 @@ dev.off()
 setwd("~/gdrivezb9/rushhour/results/all_stages")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths=subset(paths, complete=='True')
+paths=subset(paths, subject=='A191V7PT3DQKDP:3PMBY0YE28B43VMUKKJ6EDF85RV9C8')
 paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
 g<-ggplot(paths, aes(x = paths$instance)) + 
   stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
   stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
   stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
   xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
+g
 Cairo(file=paste(figpath,"/p2_2c.png",sep=''), 
       type="png",
       units="px", 
@@ -105,11 +198,29 @@ Cairo(file=paste(figpath,"/p2_2c.png",sep=''),
 g
 dev.off()
 
+
+######
+## Plot 2.3: Bar Plot of instances human length per subject.
+#######
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, complete=='True')
+paths=subset(paths, subject=='A191V7PT3DQKDP:3PMBY0YE28B43VMUKKJ6EDF85RV9C8')
+paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
+g<-ggplot(paths, aes(x = paths$instance)) + 
+  stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
+  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
+  stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
+  xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
+g
+dev.off()
+
 ####################
 # Plot 3: scatter plot of response-time as move number, by subject
 # per path
 ####################
 moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=subset(moves, moves$move_number<150)
 ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subject)) +
   scale_color_manual(values=1:34, guide=FALSE)+
   ggtitle("Response Times") + xlab('move number') + ylab('Seconds') + ylim(0,90)
@@ -326,9 +437,9 @@ plot6(moves)
 
 
 
-#####
+##########
 # Plot 7: Bar plot of restrats/skipped/solved instance Status
-#####
+##########
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
                      ,levels = rev(c('Solved','Restart','Surrender')))
@@ -339,6 +450,7 @@ g<-ggplot(paths, aes(x=paths$instance, na.rm=T)) + geom_bar(aes(fill=status)) + 
   scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
   theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
   theme(legend.text = element_text(size=14), legend.key.height = unit(0.4,'cm'),legend.key.width = unit(0.4,'cm') )
+g
 Cairo(file=paste(figpath,"/p7.png",sep=''), 
       type="png",
       units="px", 
@@ -349,7 +461,23 @@ Cairo(file=paste(figpath,"/p7.png",sep=''),
 g
 dev.off()
 
+####################################
+# Plot 7.1: Subjects with statuses
+####################################
 
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
+                     ,levels = rev(c('Solved','Restart','Surrender')))
+paths=subset(paths,status!= 'NA' & instance !='Jam-25')
+g<-ggplot(paths, aes(x=paths$subject, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('puzzle') + ylab('#subejcts')+
+  scale_y_continuous(breaks=1:length(unique(paths$instance)))+ 
+  scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
+  theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
+  theme(legend.text = element_text(size=14), legend.key.height = unit(0.4,'cm'),legend.key.width = unit(0.4,'cm') )
+g
+k=aggregate(paths , by = list('subject'=paths$subject, 'status'=paths$status), FUN = 'length')
+k=k[,c('subject','status','instance')]
+names(k)<-c('subject','status','value')
 ####  
 # Plot 8: Bar plot of #Moves Category Across Subjects
 ####  

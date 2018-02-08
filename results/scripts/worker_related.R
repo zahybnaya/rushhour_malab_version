@@ -7,9 +7,8 @@ library(reshape2)
 ####################################
 # Activity plot for turkers
 #######################################
-setwd('~/gdrivezb9/rushhour/results/stage4/')
+setwd('~/gdrivezb9/rushhour/results/stage1/')
 d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(d,d$assignmentid %in% c('3YW4XOSQKRTI0K0Z2YPDTDJVFABU1I','3M0BCWMB8W4W5M7WZVX3HDH1M3FBWL','3TS1AR6UQRM7SOIBWPBN8N9589Y7FV'))
 d=subset(d, d$event != 'drag_start')
 
 make_plot <- function (d){ 
@@ -32,7 +31,7 @@ do.call('grid.arrange',c(slplots, ncol = 2))
 ####################################
 # Eligibility table for turkers
 #######################################
-setwd('~/gdrivezb9/rushhour/results/stage3/')
+setwd('~/gdrivezb9/rushhour/results/stage5/')
 d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(d, d$event != 'drag_start')
 wins=ddply(d, .(subject), function(x){return(length(unique(x[which(x$event=='win'),c('instance')])))})

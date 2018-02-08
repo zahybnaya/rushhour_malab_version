@@ -24,6 +24,7 @@ from os import listdir
 from os.path import join, isfile
 
 from random import randint,choice,sample
+from instances_selected_set4_list import puzzle_files
 
 
 def generate_instance(min_path_length,max_path_length,cars_2,cars_3):
@@ -175,6 +176,7 @@ def instance_stat_raw(ins):
 
 def instance_stat(jsonfile):
     ins = json_to_ins(jsonfile)
+    instance=jsonfile.split('_')[2]
     sz=[s for c,l,s in ins.h.values()+ins.v.values()]
     car_2 = str(len([1 for s in sz if s==2]))
     car_3 = str(len([1 for s in sz if s==3]))
@@ -187,7 +189,9 @@ def instance_stat(jsonfile):
     num_sccs=str(len([1 for scc in sccs if len(scc)>=2]))
     max_scc_size=str(max([len(scc) for scc in sccs]))
     path_length = jsonfile.split('_')[3]
-    return ','.join([jsonfile,car_2,car_3,v_size,h_size,mag_nodes,mag_edges,path_length,num_sccs,max_scc_size])
+    avg_bf=str(float(mag_edges)/len(mag.values()))
+    avg_location_size=str(float(sum([len(n) for n in nodes.values()]))/len(nodes.values()))
+    return ','.join([instance,jsonfile,car_2,car_3,v_size,h_size,mag_nodes,mag_edges,path_length,num_sccs,max_scc_size,avg_bf,avg_location_size])
 
 def tarjanSCC(mag):
     sccs=[]
@@ -338,7 +342,7 @@ def instance_set_from_jsons(json_dir, how_many=10):
 
 def read_json_data(json_dir):
     jsons=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
-    fields=['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
+    fields=['instance','jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size']
     data=[]
     for f in jsons:
         try:
@@ -352,7 +356,7 @@ def read_json_data(json_dir):
 
 
 def create_stats(json_dir):
-    print ','.join(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size'])
+    print ','.join(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_locatio_size'])
     if json_dir == 'raw':
         inss=read_instances()
         for f in inss:
@@ -362,7 +366,10 @@ def create_stats(json_dir):
                 print 'error in instance ' + f.name + str(e)
                 raise e
     else:
-        inss=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
+        if json_dir == 'set4':
+            inss=['../psiturk-rushhour/'+f for f in puzzle_files]
+        else:
+            inss=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
         for f in inss:
             try:
                 print instance_stat(f)
