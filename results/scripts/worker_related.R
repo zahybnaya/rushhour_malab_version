@@ -7,7 +7,7 @@ library(reshape2)
 ####################################
 # Activity plot for turkers
 #######################################
-setwd('~/gdrivezb9/rushhour/results/stage1/')
+setwd('~/gdrivezb9/rushhour/results/stage8/')
 d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(d, d$event != 'drag_start')
 
@@ -28,10 +28,14 @@ d_worker = split(d, d$subject)
 slplots=lapply(d_worker, make_plot)
 do.call('grid.arrange',c(slplots, ncol = 2))
 
+make_plot(subset(d, d$subject == 'A21LB023L14XC1'))
+elig[elig$subject == 'A21LB023L14XC1',]
+
+make_plot(subset(d, d$assignmentid == '3TMFV4NEP9MD3O9PWJDTQBR0HZYW8I'))
 ####################################
 # Eligibility table for turkers
 #######################################
-setwd('~/gdrivezb9/rushhour/results/stage5/')
+setwd('~/gdrivezb9/rushhour/results/stage8/')
 d=read.csv('trial_event_data.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(d, d$event != 'drag_start')
 wins=ddply(d, .(subject), function(x){return(length(unique(x[which(x$event=='win'),c('instance')])))})
@@ -46,5 +50,5 @@ fun<-function(x){
 bonuses=ddply(d, .(subject), fun)
 commands=ddply(d, .(subject), function(x){return(paste('worker approve',x$assignmentid[1]))})
 names(commands)<-c('subject','approve_command')
-merge(merge(merge(bonuses,wins),surrenders),commands)
-
+elig=merge(merge(merge(bonuses,wins),surrenders),commands)
+elig$puzzles=elig$solved+elig$surrendered

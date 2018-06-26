@@ -1,4 +1,6 @@
 import re
+import os
+from ntpath import basename
 from sys import argv
 from test import magsize,magsize_admissible
 from collections import namedtuple,defaultdict
@@ -7,7 +9,6 @@ from copy import deepcopy
 #from try_pygame import show
 from astar import make_Astar, h_unblocked
 from random import random
-from os import listdir
 
 Rec=namedtuple('Rec','t event piece move_nu move instance')
 Rec.__new__.__defaults__ = (None,) * len(Rec._fields)
@@ -106,16 +107,32 @@ def show_paths(filename,instance_name):
     for p in paths:
         show(p)
 
-def calc_real_dist(filename):
+
+def calc_real_dist(filename,index=-1):
+    """
+    index runs only the index'th worker (negative runs all)
+    """
     json_dir = '../psiturk-rushhour/static/json'
-    jsons=listdir(json_dir)
+    jsons=os.listdir(json_dir)
     jsons=[j for j in jsons if j.endswith('.json')]
     jsons=dict([(j.split('_')[2],j.split('_')[3]) for j in jsons])
     recs=read_psiturk_data(filename)
-    for w in uniq_order([r.worker for r in recs]):
+    workers=uniq_order([r.worker for r in recs])
+    if index >=0:
+        if index>=len(workers):
+            print 'worker out of range ' + str(index) + ' > ' + str(len(workers))
+            return
+        calc_real_dist_worker(jsons,recs,workers[index])
+    else:
+        for w in workers:
+            calc_real_dist_worker(jsons,recs,w)
+
+
+def calc_real_dist_worker(jsons,recs,w):
+        print  w
         recs_w = [r for r in recs if r.worker == w]
         for ins in uniq_order([r.instance for r in recs_w if r.instance is not None]):
-            paths,rs_paths=recs_to_paths(recs,ins)
+            paths,rs_paths=recs_to_paths(recs_w,ins)
             for path,rs_path in zip(paths,rs_paths):
                 search_limit=int(jsons[ins])+2
                 for i in range(len(path)):
@@ -126,11 +143,12 @@ def calc_real_dist(filename):
                     real_dist=len(the_path)
                     if real_dist!=0:
                         search_limit=real_dist+2 # one for the step and one for error 
-                    line='{0}|{1}|{2}|{3}|{4}|{5}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'])
+                    line='{0}|{1}|{2}|{3}|{4}|{5}|{6}\n'.format(rec,real_dist,stat['expanded'],stat['generated'],stat['open_size'],stat['close_size'],rhstring(state))
                     print line
-                    #outf='../output/'+w+'_md_dist.csv'
-                    #with open(outf, 'a') as f:
-                     #   f.write(line)
+                    outf='../results/'+w+'_true_dist.csv'
+                    write_flag=('w','a')[os.path.exists(outf)]
+                    with open(outf, write_flag) as f:
+                        f.write(line)
 
 
 

@@ -30,7 +30,7 @@ library(reshape2)
 
 ######################################################## 
 # Data analysis
-# - General
+# - General setup
 #######################################################
 setwd("~/gdrivezb9/rushhour/results/all_stages/")
 figpath<-'../../paper/figures'
@@ -39,6 +39,7 @@ paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 lvls_e  = unique(paths[order(nchar(paths$instance),paths$instance),c('instance')])
 #sort by solution length
 lvls_sl = unique(paths[order(paths$optimal_length),c('instance')])
+lvls_how_many =  names(sort(table(paths$instance)))
 mean_sem <- function(x) {
   meanx=mean(x)
   sem=sd(x)/sqrt(length(x))
@@ -52,177 +53,67 @@ mean_sem_ <- function(x) {
 }
 
 
-##################################################################################################
-# Plot 1: Scatter plot of Human solution length, vs Optimal solution length, shape/color by instance.
-###################################################################################################
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(paths, paths$complete=='True')
-d$instance=factor(d$instance, levels = lvls_sl)
-ggplot(d, aes(x=d$optimal_length))+ geom_point(stroke=2,aes(y=d$human_length, shape=d$subject))+
-  scale_shape_manual(values = 1:25, guide=FALSE)+
-   xlab('Optimal solution') + ylab('Human solution')
+##############################
+# Describing collected data
+##############################
 
-##############################
-## Plot 2: Bar Plot of instances optimal lengths.
-##############################
+###############################
+## Plot 1: Bar Plot of instances moves by humans vs optimal.
+#################################
 setwd("~/gdrivezb9/rushhour/results/all_stages")
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=aggregate(paths, by = list(instance=paths$instance), FUN=mean)[,c('instance', 'optimal_length','nodes_expanded')]
-d$instance=factor(d$instance, levels = lvls_e, labels = 1:length(lvls_e))
-g<-ggplot(d, aes(x = d$instance)) +geom_bar(stat="identity",aes(y = d$optimal_length)) + xlab('puzzle') + ylab('Optimal length') +
-  theme_classic()
+paths=subset(paths, complete=='True')
+#paths=subset(paths, subject=='A191V7PT3DQKDP:3PMBY0YE28B43VMUKKJ6EDF85RV9C8')
+paths$instance=factor(paths$instance, levels = lvls_sl, labels = 1:length(lvls_e))
+g<-ggplot(paths, aes(x = paths$instance)) + 
+  stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
+  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
+  stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
+  xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
+g
+Cairo(file=paste(figpath,"/p1.png",sep=''), 
+      type="png",
+      units="px", 
+      width=1124, 
+      height=320,
+      pointsize=12*2, 
+      dpi=72*2)
+g
+dev.off()
+
+##########
+# Plot 2: Bar plot of restrats/skipped/solved instance Status
+##########
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
+                     ,levels = rev(c('Solved','Restart','Surrender')))
+paths=subset(paths,status!= 'NA' & instance !='Jam-25')
+paths$instance=factor(paths$instance, levels = lvls_sl,labels = 1:length(lvls_sl))
+g<-ggplot(paths, aes(x=paths$instance, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('puzzle') + ylab('#subejcts')+
+  scale_y_continuous(breaks=1:length(unique(paths$subject)))+ 
+  scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
+  theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
+  theme(legend.text = element_text(size=14), legend.key.height = unit(0.4,'cm'),legend.key.width = unit(0.4,'cm') )
+g
 Cairo(file=paste(figpath,"/p2.png",sep=''), 
       type="png",
       units="px", 
       width=1124, 
-      height=320,
+      height=420,
       pointsize=12*2, 
       dpi=72*2)
 g
 dev.off()
 
-###################################################
-##  Checking the linear relationship
-################################################# 
-i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, paths$complete == 'True')
-d=merge(paths,i,by = 'instance')
-d$err <- (d$human_length-d$optimal_length)
-d$err_norm <- (d$err)/d$optimal_length
-d$err_ratio <- (d$human_length/d$optimal_length)
-
-f<-function(d,name){
-  g1<-ggplot(d, aes_string(x=name, y=d$err)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem) + ggtitle('err') + ylab('')
-  g2<-ggplot(d, aes_string(x=name, y=d$err_norm)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_norm')+ ylab('')
-  g3<-ggplot(d, aes_string(x=name, y=d$err_ratio)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_ratio')+ ylab('')
-  g4<-ggplot(d, aes_string(x=name, y=d$rt)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('rt')+ ylab('')
-  grid.arrange(g1,g2,g3,g4)
-}
-
-sl=split(d,as.factor(d$optimal_length))
-f(sl$`7`,'avg_bf')
-f(sl$`11`,'avg_bf')
-f(sl$`14`,'avg_bf')
-f(sl$`16`,'avg_bf')
-
-f(sl$`7`,'mag_nodes')
-f(sl$`11`,'mag_nodes')
-f(sl$`14`,'mag_nodes')
-f(sl$`16`,'mag_nodes')
-
-
-f(sl$`7`,'mag_edges')
-f(sl$`11`,'mag_edges')
-f(sl$`14`,'mag_edges')
-f(sl$`16`,'mag_edges')
-
-f(sl$`7`,'avg_location_size')
-f(sl$`11`,'avg_location_size')
-f(sl$`14`,'avg_location_size')
-f(sl$`16`,'avg_location_size')
-
-f(sl$`7`,'max_scc_size')
-f(sl$`11`,'max_scc_size')
-f(sl$`14`,'max_scc_size')
-f(sl$`16`,'max_scc_size')
-
-f(sl$`7`,'num_sccs')
-f(sl$`11`,'num_sccs')
-f(sl$`14`,'num_sccs')
-f(sl$`16`,'num_sccs')
-
-
-#######################################
-##  Plot 4: Correlation matrix. Show relationship between instances and perofrmance.
-###################################### 
-i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, paths$complete == 'True')
-d=merge(paths,i,by = 'instance')
-d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
-d$err <- (d$human_length-d$optimal_length)
-d=d[,c('optimal_length','human_length','rt','err','err_norm','v_size', 'mag_nodes',
-       'mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_location_size')]
-cormat=round(cor(d,method = "spearman"),3)
-library('reshape2')
-melted=melt(cormat)
-melted=subset(melted, melted$Var2 %in% c('err','err_norm','rt'))
-ggplot(melted, aes(x=melted$Var1, y=melted$Var2, fill=melted$value)) + geom_tile()+ geom_text(label = melted$value)
-
-
-##############################################
-##  stat 5: p.values and corelation coefficients.
-##############################################
-i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, paths$complete == 'True')
-d=merge(paths,i,by = 'instance')
-d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
-d$err <- (d$human_length-d$optimal_length)
-factors<-c('v_size', 'mag_nodes','mag_edges','num_sccs','max_scc_size','avg_bf','avg_location_size')
-responses<-c('optimal_length','human_length','rt','err','err_norm')
-k=expand.grid(factors,responses)
-k$pval=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$p.value})
-k$estimate=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$estimate})
-
-
-
-
-
-######
-## Plot 2.2: Bar Plot of instances human length.
-#######
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, complete=='True')
-paths=subset(paths, subject=='A191V7PT3DQKDP:3PMBY0YE28B43VMUKKJ6EDF85RV9C8')
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-g<-ggplot(paths, aes(x = paths$instance)) + 
-  stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
-  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
-  stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
-  xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
-g
-Cairo(file=paste(figpath,"/p2_2c.png",sep=''), 
-      type="png",
-      units="px", 
-      width=1124, 
-      height=320,
-      pointsize=12*2, 
-      dpi=72*2)
-g
-dev.off()
-
-
-######
-## Plot 2.3: Bar Plot of instances human length per subject.
-#######
-setwd("~/gdrivezb9/rushhour/results/all_stages")
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths=subset(paths, complete=='True')
-paths=subset(paths, subject=='A191V7PT3DQKDP:3PMBY0YE28B43VMUKKJ6EDF85RV9C8')
-paths$instance=factor(paths$instance, levels = lvls_e, labels = 1:length(lvls_e))
-g<-ggplot(paths, aes(x = paths$instance)) + 
-  stat_summary(geom='bar', aes(y=paths$human_length), fun.y = 'mean', fill='wheat4')+
-  stat_summary(geom='bar', aes(y=paths$optimal_length+1), fun.y = 'mean', fill='black')+
-  stat_summary(geom='errorbar', aes(y=paths$human_length), fun.data = mean_sem, width=0.4)+
-  xlab('puzzle') + ylab('#moves') + theme(text = element_text(size=20))
-g
-dev.off()
 
 ####################
-# Plot 3: scatter plot of response-time as move number, by subject
+# Plot 3: Scatter plot of response-time as move number, by subject
 # per path
 ####################
 moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, moves$move_number<150)
 ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subject)) +
-  scale_color_manual(values=1:34, guide=FALSE)+
+  scale_color_manual(values=1:length(unique(moves$subject)), guide=FALSE)+
   ggtitle("Response Times") + xlab('move number') + ylab('Seconds') + ylim(0,90)
 
 
@@ -231,9 +122,11 @@ ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt, color=subje
 # Plot 3.1: scatter plot of response-time as move number, by subject
 ###################
 moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=subset(moves, moves$move_number<150)
 g<-ggplot(moves, aes(x=moves$move_number)) + geom_point(aes(y=moves$rt)) +
    xlab('move number') + ylab('seconds') + ylim(0,90) +
   theme(text = element_text(size=18))
+g
 Cairo(file=paste(figpath,"/p3_1.png",sep=''), 
       type="png",
       units="px", 
@@ -244,10 +137,11 @@ Cairo(file=paste(figpath,"/p3_1.png",sep=''),
 g
 dev.off()
 
-
-####################
-#  Plot 3.2: Spearman correlations of RT and move#
-####################
+#######################################################################################
+#  Plot 3.2: Bar plot showing the average Spearman correlations of
+#  RT with and move# and distance to goal
+#   !!!Requires running distance to goal!!
+######################################################################################
 require(plyr)
 
 cor_move_rt <- function(xx)
@@ -270,11 +164,86 @@ ggplot(d2, aes(x=type, y=COR)) + stat_summary(geom = 'bar', fun.data = mean_sem)
   stat_summary(geom = "errorbar", fun.data = mean_sem, width=0.22) 
 
 
-###
-# Plot 3.4: line plot of response-time as move number, by subject
-# per path
-###
 
+##########################
+# Plot 3.3: Line plot of mean Response time vs move number per subject
+#########################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
+d=aggregate(moves,by = list("subject"=moves$subject,"move_num"=moves$move_number), FUN = mean)
+d=subset(d,d$move_num<=150)
+g<-ggplot(d, aes(x=d$move_number,y=d$rt)) + stat_summary(fun.y = "mean", geom = "point", size=1) +
+  stat_summary(fun.y = "mean", geom = "line" ) + 
+  stat_summary(fun.data = mean_sem, geom = "errorbar" , color="blue", size=1, width=2) + 
+  ggtitle('mean response time across subjects') + xlab('move#') + ylab('rt')
+g
+
+
+
+##################################################
+# Plot 4: Scatter plot of Human solution length, vs Optimal solution length 
+# aggregated by instance.
+######################################
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+d=subset(paths, paths$complete=='True')
+dm=aggregate(d, by = list('instance'=d$instance), FUN = mean)
+ds=aggregate(d, by = list(d$instance), FUN = sd)
+dl=aggregate(d, by = list(d$instance), FUN = length)
+d=dm[,c('instance','optimal_length','human_length')]
+d$sem=ds$human_length/sqrt(dl$human_length)
+d$instance = factor(d$instance, levels = lvls_sl)
+g<-ggplot(d, aes(x=d$optimal_length , y=d$human_length))+ geom_point(stroke=2) + 
+  geom_errorbar(aes(ymin=d$human_length-(d$sem/2),ymax=d$human_length+(d$sem/2))) + 
+  xlab('Optimal solution') + ylab('Human solution')
+g
+
+
+######################
+##  Burst analysis 
+######################
+
+do_burst<-function(x){
+  return(burst(as.character(x$level)))
+}
+
+burst<-function(x){
+  return(diff(which(c('H',x,'H')=='H')))
+}
+
+
+#sampling
+do_rand_burst<-function(x,f,sample_size){
+  res=c()
+  l=as.character(x$level)
+  for(i in 1:sample_size){
+    s=sample(l)
+    res=c(res,f(burst(s)))
+  }
+  return(res)
+}
+
+burst_analysis<-function(sp,f,sample_size){
+  moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
+  d=ddply(moves, .(path), function(x){return(sp(x$rt))})
+  names(d)<-c('path','rt_med')
+  moves=merge(moves,d)
+  moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
+  ab=ddply(moves, .(path), function(x){return(f(do_burst(x)))})
+  names(ab)<-c('path','ab') #actual variance in burst size
+  rb=ddply(moves, .(path), function(x){return(mean(do_rand_burst(x,f,sample_size)))}) #random variance in burst size
+  names(rb)<-c('path','rb')
+  k=merge(ab,rb)
+  k$diff=k$rb-k$ab
+  k$ratio=k$ab/k$rb
+  return(k)
+}
+
+spearman_corr<-function(x){
+  return(cor(x,1:length(x), method = 'spearman'))
+}
+##############################################################################
+# Plot 3.4: line plot of response-time as move number, by subject per path
+##############################################################################
 do_plot<-function(moves) {
   g<-ggplot(moves, aes(x=moves$move_number)) + geom_line(aes(y=moves$rt)) +
   scale_color_manual(values=1:11, guide=FALSE) + 
@@ -295,7 +264,7 @@ do_plot<-function(moves) {
 }
 k<-burst_analysis(function(x){return(mean(x))},spearman_corr,1000)
 hbursts=head(k[order(k$diff,decreasing = T),c('path')], 100)
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 #moves=subset(moves, moves$path in hbursts)
 moves_sp=split(moves, moves$path)
@@ -313,17 +282,12 @@ Cairo(file=paste(figpath,"/p3_4.png",sep=''),
 do.call('grid.arrange',c(slplots, ncol = 4))
 dev.off()
 
-###
-# Plot 4: Bar plot of how many moves on each move number
-###
-moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
-ggplot(moves, aes(x=moves$move_number, fill=instance)) + geom_bar() + ggtitle("occurences per move_number")
 
-
-####
-# Plot 5: Bar plot of number of (good, neutral, wrong) moves
+#############################################################
+# Plot 5: Bar plot of number of (good, neutral, wrong) moves 
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
 # scale_fill_manual(values = c('darkred','darkorange','darkgreen'))
-####
+##################################################################
 moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
 moves<-subset(moves, category!='NA')
@@ -339,10 +303,10 @@ Cairo(file=paste(figpath,"/p5.png",sep=''),
 g
 dev.off()
 
-
-####
+#########################################################
 # Plot 6: Line plot of progress of every solution path
-####
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
+#########################################################
 moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 plot6<-function(moves){
   title=strsplit(moves$instance[[2]],'-')[[1]][2]
@@ -361,8 +325,9 @@ do.call('grid.arrange',c(slplots, ncol = 4))
 
 ####
 # Plot 6.1: Line plot of progress of some solution path
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, moves$instance %in% c('Jam-8', 'Jam-1', 'Jam-10','Jam-11','Jam-13','Jam-16'))
 plot6<-function(moves){
   title=strsplit(moves$instance[[1]],'-')[[1]][2]
@@ -388,16 +353,17 @@ dev.off()
 
 
 
-####
+######################################################
 # Plot 6.2: Line plot of progress of restarts
-####
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
+########################################################
 plot6<-function(moves){
   g<-ggplot(moves,aes(x=moves$move_number)) + geom_line(aes(color=paste(moves$subject, moves$trial_number, moves$instance),y=moves$distance_to_goal), size=1) +
     xlab('move#') + ylab('distance from goal') +
     guides(color=guide_legend(title="path"))+theme(legend.position="none", text = element_text(size = 12))
   return(g)
 }
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths$success<-with(paths, ifelse(paths$skipped,'skipped',ifelse(paths$complete,ifelse(paths$trial_number=='0','solved','restarted'),'NA')))
@@ -417,6 +383,7 @@ plot6(moves)
 
 ####
 # Plot 6.3: Line plot of progress of surrenders
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
 ####
 plot6<-function(moves){
   g<-ggplot(moves,aes(x=moves$move_number)) + 
@@ -425,7 +392,7 @@ plot6<-function(moves){
     guides(color=guide_legend(title="path"))+theme(legend.position="none", text = element_text(size = 12))
   return(g)
 }
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths$success<-with(paths, ifelse(paths$skipped,'skipped',ifelse(paths$complete,ifelse(paths$trial_number=='0','solved','restarted'),'NA')))
@@ -437,51 +404,11 @@ plot6(moves)
 
 
 
-##########
-# Plot 7: Bar plot of restrats/skipped/solved instance Status
-##########
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
-                     ,levels = rev(c('Solved','Restart','Surrender')))
-paths=subset(paths,status!= 'NA' & instance !='Jam-25')
-paths$instance=factor(paths$instance, levels = lvls_e,labels = 1:length(lvls_e))
-g<-ggplot(paths, aes(x=paths$instance, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('puzzle') + ylab('#subejcts')+
-  scale_y_continuous(breaks=1:length(unique(paths$subject)))+ 
-  scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
-  theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
-  theme(legend.text = element_text(size=14), legend.key.height = unit(0.4,'cm'),legend.key.width = unit(0.4,'cm') )
-g
-Cairo(file=paste(figpath,"/p7.png",sep=''), 
-      type="png",
-      units="px", 
-      width=1124, 
-      height=420,
-      pointsize=12*2, 
-      dpi=72*2)
-g
-dev.off()
-
-####################################
-# Plot 7.1: Subjects with statuses
-####################################
-
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-paths$status<-factor(with(paths, ifelse(paths$skipped,'Surrender',ifelse(paths$complete,ifelse(paths$trial_number=='0','Solved','Restart'),'NA')))
-                     ,levels = rev(c('Solved','Restart','Surrender')))
-paths=subset(paths,status!= 'NA' & instance !='Jam-25')
-g<-ggplot(paths, aes(x=paths$subject, na.rm=T)) + geom_bar(aes(fill=status)) + xlab('puzzle') + ylab('#subejcts')+
-  scale_y_continuous(breaks=1:length(unique(paths$instance)))+ 
-  scale_fill_manual(values = c('darkred','darkorange','darkgreen'))+
-  theme(legend.position = c(0.8,0.7), text = element_text(size=20))+
-  theme(legend.text = element_text(size=14), legend.key.height = unit(0.4,'cm'),legend.key.width = unit(0.4,'cm') )
-g
-k=aggregate(paths , by = list('subject'=paths$subject, 'status'=paths$status), FUN = 'length')
-k=k[,c('subject','status','instance')]
-names(k)<-c('subject','status','value')
-####  
+###########################  
 # Plot 8: Bar plot of #Moves Category Across Subjects
-####  
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
+########################  
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
 d=aggregate(moves,by = list("category"=moves$category,"subject"=moves$subject), FUN = "length")
 g<-ggplot(d,aes(x=d$category, y=d$rt)) + stat_summary( fun.y="mean",aes(fill=category), geom="bar") + xlab('move')+
@@ -498,10 +425,11 @@ g
 dev.off()
 
 
-####  
+#######################################################################  
 # Plot 8.1: Bar plot of mean rt Category Across Subjects
-####  
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
+#########################################################################  
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 d=moves
 #d=aggregate(moves,by = list("category"=moves$category,"subject"=moves$subject), FUN = "mean")
@@ -510,10 +438,11 @@ ggplot(d,aes(x=d$category, y=d$rt)) + stat_summary( fun.y="mean", geom="bar") + 
   theme(text = element_text(size=18))
 
 
-####  
+###########################################  
 # Plot 8.2: Bar plot of Average Mistakes per category, per instance  Across Subjects
-####  
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# !!!!!!!!!UNAVIALABLE BECAUSE OF THE TRUE DISTANCE ANALYSIS!!!!!!!
+########################################  
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Same',ifelse(progress>0,'Closer','Further')))
 d=aggregate(moves,by = list("category"=moves$category,"subject"=moves$subject), FUN = "length")
 ggplot(d,aes(x=d$instance, y=d$rt)) + stat_summary( fun.y="mean", geom="bar") + xlab('Moving closer/same/further from solution')+
@@ -522,81 +451,28 @@ ggplot(d,aes(x=d$instance, y=d$rt)) + stat_summary( fun.y="mean", geom="bar") + 
 
 
 
+# What are the states that people took more time?
+############################################################
+# Plot 3.4: Line plot of mean response-time by move number
+############################################################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=subset(moves,moves$move_number<=100)
+#msplit=split(moves,f = moves$instance)
 
-###
-# Plot 9: Line plot of mean Response time vs move number per subject
-###
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=aggregate(moves,by = list("subject"=moves$subject,"move_num"=moves$move_number), FUN = mean)
-ggplot(d, aes(x=d$move_number,y=d$rt)) + stat_summary(fun.y = "mean", geom = "point", size=1) +stat_summary(fun.y = "mean", geom = "line" ) + 
-  stat_summary(fun.data = mean_sem, geom = "errorbar" , color="blue", size=1, width=2) + 
-  ggtitle('mean response time across subjects') + xlab('move#') + ylab('rt')
-
-
-
-###
-# Plot 10: Scatter plot of Human solution length, vs Optimal solution length aggregated by instance.
-###
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(paths, paths$complete=='True')
-dm=aggregate(d, by = list('instance'=d$instance), FUN = mean)
-ds=aggregate(d, by = list(d$instance), FUN = sd)
-dl=aggregate(d, by = list(d$instance), FUN = length)
-d=dm[,c('instance','optimal_length','human_length')]
-d$sem=ds$human_length/sqrt(dl$human_length)
-d$instance = factor(d$instance, levels = lvls_sl)
-ggplot(d, aes(x=d$optimal_length , y=d$human_length))+ geom_point(stroke=2,aes(color=instance)) + 
-  geom_errorbar(aes(ymin=d$human_length-(d$sem/2),ymax=d$human_length+(d$sem/2))) + 
-  ggtitle('Solutions per instance') + xlab('Optimal solution') + ylab('Human solution')
-
-
-
-###
-# Plot 10.1: Scatter plot of Human solution length, vs Optimal solution length aggregated by instance.
-###
-paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
-d=subset(paths, paths$complete=='True')
-dm=aggregate(d, by = list('instance'=d$instance), FUN = mean)
-ds=aggregate(d, by = list(d$instance), FUN = sd)
-dl=aggregate(d, by = list(d$instance), FUN = length)
-d=dm[,c('instance','optimal_length','human_length')]
-d$sem=ds$human_length/sqrt(dl$human_length)
-d$instance = factor(d$instance, levels = lvls_sl)
-ggplot(d, aes(x=d$optimal_length , y=d$human_length))+ geom_point(stroke=2) + 
-  geom_errorbar(aes(ymin=d$human_length-(d$sem/2),ymax=d$human_length+(d$sem/2))) + 
-   xlab('Optimal solution') + ylab('Human solution')
-
-
-
-  
-###
-# Plot 11: line plot of raw bursts of response-time as move number 
-##
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-moves= subset(moves, moves$rt < 90 & moves$move_number < 40)
-ggplot(moves, aes(x=moves$move_number)) + geom_line(aes(y=moves$rt, color=paste(subject,instance,trial_number)), show_guide=F) +
-  ggtitle("response time bursts - raw") + xlab('move number') + ylab('Seconds') + ylim(0,90)
-
-
-
-###
-# Plot 12: Line plot of mean response-time by move number
-##
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=moves$move_number, y=moves$rt)) +
   stat_summary(fun.y = 'mean', geom='line', size=2)+
   stat_summary(fun.y = 'mean', geom='point', size=3)+
   scale_alpha_discrete(aggregate(moves, by = list('move_number'=moves$move_number), FUN=length)$rt)+
   stat_summary(fun.data = mean_sem, geom='errorbar')+
   stat_summary(fun.data = function(x){data.frame(y=mean(x), label=length(x))} , geom='text' ,vjust=-1.5, hjust=1 , color='red', size=4)+
-  ggtitle("response time bursts ") + xlab('move number') + ylab('Seconds') 
+  ggtitle("response time bursts ") + xlab('move number') + ylab('Seconds') +  facet_grid(~ instance)
 
-#####
-# Plot 13:  histogram of rt 
-####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+####################
+# Plot 3.5:  histogram of rt 
+########################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, rt<60)
-g<-ggplot(moves, aes(x=moves$rt)) + geom_histogram(bins = 1000)  + xlab("Seconds")+
+g<-ggplot(moves, aes(x=moves$rt)) + geom_histogram(bins = 100)  + xlab("Seconds")+
 theme(axis.line=element_blank(),
       #axis.text.x=element_blank(),
       axis.text.y=element_blank(),
@@ -610,7 +486,8 @@ theme(axis.line=element_blank(),
       panel.grid.minor=element_blank()
       #plot.background=element_blank()
 )
-Cairo(file=paste(figpath,"/p13.png",sep=''), 
+g
+Cairo(file=paste(figpath,"/p3.5.png",sep=''), 
       type="png",
       units="px", 
       width=470*1.2, 
@@ -623,14 +500,14 @@ dev.off()
 
 
 
-#####
-# Plot 13.1:  histogram of rt of subjects 
-####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+##############
+# Plot 3.6:  histogram of rt of subjects 
+#############
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 srt=ddply(moves, .(subject), function(x){return(mean(x$rt))})
 moves$subject = factor(moves$subject, levels = srt[order(srt$V1),c('subject')])
 g<-ggplot(moves, aes(x=moves$subject, y=moves$rt)) + stat_summary(geom = 'bar', fun.y = 'mean') + 
-  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2) + xlab('subject') + ylab('seconds')+
+  stat_summary(geom='errorbar', fun.data = mean_sem, width=0.2) + xlab('subject') + ylab('msec')+
 theme(axis.line=element_blank(),
       axis.text.x=element_blank(),
       #axis.text.y=element_blank(),
@@ -644,6 +521,7 @@ theme(axis.line=element_blank(),
       panel.grid.minor=element_blank()
       #plot.background=element_blank()
 )
+g
 Cairo(file=paste(figpath,"/p13_1.png",sep=''), 
       type="png",
       units="px", 
@@ -656,9 +534,9 @@ dev.off()
 
 
 #####
-# Plot 14:  histogram of rt  (median normalized)
+# Plot 3.7:  histogram of rt  (median normalized)
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 med_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=median)[,c('subject','rt')]
 sd_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=sd)[,c('subject','rt')]
 names(med_rt)<-c('subject','med_rt')
@@ -672,7 +550,7 @@ ggplot(d, aes(x=d$norm_rt)) + geom_histogram(binwidth = 0.01) + ggtitle("Respons
 #####
 # Plot 15:  histogram of rt  (median normalized - zoom [-1 - 1])
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves= subset(moves, moves$rt < 90)
 med_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=median)[,c('subject','rt')]
 sd_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=sd)[,c('subject','rt')]
@@ -686,9 +564,10 @@ ggplot(d, aes(x=d$norm_rt)) + geom_histogram(binwidth = 0.01) + ggtitle("Respons
 
 
 
-####
-# Plot 16: RT histograms per move category (good, neutral, wrong), trucncated (rt<15), with medians. 
-####
+#############
+# Plot 16: RT histograms per move category (good, neutral, wrong), trucncated (rt<15), with medians.
+#  !!!! Requires true distance !!!!!!!!!!
+#############
 moves=read.csv('moves.1.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 moves= subset(moves, moves$rt < 15)
@@ -711,10 +590,11 @@ ggplot() +
   xlab("Seconds")
 
 
-#####
+#####################################
 # Plot 16.1: RT ECDF per move category (good, neutral, wrong) 
-#####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# !!! Requires True Distance !!!! 
+####################################
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 sub='andra.log'
 moves= subset(moves, moves$progress !='NA' & subject==sub)
@@ -748,8 +628,9 @@ dev.off()
 
 ####
 # Plot 16.2: RT histograms per move category (good, neutral, wrong), trucncated (rt<15), with medians. 
+# !!! Requires True Distance !!!! 
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 moves= subset(moves, category!='NA')
 moves= subset(moves, moves$rt < 15)
@@ -775,8 +656,9 @@ dev.off()
 
 ####
 # Plot 16.3: bar plot of RT per move category (good, neutral, wrong) 
+# !!! Requires True Distance !!!!
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 moves= subset(moves, category!='NA')
 d=ddply(moves, .(subject, category), function(x){return(mean_sem(x$rt))})
@@ -797,7 +679,9 @@ dev.off()
 
 ####
 # Plot 17: Scatter plot of RT average across subjects, per instance, in relation to distance from goal.
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# !!! Requires True Distance !!!! 
+
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, moves$rt<90)
 ggplot(moves, aes(x=moves$distance_to_goal,y= moves$rt, group=instance)) + 
   stat_summary(fun.y = "mean", geom="point") + stat_summary(fun.data = mean_sem, geom="errorbar")
@@ -806,8 +690,9 @@ ggplot(moves, aes(x=moves$distance_to_goal,y= moves$rt, group=instance)) +
 ####
 # Plot 18: Scatter plot of RT average across subjects, per instance, in relation to distance from goal.
 # Normalized by subject median
+# !!! Requires True Distance !!!! 
 #
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves= subset(moves, moves$rt < 90)
 med_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=median)[,c('subject','rt')]
 sd_rt = aggregate(moves, by = list('subject'=moves$subject), FUN=sd)[,c('subject','rt')]
@@ -820,10 +705,11 @@ ggplot(d, aes(x=d$distance_to_goal,y= d$norm_rt, group=instance)) +
   stat_summary(fun.y = "mean", geom="point") + stat_summary(fun.data = mean_sem, geom="errorbar") + 
   ggtitle("RT vs. distance from goal") + xlab("Distance from goal") + ylab("Seconds")
 
-######
-# Plot 19: Boxplot with Kruskal Wallis test on rt per category
 ############
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# Plot 19: Boxplot with Kruskal Wallis test on rt per category
+# !!! Requires True Distance !!!! 
+############
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=as.factor(with(moves, ifelse(progress==0, 'Same',ifelse(progress>0,'Closer','Further'))))
 t=kruskal.test(rt ~ category, data = moves)
 ggplot(data = moves, aes(x=category, y=rt)) + geom_boxplot() + 
@@ -832,8 +718,9 @@ ggplot(data = moves, aes(x=category, y=rt)) + geom_boxplot() +
 
 #####
 # Plot 20: linear regression of log(rt) and distance from goal 
+# !!! Requires True Distance !!!! 
 #######
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=distance_to_goal, y=log(rt)))  + geom_point() + 
   geom_smooth(method = 'lm', se=FALSE) + 
   annotate(geom = "text", label="intercept=0.82144, coefficient=0.01508(***)", x = 10, y=4.5) +
@@ -843,9 +730,10 @@ summary(lm(formula = log(moves$rt) ~ moves$distance_to_goal))
 
 
 #####
-# Plot 21:   linear regression of rt and distance from goal 
+# Plot 21:   linear regression of rt and distance from goal
+# !!! Requires True Distance !!!! 
 ####
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=distance_to_goal, y=rt))  + geom_point() + 
   geom_smooth(method = 'lm', se=FALSE) + 
   annotate(geom = "text", label="intercept=3.4022, coefficient=0.1142(***)", x = 10, y=90)+
@@ -857,8 +745,9 @@ summary(lm(formula = moves$rt ~ moves$distance_to_goal))
 
 ######
 # Plot 22:  linear regression of rt and move_number 
+# !!! Requires True Distance !!!! 
 #######
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 ggplot(moves, aes(x=move_number, y=rt))  + geom_point() + 
   geom_smooth(method = 'lm', se=FALSE) + 
   annotate(geom = "text", label="intercept=5.9195, coefficient=-0.0984(***)", x = 15, y=90)+
@@ -867,8 +756,9 @@ summary(lm(formula = moves$rt ~ moves$move_number))
 
 ###
 # Plot 23:  linear regression of rt and move_number (without the first move)
+# !!! Requires True Distance !!!! 
 ######
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, move_number>0)
 ggplot(moves, aes(x=move_number, y=rt))  + geom_point() + 
   geom_smooth(method = 'lm', se=FALSE) + 
@@ -880,6 +770,7 @@ summary(lm(formula = moves$rt ~ moves$move_number))
 
 ###
 # Plot 24 : Scatter plot of response time, vs Optimal solution length aggregated by instance.
+# !!! Requires True Distance !!!! 
 ###
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=subset(paths, paths$complete=='True')
@@ -894,11 +785,11 @@ ggplot(d, aes(x=d$optimal_length , y=d$rt))+ geom_point(stroke=2,aes(color=insta
   ggtitle('RT per instance') + xlab('Optimal solution') + ylab('Seconds')
 
 
-
 ###
 # Plot 25  : Scatter plot of response time, vs Distance from goal.
+# !!! Requires True Distance !!!! 
 ###
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 g<-ggplot(moves, aes(x=distance_to_goal , y=rt))+ geom_point() + 
    xlab('Distance from goal') + ylab('Seconds') + theme(text = element_text(size=18))
 
@@ -913,16 +804,9 @@ g
 dev.off()
 
 
-# Stat 1: Wilcox.test All rt unpaired (wrong)
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
-spl=split(moves, moves$category)
-wilcox.test(spl$Positive$rt, spl$Negative$rt, alternative = 'less',paired = FALSE )
-wilcox.test(spl$Positive$rt, spl$Neutral$rt, alternative = 'less',paired = FALSE )
-wilcox.test(spl$Negative$rt, spl$Neutral$rt, alternative = 'less',paired = FALSE )
 
-# Stat 2: Wilcox.test per subject (non-standard)
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+# Stat 1: Wilcox.test per subject (non-standard)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 moves=subset(moves, category!='NA')
 func<-function(x){
@@ -953,9 +837,9 @@ d=merge(posneg,posneu,by='subject')
 d=merge(d,negneu, by='subject')
   
 ###########
-# Stat 3: Wilcox.test on every subjetc
+# Stat 3: Wilcox.test on every subject
 ###############
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'Neutral',ifelse(progress>0,'Positive','Negative')))
 d=ddply(moves, .(subject, category), function(x){return(median(x$rt))})
 sp=split(d,d$category)
@@ -969,14 +853,16 @@ wilcox.test(sp$Negative$V1, sp$Neutral$V1, alternative = 'two.sided',paired = TR
 ##########
 #  Stat 4:  spearman correlation per subject rt~move#
 ########## 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 d=ddply(moves, .(subject), function(x){return(cor(x$rt, x$move_number,method = 'spearman'))})
+hist(d$V1,breaks = 30,main = 'spearman correlations \nof rt~move# (per subject)')
 mean_sem_(d$V1)
 
 ##########
 #  Stat 5:  spearman correlation per subject rt~distance#
+# !!! Requires true distance !!! 
 ########## 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves,distance_to_goal !='NA' & progress !='NA' )
 d=ddply(moves, .(subject), function(x){return(cor(x$rt, x$distance_to_goal,method = 'spearman'))})
 mean_sem_(d$V1)
@@ -984,8 +870,9 @@ mean_sem_(d$V1)
 
 ##########
 #  Stat 5.1:  Quadratic relationship of rt~distance#
+# !!! Requires true distance !!! 
 ########## 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves,distance_to_goal !='NA' & progress !='NA')
 
 d=ddply(moves,.(subject), function(x){return(summary(lm(x$rt ~ poly(x$distance_to_goal, 2, raw = T)))$adj.r.squared)})
@@ -1046,7 +933,7 @@ length(unique(subset(paths, success == 'restarted')$subject))
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths$success<-with(paths, ifelse(paths$skipped,'skipped',ifelse(paths$complete,ifelse(paths$trial_number=='0','solved','restarted'),'NA')))
 paths$path<-paste(paths$subject,paths$instance,paths$trial_number,sep='_')
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 s =subset(paths, success == 'skipped')
 sm=subset(moves, moves$path %in% s$path) 
@@ -1069,7 +956,7 @@ mean_sem_(k$t)
 paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
 paths$success<-with(paths, ifelse(paths$skipped,'skipped',ifelse(paths$complete,ifelse(paths$trial_number=='0','solved','restarted'),'NA')))
 paths$path<-paste(paths$subject,paths$instance,paths$trial_number,sep='_')
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 s =subset(paths, success == 'restarted')
 sm=subset(moves, moves$path %in% s$path) 
@@ -1089,7 +976,7 @@ mean_sem_(k$t)
 ##########
 #  Stat 9:  First move RT
 ########## 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
 d=ddply(moves, .(path), function(x){
   first=x[x$move_number==0,c('rt')]
@@ -1100,10 +987,10 @@ x=d$V1
 x=x[!is.na(x)]
 mean_sem_(x)
 
-##########
+############################
 #  Stat 10: Move categories
-########## 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+############################ 
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves$category=with(moves, ifelse(progress==0, 'neutral',ifelse(progress>0,'positive','negative')))
 table(moves$category)
 d=ddply(moves, .(subject, category), function(x){return (nrow((x)))})
@@ -1113,46 +1000,6 @@ d=ddply(moves, .(subject), function(x){return (data.frame(table(x$category)))})
 d1=ddply(d, .(Var1), function(x){return (mean_sem_(x$Freq))})
 
 
-######
-## Stat 11: Bursts
-######
-
-do_burst<-function(x){
-  return(burst(as.character(x$level)))
-}
-
-burst<-function(x){
-  return(diff(which(c('H',x,'H')=='H')))
-}
-
-
-#sampling
-do_rand_burst<-function(x,f,sample_size){
-  res=c()
-  l=as.character(x$level)
-  for(i in 1:sample_size){
-    s=sample(l)
-    res=c(res,f(burst(s)))
-  }
-  return(res)
-}
-
-burst_analysis<-function(sp,f,sample_size){
-  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
-  moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
-  d=ddply(moves, .(path), function(x){return(sp(x$rt))})
-  names(d)<-c('path','rt_med')
-  moves=merge(moves,d)
-  moves$level = with(moves,ifelse(rt>rt_med,'H','L'))
-  ab=ddply(moves, .(path), function(x){return(f(do_burst(x)))})
-  names(ab)<-c('path','ab') #actual variance in burst size
-  rb=ddply(moves, .(path), function(x){return(mean(do_rand_burst(x,f,sample_size)))}) #random variance in burst size
-  names(rb)<-c('path','rb')
-  k=merge(ab,rb)
-  k$diff=k$rb-k$ab
-  k$ratio=k$ab/k$rb
-  return(k)
-}
 
 #Stat 11.1, Ratio of median split of SD
 k=burst_analysis(function(x){return(median(x))},function(x){return(sd(x))},10000)
@@ -1166,7 +1013,7 @@ mean_sem_(k$ratio[!is.na(k$ratio)])
 
 #Stat 11.2, Spearman correlation
 burst_analysis<-function(sp,f,sample_size){
-  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
   moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
   d=ddply(moves, .(path), function(x){return(sp(x$rt))})
   names(d)<-c('path','rt_med')
@@ -1182,9 +1029,6 @@ burst_analysis<-function(sp,f,sample_size){
   return(k)
 }
 
-spearman_corr<-function(x){
-  return(cor(x,1:length(x), method = 'spearman'))
-}
 k=burst_analysis(function(x){return(median(x))},spearman_corr,1000)
 mean_sem(k$rb[!is.na(k$rb)])
 mean_sem_(k$ab[!is.na(k$ab)])
@@ -1217,7 +1061,7 @@ dev.off()
 
 #stat 11.3 sd CDF histogram 
 burst_analysis<-function(sp,f,sample_size){
-  moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+  moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
   moves$path<-paste(moves$subject,moves$instance,moves$trial_number,sep='_')
   d=ddply(moves, .(path), function(x){return(sp(x$rt))})
   names(d)<-c('path','rt_med')
@@ -1265,7 +1109,7 @@ g
 dev.off()
 
 # time_dist plot per subject
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves,moves$rt<10)
 g<-ggplot(moves, aes(x=moves$rt)) + geom_density(aes(color=moves$subject)) + guides(color=FALSE) +
   theme(#axis.line=element_blank(),
@@ -1315,7 +1159,7 @@ dev.off()
 # Trying to say something about the distribution of RT
 ####
 library(mclust)
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 #m=Mclust(moves$rt)
 m=densityMclust(moves[,c('rt','move_number')])
 summary(m)
@@ -1335,7 +1179,7 @@ plot(m)
 # Clustering is also possible.
 library(dtw)
 
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, instance=='Jam-6')
 ggplot(moves, aes(x=moves$move_number)) + geom_line(aes(y=moves$rt, color=paste(subject,instance,trial_number)), show_guide=F) +
   ggtitle("response time bursts - raw") + xlab('move number') + ylab('Seconds') + ylim(0,90)
@@ -1347,7 +1191,7 @@ plot(d, type = "twoway")
 plot(d, type = "threeway")
 
 #split by solution-paths, heatmap of distances.
-moves=read.csv('moves.c.csv', header = TRUE, sep=',',stringsAsFactors=F)
+moves=read.csv('moves.csv', header = TRUE, sep=',',stringsAsFactors=F)
 moves=subset(moves, instance=='Jam-6')
 moves$path=paste(moves$subject,moves$instance,moves$trial_number,sep = '')
 dtw_dist<-function(path1,path2){
@@ -1381,5 +1225,126 @@ ccm <- alignment$costMatrix
 image(x = 1:nrow(ccm), y = 1:ncol(ccm), ccm)
 text(row(ccm), col(ccm), label = ccm)
 lines(alignment$index1, alignment$index2)
+
+
+
+###################################################
+##  Checking the linear relationship
+################################################# 
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+p=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4_plan.csv', header = TRUE, sep=',',stringsAsFactors=F)
+p=p[,c('instance','number_of_unsafe_moves')]
+i=merge(i,p,by = 'instance')
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err <- (d$human_length-d$optimal_length)
+d$err_norm <- (d$err)/d$optimal_length
+d$err_ratio <- (d$human_length/d$optimal_length)
+
+f<-function(d,name){
+  g1<-ggplot(d, aes_string(x=name, y=d$err)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem) + ggtitle('err') + ylab('')
+  g2<-ggplot(d, aes_string(x=name, y=d$err_norm)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_norm')+ ylab('')
+  g3<-ggplot(d, aes_string(x=name, y=d$err_ratio)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('err_ratio')+ ylab('')
+  g4<-ggplot(d, aes_string(x=name, y=d$rt)) + geom_point() + stat_smooth(method = 'lm') + stat_summary(color='red', fun.data = mean_sem)+ ggtitle('rt')+ ylab('')
+  grid.arrange(g1,g2,g3,g4)
+}
+
+summary(lm(d$rt ~ d$avg_location_size))
+summary(lm(d$rt ~ d$mag_nodes + d$avg_bf + d$mag_edges + d$avg_location_size + d$num_sccs + d$max_scc_size ))
+summary(lm(d$err ~ d$mag_nodes + d$avg_bf + d$mag_edges + d$avg_location_size + d$num_sccs + d$max_scc_size ))
+summary(lm(d$err_norm ~ d$mag_nodes + d$avg_bf + d$mag_edges + d$avg_location_size + d$num_sccs + d$max_scc_size ))
+
+summary(lm(d$err ~ d$number_of_unsafe_moves + 
+             d$mag_nodes + d$mag_edges + d$avg_location_size + 
+             d$avg_bf + d$max_scc_size + d$num_sccs ))
+
+
+summary(lm(d$rt ~ d$number_of_unsafe_moves))
+summary(lm(d$err_norm ~ d$number_of_unsafe_moves))
+summary(lm(d$err_ratio ~ d$number_of_unsafe_moves))
+
+
+d$unsafe<-ifelse(d$number_of_unsafe_moves > 0,1,0)
+summary(lm(d$err ~ d$unsafe))
+summary(lm(d$rt ~ d$unsafe))
+summary(lm(d$err_norm ~ d$unsafe))
+summary(lm(d$err_ratio ~ d$unsafe))
+
+
+sl=split(d,as.factor(d$optimal_length))
+f(sl$`7`,'avg_bf')
+f(sl$`11`,'avg_bf')
+f(sl$`14`,'avg_bf')
+f(sl$`16`,'avg_bf')
+
+f(sl$`7`,'number_of_unsafe_moves')
+f(sl$`11`,'number_of_unsafe_moves')
+f(sl$`14`,'number_of_unsafe_moves')
+f(sl$`16`,'number_of_unsafe_moves')
+
+f(sl$`7`,'mag_nodes')
+f(sl$`11`,'mag_nodes')
+f(sl$`14`,'mag_nodes')
+f(sl$`16`,'mag_nodes')
+
+
+f(sl$`7`,'mag_edges')
+f(sl$`11`,'mag_edges')
+f(sl$`14`,'mag_edges')
+f(sl$`16`,'mag_edges')
+
+f(sl$`7`,'avg_location_size')
+f(sl$`11`,'avg_location_size')
+f(sl$`14`,'avg_location_size')
+f(sl$`16`,'avg_location_size')
+
+f(sl$`7`,'max_scc_size')
+f(sl$`11`,'max_scc_size')
+f(sl$`14`,'max_scc_size')
+f(sl$`16`,'max_scc_size')
+
+f(sl$`7`,'num_sccs')
+f(sl$`11`,'num_sccs')
+f(sl$`14`,'num_sccs')
+f(sl$`16`,'num_sccs')
+
+
+#######################################
+##  Plot 4: Correlation matrix. Show relationship between instances and perofrmance.
+###################################### 
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
+d$err <- (d$human_length-d$optimal_length)
+d=d[,c('optimal_length','human_length','rt','err','err_norm','v_size', 'mag_nodes',
+       'mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_location_size')]
+cormat=round(cor(d,method = "spearman"),3)
+library('reshape2')
+melted=melt(cormat)
+melted=subset(melted, melted$Var2 %in% c('err','err_norm','rt'))
+ggplot(melted, aes(x=melted$Var1, y=melted$Var2, fill=melted$value)) + geom_tile()+ geom_text(label = melted$value)
+
+
+#################################################
+##  stat 5: p.values and corelation coefficients.
+#################################################
+i=read.csv('~/gdrivezb9/rushhour/results/instances/instances_selected_set4.csv', header = TRUE, sep=',',stringsAsFactors=F)
+setwd("~/gdrivezb9/rushhour/results/all_stages")
+paths=read.csv('paths.csv', header = TRUE, sep=',',stringsAsFactors=F)
+paths=subset(paths, paths$complete == 'True')
+d=merge(paths,i,by = 'instance')
+d$err_norm <- (d$human_length-d$optimal_length)/d$optimal_length
+d$err <- (d$human_length-d$optimal_length)
+factors<-c('v_size', 'mag_nodes','mag_edges','num_sccs','max_scc_size','avg_bf','avg_location_size')
+responses<-c('optimal_length','human_length','rt','err','err_norm')
+k=expand.grid(factors,responses)
+k$pval=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$p.value})
+k$estimate=apply(k,1,function(x){cor.test(d[,x[1]],d[,x[2]], method = "spearman", alternative = "two.sided")$estimate})
+
 
 

@@ -10,21 +10,82 @@ Generating rushhour instances.
 """
 
 #test code
-from  rushhour import read_instances,draw,mag2dot, json_to_ins,opt_solution_instances
+from  rushhour import read_instances,draw,mag2dot, json_to_ins,opt_solution_instances,min_manhattan_distance_calc
 #test code
 
 from time import time
 from itertools import product
 from json import dump,load
-from rushhour import RHInstance,ground_instance,do_move,rand_move, rhstring,h_unblocked,constuct_mag
+from rushhour import RHInstance,ground_instance,do_move,rand_move, rhstring,h_unblocked,constuct_mag, mag_pairs
 from astar import make_Astar
 from copy import deepcopy
 from sys import argv
 from os import listdir
 from os.path import join, isfile
-
 from random import randint,choice,sample
 from instances_selected_set4_list import puzzle_files
+
+def number_of_possible_plans_from_mag():
+    """ """
+    return 999
+
+def depth_of_mag():
+    """ """
+    return 999
+
+#plans 
+def number_of_optimal_plans(ins):
+    """ How many optimal plans are there for this instance"""
+    return 999
+
+def added_edges_between_mags(mags_1,mag_2):
+    return len(mag_pairs(mag_2) - mag_pairs(mags_1))
+
+def get_optimal_solution(optimal_solution):
+    if optimal_solution is None:
+        astar = make_Astar(heur=min_manhattan_distance_calc)
+        return astar(ins)
+    else:
+        return optimal_solution
+
+def number_of_unsafe_moves(ins,optimal_solution=None):
+    """
+    Number of unsafe moves on the optimal path.
+    """
+    plan,nodes=get_optimal_solution(optimal_solution)
+    ret=0;
+    mags=[constuct_mag(s)[1] for s in plan]
+    for i in range(len(mags)-1):
+        if added_edges_between_mags(mags[i],mags[i+1]) > 0:
+            ret+=1
+    return ret
+
+def change_in_heuristic_value(ins,optimal_solution=None):
+    """Manhattan distance over path"""
+    plan,nodes=get_optimal_solution(optimal_solution)
+    hs=[min_manhattan_distance_calc(s) for s in plan]
+    print hs
+    return 999
+
+
+def number_of_unsafe_edges(ins):
+    """
+    Statistics for how much edges are added to the mag
+    """
+    return 999
+
+def node_decrease_rate(ins):
+    """
+    at what rate nodes are decreasing from the mag
+    """
+    return 999
+
+def edge_decrease_rate(ins):
+    """the rate of edge decrease"""
+    return 999
+def nodes_expanded_by_astar(ins):
+    """ This is expected to correlate with change_in_heuristic_value. If the effect on humans is not as strong, people make abstractions"""
+    return 999
 
 
 def generate_instance(min_path_length,max_path_length,cars_2,cars_3):
@@ -171,6 +232,18 @@ def instance_stat_raw(ins):
     max_scc_size=str(max([len(scc) for scc in sccs]))
     path_length = str(opt_solution_instances[ins.name])
     return ','.join([ins.name,car_2,car_3,v_size,h_size,mag_nodes,mag_edges,path_length,num_sccs,max_scc_size])
+
+
+def instance_stat_plan(jsonfile):
+    instance=jsonfile.split('_')[2]
+    ins = json_to_ins(jsonfile)
+    number_of_optimal_plans_ = str(number_of_optimal_plans(ins))
+    number_of_unsafe_moves_ = str(number_of_unsafe_moves(ins))
+    number_of_unsafe_edges_ = str(number_of_unsafe_edges(ins))
+    node_decrease_rate_ = str(node_decrease_rate(ins))
+    edge_decrease_rate_ = str(edge_decrease_rate(ins))
+    change_in_heuristic_value_ = str(change_in_heuristic_value(ins))
+    return ','.join([instance,jsonfile,number_of_optimal_plans_,number_of_unsafe_moves_,number_of_unsafe_edges_,node_decrease_rate_,edge_decrease_rate_,change_in_heuristic_value_])
 
 
 
@@ -355,8 +428,9 @@ def read_json_data(json_dir):
 
 
 
-def create_stats(json_dir):
-    print ','.join(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_locatio_size'])
+def create_stats(json_dir,is_plan):
+    fields=(['jsonfile','car_2','car_3','v_size','h_size','mag_nodes','mag_edges','path_length','num_sccs','max_scc_size','avg_bf','avg_locatio_size'],['instance','jsonfile','number_of_optimal_plans','number_of_unsafe_moves','number_of_unsafe_edges','node_decrease_rate','edge_decrease_rate','change_in_heuristic_value'])[is_plan]
+    print ','.join(fields)
     if json_dir == 'raw':
         inss=read_instances()
         for f in inss:
@@ -372,7 +446,10 @@ def create_stats(json_dir):
             inss=[join(json_dir, f) for f in listdir(json_dir) if f.endswith('.json') and isfile(join(json_dir, f))]
         for f in inss:
             try:
-                print instance_stat(f)
+                if is_plan:
+                    print instance_stat_plan(f)
+                else:
+                    print instance_stat(f)
             except Exception as e:
                 print 'error in file ' + f + str(e)
 
@@ -386,7 +463,7 @@ def print_stats(jsons_data,puzzle_indx):
 def main():
     try:
         command=argv[1]
-        if command=='stat':
+        if command.startswith('stat'):
             json_dir = argv[2]
         elif command == 'find':
             json_dir = argv[2]
@@ -403,10 +480,13 @@ def main():
         else:
             raise(Exception('unknown command'))
     except:
-        print 'usage: [stat|generate|find] [<json_dir> | <num_of_instances> <min_path_length> <max_path_length> <cars_2> <car_3> | <json_dir> <iterations> [for_stat]]'
+        print 'usage: [stat | stat_plan | generate|find] [<json_dir> | <json_dir> | <num_of_instances> <min_path_length> <max_path_length> <cars_2> <car_3> | <json_dir> <iterations> [for_stat]] use \'set4\' if there is no json_dir'
+        exit()
 
     if command=='stat':
-        create_stats(json_dir)
+        create_stats(json_dir,False)
+    if command=='stat_plan':
+        create_stats(json_dir,True)
     elif command=='generate':
         create_instances(num_of_instances,min_path_length,max_path_length,cars_2,cars_3)
     elif command=='find':
