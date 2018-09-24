@@ -5,7 +5,6 @@ library(Cairo)
 library(reshape2)
 
 
-
 ######################################################## 
 # Plot Error ratio of models.
 #######################################################
@@ -38,7 +37,6 @@ ggplot(data = melted_cormat, aes(x=Var1, y=Var2, fill=value)) +
 ######################################################## 
 # LRTA distributions 
 #######################################################
-
 setwd("~/gdrivezb9/rushhour/results/pilot/lrta")
 d=read.csv('lrta_fitting_exp.csv', header = T, sep = ',')
 
