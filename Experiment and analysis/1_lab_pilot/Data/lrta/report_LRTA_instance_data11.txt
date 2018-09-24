@@ -1,0 +1,9 @@
+Jam-2,lrta5,9,9,1
+Jam-2,lrta5,9,8,2
+Jam-2,lrta5,9,7,3
+Jam-2,lrta5,9,6,4
+Jam-2,lrta5,9,5,5
+Jam-2,lrta5,9,4,6
+Jam-2,lrta5,9,3,7
+Jam-2,lrta5,9,2,8
+Jam-2,lrta5,9,2,9

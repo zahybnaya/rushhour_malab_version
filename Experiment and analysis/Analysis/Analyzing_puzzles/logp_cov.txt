@@ -1,0 +1,59 @@
+--------CALC----------------------
+p(3)*p(4|3)*p(3|4)*p(2|3)               = 0.063
+log(p(3)*p(4|3)*p(3|4)*p(2|3))          = -2.76462055259
+------------MODEL--------------
+samples: 1 action-logp: -1.21785714286
+samples: 1 log(p(('3', '2')))=0.0
+samples: 1 log(p(('3', '4')))=0.0
+samples: 1 log(p(('4', '3')))=-2.71785714286
+samples: 1 log(p(3))=0.0
+samples: 1 log(p(4))=-1.5
+samples: 1 whole-Plan logp = -2.28333333333
+------------MODEL--------------
+samples: 10 action-logp: -2.89426337551
+samples: 10 log(p(('3', '2')))=-1.1769047619
+samples: 10 log(p(('3', '4')))=-0.45
+samples: 10 log(p(('4', '3')))=-1.86735861361
+samples: 10 log(p(3))=0.0
+samples: 10 log(p(4))=-0.6
+samples: 10 whole-Plan logp = -2.10611032083
+------------MODEL--------------
+samples: 100 action-logp: -2.53098398747
+samples: 100 log(p(('3', '2')))=-1.0828531746
+samples: 100 log(p(('3', '4')))=-0.25
+samples: 100 log(p(('4', '3')))=-1.7909641462
+samples: 100 log(p(3))=0.0
+samples: 100 log(p(4))=-0.592833333333
+samples: 100 whole-Plan logp = -2.77704263706
+------------MODEL--------------
+samples: 1000 action-logp: -2.69127447872
+samples: 1000 log(p(('3', '2')))=-1.18851090576
+samples: 1000 log(p(('3', '4')))=-0.25345
+samples: 1000 log(p(('4', '3')))=-1.73984928725
+samples: 1000 log(p(3))=0.0
+samples: 1000 log(p(4))=-0.490535714286
+samples: 1000 whole-Plan logp = -2.91361344493
+------------MODEL--------------
+samples: 10000 action-logp: -2.74135659319
+samples: 10000 log(p(('3', '2')))=-1.23485272234
+samples: 10000 log(p(('3', '4')))=-0.234316666667
+samples: 10000 log(p(('4', '3')))=-1.75749018038
+samples: 10000 log(p(3))=0.0
+samples: 10000 log(p(4))=-0.48530297619
+samples: 10000 whole-Plan logp = -2.89536571791
+------------MODEL--------------
+samples: 100000 action-logp: -2.74202758166
+samples: 100000 log(p(('3', '2')))=-1.2300953653
+samples: 100000 log(p(('3', '4')))=-0.237801261905
+samples: 100000 log(p(('4', '3')))=-1.76059432783
+samples: 100000 log(p(3))=0.0
+samples: 100000 log(p(4))=-0.486463373377
+samples: 100000 whole-Plan logp = -2.88918035737
+------------MODEL--------------
+samples: 1000000 action-logp: -2.7419359199
+samples: 1000000 log(p(('3', '2')))=-1.22901075434
+samples: 1000000 log(p(('3', '4')))=-0.236991696429
+samples: 1000000 log(p(('4', '3')))=-1.76326587526
+samples: 1000000 log(p(3))=0.0
+samples: 1000000 log(p(4))=-0.487332406132
+samples: 1000000 whole-Plan logp = -2.88862818041

@@ -1,0 +1,15 @@
+Jam-1,lrta1,15,9,1
+Jam-1,lrta1,15,8,2
+Jam-1,lrta1,15,7,3
+Jam-1,lrta1,15,6,4
+Jam-1,lrta1,15,6,5
+Jam-1,lrta1,15,5,6
+Jam-1,lrta1,15,5,7
+Jam-1,lrta1,15,4,8
+Jam-1,lrta1,15,3,9
+Jam-1,lrta1,15,3,10
+Jam-1,lrta1,15,3,11
+Jam-1,lrta1,15,3,12
+Jam-1,lrta1,15,3,13
+Jam-1,lrta1,15,2,14
+Jam-1,lrta1,15,2,15

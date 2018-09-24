@@ -1,0 +1,11 @@
+Jam-5,lrta4,11,10,1
+Jam-5,lrta4,11,9,2
+Jam-5,lrta4,11,9,3
+Jam-5,lrta4,11,8,4
+Jam-5,lrta4,11,7,5
+Jam-5,lrta4,11,6,6
+Jam-5,lrta4,11,5,7
+Jam-5,lrta4,11,4,8
+Jam-5,lrta4,11,3,9
+Jam-5,lrta4,11,2,10
+Jam-5,lrta4,11,2,11

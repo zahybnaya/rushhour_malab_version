@@ -1,0 +1,165 @@
+On branch master
+Your branch is up-to-date with 'origin/master'.
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	git add  config.txt
+	git add  static/images/board.png
+	git add  static/images/car_move.gif
+	git add  static/images/car_move_blocked.gif
+	git add  static/images/car_move_h.gif
+	git add  static/images/car_move_v.gif
+	git add  static/images/images_to_gif/1.png
+	git add  static/images/images_to_gif/2.png
+	git add  static/images/images_to_gif/3.png
+	git add  static/images/images_to_gif/4.png
+	git add  static/js/task.js
+	git add  static/json/empty.json
+	git add  static/json/empty_h.json
+	git add  static/json/empty_plus.json
+	git add  static/json/empty_v.json
+	git add  templates/ad.html
+	git add  templates/consent.html
+	git add  templates/instructions/instruct-1.html
+	git add  templates/instructions/instruct-2.html
+	git add  templates/instructions/instruct-2_2.html
+	git add  templates/instructions/instruct-3.html
+	git add  templates/instructions/instruct-5.html
+	git add  templates/instructions/instruct-6.html
+	git add  ../results/summary_stats.R
+	git add  ../src/instance_generator.py
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	../.DS_Store
+	"../Icon\r"
+	../docs/.DS_Store
+	"../docs/Icon\r"
+	../docs/ccn/.DS_Store
+	"../docs/ccn_sequential_planning/Icon\r"
+	../gst
+	"../jobs/Icon\r"
+	"../princeton_AI/Icon\r"
+	"../princeton_AI/code/Icon\r"
+	.DS_Store
+	.psiturk_history
+	"Icon\r"
+	custom.pyc
+	eventdata.csv
+	gst
+	participants.db
+	questiondata.csv
+	server.log
+	static/.DS_Store
+	"static/Icon\r"
+	"static/css/Icon\r"
+	static/favicon.ico
+	"static/fonts/Icon\r"
+	static/images/.DS_Store
+	"static/images/Icon\r"
+	git add static/images/blocked.gif
+	git add static/images/blocked.vgc
+	git add static/images/images_to_gif/blocked1.png
+	git add static/images/images_to_gif/blocked2.png
+	git add static/images/images_to_gif/board.png
+	git add static/images/images_to_gif/h1.png
+	git add static/images/images_to_gif/h2.png
+	git add static/images/images_to_gif/h3.png
+	git add static/images/images_to_gif/red1.png
+	git add static/images/images_to_gif/red2.png
+	git add static/images/images_to_gif/red3.png
+	git add static/images/images_to_gif/red4.png
+	git add static/images/images_to_gif/v1.png
+	git add static/images/images_to_gif/v2.png
+	git add static/images/images_to_gif/v3.png
+	git add static/images/move_h.gif
+	git add static/images/move_h.vgc
+	git add static/images/move_red.gif
+	git add static/images/move_red.vgc
+	git add static/images/move_v.gif
+	git add static/images/move_v.vgc
+	static/js/.task.js.swp
+	"static/js/Icon\r"
+	static/json/1513806214_42_prb10_8_.json
+	static/json/1513806251_93_prb58_8_.json
+	static/json/1513806387_24_prb242_8_.json
+	static/json/1513806414_49_prb286_8_.json
+	static/json/1513806425_92_prb303_8_.json
+	static/json/1513806455_69_prb355_8_.json
+	static/json/1513806493_09_prb446_8_.json
+	static/json/1513806553_15_prb537_8_.json
+	static/json/1513806565_45_prb559_8_.json
+	static/json/1513806607_99_prb617_8_.json
+	static/json/1513806639_21_prb638_8_.json
+	static/json/1513806685_93_prb676_8_.json
+	static/json/1513806714_99_prb711_8_.json
+	static/json/1513806762_75_prb802_8_.json
+	static/json/1513806844_98_prb904_8_.json
+	static/json/1513806857_5_prb935_8_.json
+	static/json/1513806866_82_prb953_8_.json
+	static/json/1513807046_24_prb1175_8_.json
+	static/json/1513807048_29_prb1181_8_.json
+	static/json/1513815227_63_prb1519_8_.json
+	static/json/1513818930_78_prb1596_8_.json
+	static/json/1513818937_36_prb1615_8_.json
+	static/json/1513819620_95_prb1684_8_.json
+	static/json/empty.jsonn
+	static/json/empty_h.jsonn
+	static/json/empty_plus.jsonn
+	static/json/empty_v.jsonn
+	static/json/gstats
+	static/json/i_id5.jsonn
+	static/json/level0.jsonn
+	static/json/level1.jsonn
+	static/json/level2.jsonn
+	static/json/level3.jsonn
+	"static/lib/Icon\r"
+	templates/.DS_Store
+	templates/.consent.html.swp
+	"templates/Icon\r"
+	"templates/instructions/Icon\r"
+	trialdata.csv
+	../results/.DS_Store
+	../results/.RData
+	../results/.Rhistory
+	"../results/Icon\r"
+	../results/instances/
+	../results/logp_convergence.csv
+	../results/lrta_path_length.csv
+	../results/lrta_path_length_exp5.csv
+	../results/pilot/.DS_Store
+	../results/pilot/.RData
+	../results/pilot/.Rhistory
+	"../results/pilot/Icon\r"
+	../results/pilot/lrta/
+	../results/pilot/md.zip
+	"../results/pilot/png/Icon\r"
+	../results/pilot/rid_0
+	../results/pilot/rid_1
+	../results/pilot/rid_2
+	../src/.logp.py.swp
+	"../src/Icon\r"
+	../src/astar.pyc
+	../src/execute_path_length.py
+	../src/fitting.pyc
+	../src/i_id_8
+	../src/instance_generator.pyc
+	../src/instances_tmp
+	../src/logp_cov.txt
+	../src/lrta_updates
+	../src/playback
+	../src/prb2_9
+	../src/rushhour.pyc
+	../src/terminal_states.pyc
+	../src/test.pyc
+	../src/testlrta
+	../src/tmp
+	../src/tmp_select
+	../src/tmp_select2
+	../src/tmp_select3
+	../src/try_pygame.pyc
+
+no changes added to commit (use "git add" and/or "git commit -a")

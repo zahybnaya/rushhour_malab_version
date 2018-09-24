@@ -1,0 +1,11 @@
+{ "id": "problem3",
+  "cars": [
+  {
+      "id": "c4",	
+      "orientation": "horizontal",
+      "position": 13,
+      "length": 2,
+      "player": true
+    }  ]
+}
+
